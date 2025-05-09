@@ -40,6 +40,7 @@ public class LikeService {
                     .isLiked(true)
                     .build();
             likeRepository.save(like);
+            updateLike(performance,1);
             // likecount 제거
             return true;
         }//없다ㅕㄴ
@@ -65,6 +66,7 @@ public class LikeService {
                 .orElseThrow(() -> new EntityNotFoundException("not found"));
 
         long updatedCnt = likeCount.getLikeCount() + cnt;
+        updatedCnt = Math.max(0, updatedCnt); //  음수 방지
         likeCount.setLikeCount(updatedCnt);
         likeCountRepository.save(likeCount);
 
