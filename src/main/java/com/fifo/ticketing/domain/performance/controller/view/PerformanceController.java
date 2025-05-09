@@ -98,7 +98,7 @@ public class PerformanceController {
         model.addAttribute("baseQuery", baseQuery);
     }
 
-    @GetMapping("/performances/create")
+    @GetMapping("/create")
     public String createPerformance(Model model){
         List<Place> places = performanceService.getAllPlaces();
         model.addAttribute("places", places);
