@@ -1,6 +1,7 @@
 package com.fifo.ticketing.domain.book.service;
 
 import com.fifo.ticketing.domain.book.dto.BookCreateRequest;
+import com.fifo.ticketing.domain.book.dto.BookMapper;
 import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.entity.BookSeat;
 import com.fifo.ticketing.domain.book.repository.BookRepository;
@@ -53,12 +54,10 @@ public class BookService {
         int totalPrice = selectedSeats.stream().mapToInt(Seat::getPrice).sum();
         int quantity = selectedSeats.size();
 
-        Book book = Book.create(user, performance, totalPrice, quantity);
+        Book book = BookMapper.toBookEntity(user, performance, totalPrice, quantity);
         bookRepository.save(book);
 
-        List<BookSeat> bookSeatList = selectedSeats.stream()
-                .map(seat -> BookSeat.of(book, seat))
-                .collect(Collectors.toList());
+        List<BookSeat> bookSeatList = BookMapper.toBookSeatEntities(book, selectedSeats);
 
         bookSeatRepository.saveAll(bookSeatList);
 
