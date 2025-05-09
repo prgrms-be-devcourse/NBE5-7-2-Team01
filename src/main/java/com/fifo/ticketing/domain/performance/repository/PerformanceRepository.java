@@ -16,6 +16,12 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
         "WHERE p.reservationStartTime > :now " +
         "ORDER BY p.reservationStartTime ASC, p.startTime ASC")
     Page<Performance> findUpcomingPerformancesOrderByReservationStartTime(
-        @Param("now") LocalDateTime now,
+        @Param("now") LocalDateTime now, Pageable pageable);
+
+    @Query("SELECT p FROM Performance p " +
+        "LEFT JOIN LikeCount lc ON lc.performance = p " +
+        "WHERE p.reservationStartTime > :now " +
+        "ORDER BY COALESCE(lc.likeCount, 0) DESC, p.reservationStartTime ASC")
+    Page<Performance> findUpcomingPerformancesOrderByLikes(@Param("now") LocalDateTime now,
         Pageable pageable);
 }

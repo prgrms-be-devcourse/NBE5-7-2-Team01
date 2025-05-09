@@ -27,4 +27,14 @@ public class PerformanceService {
         }
         return upcomingPerformances;
     }
+
+    @Transactional(readOnly = true)
+    public Page<Performance> getPerformancesSortedByLikes(Pageable pageable) {
+        Page<Performance> upcomingPerformances = performanceRepository.findUpcomingPerformancesOrderByLikes(
+            LocalDateTime.now(), pageable);
+        if (upcomingPerformances.isEmpty()) {
+            throw new ErrorException(NOT_FOUND_PERFORMANCES);
+        }
+        return upcomingPerformances;
+    }
 }

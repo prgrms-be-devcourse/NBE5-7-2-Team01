@@ -40,6 +40,7 @@ public class PerformanceController {
         Pageable pageable = PageRequest.of(page, size);
 
         Page<Performance> performances = switch (sort) {
+            case "likes" -> performanceService.getPerformancesSortedByLikes(pageable);
             default -> performanceService.getPerformancesSortedByLatest(pageable);
         };
 
