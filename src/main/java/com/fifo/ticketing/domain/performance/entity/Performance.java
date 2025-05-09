@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "performance")
+@Table(name = "performances")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Performance extends BaseDateEntity {
