@@ -23,12 +23,10 @@ public class Book extends BaseDateEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @MapsId("performanceId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "performance_id", nullable = false)
     private Performance performance;
@@ -36,7 +34,6 @@ public class Book extends BaseDateEntity {
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookSeat> bookSeats = new ArrayList<>();
 
-    @MapsId("fileId")
     @OneToOne
     @JoinColumn(name = "file_id")
     private File file;

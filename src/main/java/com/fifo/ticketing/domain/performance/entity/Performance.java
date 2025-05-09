@@ -25,7 +25,6 @@ public class Performance extends BaseDateEntity {
     @Column(nullable = false)
     private String description;
 
-    @MapsId("placeId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id", foreignKey = @ForeignKey(name = "fk_performance_to_place"))
     private Place place;

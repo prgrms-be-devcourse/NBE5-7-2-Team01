@@ -18,12 +18,10 @@ public class BookSeat extends BaseDateEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @MapsId("bookId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", foreignKey = @ForeignKey(name = "fk_book_seat_to_book"))
     private Book book;
 
-    @MapsId("seatId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seat_id", foreignKey = @ForeignKey(name = "fk_book_seat_to_seat"))
     private Seat seat;
