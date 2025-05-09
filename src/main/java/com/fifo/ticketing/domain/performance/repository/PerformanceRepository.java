@@ -1,7 +1,21 @@
 package com.fifo.ticketing.domain.performance.repository;
 
 import com.fifo.ticketing.domain.performance.entity.Performance;
+import java.time.LocalDateTime;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
-public interface PerformanceRepository extends JpaRepository<Performance, Long>{
+@Repository
+public interface PerformanceRepository extends JpaRepository<Performance, Long> {
+
+    @Query("SELECT p FROM Performance p " +
+        "WHERE p.reservationStartTime > :now " +
+        "ORDER BY p.reservationStartTime ASC, p.startTime ASC")
+    Page<Performance> findUpcomingPerformancesOrderByReservationStartTime(
+        @Param("now") LocalDateTime now,
+        Pageable pageable);
 }
