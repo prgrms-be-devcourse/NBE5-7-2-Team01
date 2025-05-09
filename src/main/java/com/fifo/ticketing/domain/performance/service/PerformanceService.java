@@ -2,8 +2,10 @@ package com.fifo.ticketing.domain.performance.service;
 
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCES;
 
+import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Performance;
+import com.fifo.ticketing.domain.performance.mapper.PerformanceMapper;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.global.exception.ErrorException;
 import java.time.LocalDateTime;
@@ -20,43 +22,44 @@ public class PerformanceService {
     private final PerformanceRepository performanceRepository;
 
     @Transactional(readOnly = true)
-    public Page<Performance> getPerformancesSortedByLatest(Pageable pageable) {
-        Page<Performance> upcomingPerformances = performanceRepository.findUpcomingPerformancesOrderByReservationStartTime(
+    public Page<PerformanceResponseDto> getPerformancesSortedByLatest(Pageable pageable) {
+        Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByReservationStartTime(
             LocalDateTime.now(), pageable);
-        if (upcomingPerformances.isEmpty()) {
+        if (performances.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCES);
         }
-        return upcomingPerformances;
+        return PerformanceMapper.toPagePerformanceResponseDto(performances);
     }
 
     @Transactional(readOnly = true)
-    public Page<Performance> getPerformancesSortedByLikes(Pageable pageable) {
-        Page<Performance> upcomingPerformances = performanceRepository.findUpcomingPerformancesOrderByLikes(
+    public Page<PerformanceResponseDto> getPerformancesSortedByLikes(Pageable pageable) {
+        Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByLikes(
             LocalDateTime.now(), pageable);
-        if (upcomingPerformances.isEmpty()) {
+        if (performances.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCES);
         }
-        return upcomingPerformances;
+        return PerformanceMapper.toPagePerformanceResponseDto(performances);
     }
 
     @Transactional(readOnly = true)
-    public Page<Performance> getPerformancesByReservationPeriod(LocalDateTime start,
+    public Page<PerformanceResponseDto> getPerformancesByReservationPeriod(LocalDateTime start,
         LocalDateTime end, Pageable pageable) {
-        Page<Performance> upcomingPerformances = performanceRepository.findUpcomingPerformancesByReservationPeriod(
+        Page<Performance> performances = performanceRepository.findUpcomingPerformancesByReservationPeriod(
             start, end, pageable);
-        if (upcomingPerformances.isEmpty()) {
+        if (performances.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCES);
         }
-        return upcomingPerformances;
+        return PerformanceMapper.toPagePerformanceResponseDto(performances);
     }
 
     @Transactional(readOnly = true)
-    public Page<Performance> getPerformancesByCategory(Category category, Pageable pageable) {
-        Page<Performance> upcomingPerformances = performanceRepository.findUpcomingPerformancesByCategory(
+    public Page<PerformanceResponseDto> getPerformancesByCategory(Category category,
+        Pageable pageable) {
+        Page<Performance> performances = performanceRepository.findUpcomingPerformancesByCategory(
             LocalDateTime.now(), category, pageable);
-        if (upcomingPerformances.isEmpty()) {
+        if (performances.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCES);
         }
-        return upcomingPerformances;
+        return PerformanceMapper.toPagePerformanceResponseDto(performances);
     }
 }

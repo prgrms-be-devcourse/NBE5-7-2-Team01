@@ -118,26 +118,28 @@
         <tr>
           <th>Image</th>
           <th>Title</th>
+          <th>Category</th>
           <th>Place</th>
           <th>Start Time</th>
           <th>End Time</th>
-          <th>Category</th>
           <th>Reservation Time</th>
+          <th>Reservation Status</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="performance : ${performances}">
           <td>
-            <img th:src="@{/image/{fileName}(fileName=${performance.file.fileName})}"
+            <img th:src="@{/image/{fileName}(fileName=${performance.encodedFileName})}"
                  alt="no image"
                  style="width: 100px; height: auto; object-fit: cover;"/>
           </td>
           <td th:text="${performance.title}"></td>
-          <td th:text="${performance.place.name}"></td>
+          <td th:text="${performance.category}"></td>
+          <td th:text="${performance.place}"></td>
           <td th:text="${performance.startTime}"></td>
           <td th:text="${performance.endTime}"></td>
-          <td th:text="${performance.category.name}"></td>
           <td th:text="${performance.reservationStartTime}"></td>
+          <td th:text="${performance.performanceStatus} ? '예매 가능' : '예매 불가'"></td>
         </tr>
         </tbody>
       </table>
