@@ -35,4 +35,16 @@ public class Seat extends BaseDateEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SeatStatus seatStatus;
+
+    public void book() {
+        this.seatStatus = SeatStatus.BOOKED;
+    }
+
+    public void available() {
+        this.seatStatus = SeatStatus.AVAILABLE;
+    }
+
+    public void occupy() {
+        this.seatStatus = SeatStatus.OCCUPIED;
+    }
 }

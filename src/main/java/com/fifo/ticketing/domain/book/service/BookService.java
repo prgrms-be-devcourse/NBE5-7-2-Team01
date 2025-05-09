@@ -61,6 +61,10 @@ public class BookService {
 
         bookSeatRepository.saveAll(bookSeatList);
 
+        for (Seat seat : selectedSeats) {
+            seat.book();
+        }
+
         return book.getId();
     }
 }
