@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>좌석 선택</title>
+    <style>
+        .seat {
+            width: 40px;
+            height: 40px;
+            margin: 5px;
+            border: 1px solid #999;
+            display: inline-flex;           /* flex로 중앙 정렬 쉽게 */
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;                /* 글자 크기 고정 */
+            text-align: center;
+            cursor: pointer;
+            box-sizing: border-box;         /* border 포함한 크기 계산 */
+            overflow: hidden;               /* 넘치는 글자 숨기기 */
+            white-space: nowrap;           /* 줄바꿈 방지 */
+        }
+        .seat.available {
+            background-color: #b19cd9;
+        }
+
+        .seat.selected {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .seat.unavailable {
+            background-color: darkgray;
+            cursor: not-allowed;
+        }
+
+        .seat-container {
+            display: flex;
+            flex-direction: column;
+            max-width: 440px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .right-panel {
+            margin-left: 40px;
+        }
+
+        .layout {
+            display: flex;
+        }
+
+    </style>
+</head>
+<body>
+<h2>좌석 선택</h2>
+
+<div class="layout">
+    <div class="seat-container" id="seat-container">
+        <!-- JavaScript에서 렌더링 -->
+    </div>
+
+    <div class="right-panel">
+        <h3>선택한 좌석</h3>
+        <ul id="selected-seat-list"></ul>
+        <form id="bookForm" th:action="@{'/performances/' + ${performanceId} + '/book'}" method="post">
+            <input type="hidden" name="userId" th:value="${userId}" />
+            <input type="hidden" name="seatIds" id="seatIds" />
+            <button type="submit">예매하기</button>
+        </form>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const seats = [[${seats}]];
+    console.log("seats:", seats);
+    const seatContainer = document.getElementById("seat-container");
+    const selectedSeatList = document.getElementById("selected-seat-list");
+    const seatIdsInput = document.getElementById("seatIds");
+
+    const selectedSeatIds = new Set();
+    const seatsPerRow = 10;
+
+    for (let i = 0; i < seats.length; i += seatsPerRow) {
+        const rowDiv = document.createElement("div");
+        rowDiv.classList.add("row");
+
+        for (let j = 0; j < seatsPerRow && i + j < seats.length; j++) {
+            const seat = seats[i + j];
+
+            const seatBtn = document.createElement("button");
+            seatBtn.classList.add("seat");
+            seatBtn.dataset.id = seat.seatId;
+            seatBtn.dataset.grade = seat.grade;
+            seatBtn.dataset.price = seat.price;
+            seatBtn.innerText = seat.seatNumber;
+
+
+            if (seat.seatStatus === 'AVAILABLE') {
+                seatBtn.classList.add("available");
+
+                seatBtn.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    toggleSeat(seatBtn, seat);
+                });
+            } else {
+                seatBtn.classList.add("unavailable");
+                seatBtn.setAttribute("disalbe", "true");
+            }
+
+            rowDiv.appendChild(seatBtn);
+        }
+
+        seatContainer.appendChild(rowDiv);
+    }
+
+    function toggleSeat(seatBtn, seat) {
+        const seatId = seat.seatId;
+
+        if (selectedSeatIds.has(seatId)) {
+            selectedSeatIds.delete(seatId);
+            seatBtn.classList.remove("selected");
+            document.getElementById("seat-item-" + seatId)?.remove();
+        } else {
+            selectedSeatIds.add(seatId);
+            seatBtn.classList.add("selected");
+
+            const li = document.createElement("li");
+            li.id = "seat-item-" + seatId;
+            li.innerText = `${seat.seatNumber} - ${seat.grade}석 - ${seat.price.toLocaleString()}원`;
+            selectedSeatList.appendChild(li);
+        }
+
+        seatIdsInput.value = Array.from(selectedSeatIds).join(',');
+    }
+</script>
+
+</body>
+</html>
