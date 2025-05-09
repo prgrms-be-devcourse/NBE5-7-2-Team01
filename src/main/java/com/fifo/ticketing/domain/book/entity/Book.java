@@ -14,7 +14,7 @@ import java.util.List;
 
 @Entity
 @Getter
-@Table(name = "book")
+@Table(name = "books")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Book extends BaseDateEntity {

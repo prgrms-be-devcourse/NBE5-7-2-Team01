@@ -1,17 +1,20 @@
 package com.fifo.ticketing.domain.seat.entity;
 
+import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.global.entity.BaseDateEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Getter
 @Table(name = "seats", uniqueConstraints = @UniqueConstraint(columnNames = {"performance_id", "seat_number"}))
 @NoArgsConstructor
 @AllArgsConstructor
+@BatchSize(size = 100)
 public class Seat extends BaseDateEntity {
 
     @Id
@@ -19,7 +22,7 @@ public class Seat extends BaseDateEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "performance_id", foreignKey = @ForeignKey(name = "fk_seat_performance_id"))
+    @JoinColumn(name = "performance_id", foreignKey = @ForeignKey(name = "fk_seat_to_performance"))
     private Performance performance;
 
     @Column(name = "seat_number", nullable = false)
@@ -28,11 +31,15 @@ public class Seat extends BaseDateEntity {
     @Column(nullable = false)
     private Integer price;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "grade_id", foreignKey = @ForeignKey(name = "fk_seat_to_grade"))
     private Grade grade;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SeatStatus seatStatus;
+
+    public static Seat of(Performance performance, Grade grade, int number) {
+        return new Seat(null, performance, grade.getGrade() + number, grade.getDefaultPrice(), grade, SeatStatus.AVAILABLE);
+    }
 }

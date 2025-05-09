@@ -1,24 +1,15 @@
 package com.fifo.ticketing.domain.performance.entity;
 
+import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
 import com.fifo.ticketing.global.entity.BaseDateEntity;
 import com.fifo.ticketing.global.entity.File;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ForeignKey;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import java.time.LocalDateTime;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -41,10 +32,6 @@ public class Performance extends BaseDateEntity {
     @JoinColumn(name = "place_id", foreignKey = @ForeignKey(name = "fk_performance_to_place"))
     private Place place;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "file_id", foreignKey = @ForeignKey(name = "fk_performance_to_file"))
-    private File file;
-
     @Column(nullable = false)
     private LocalDateTime startTime;
 
@@ -59,4 +46,14 @@ public class Performance extends BaseDateEntity {
 
     @Column(nullable = false)
     private LocalDateTime reservationStartTime;
+
+    @Setter
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "file_id", foreignKey = @ForeignKey(name = "fk_performance_to_file"))
+    private File file;
+
+    public static Performance from(PerformanceRequestDto dto, Place place) {
+        return new Performance(null, dto.getTitle(), dto.getDescription(), place, dto.getStartTime(), dto.getEndTime(), dto.getCategory(), dto.isPerformanceStatus(), dto.getReservationStartTime(), null);
+    }
+
 }

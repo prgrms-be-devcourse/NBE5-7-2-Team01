@@ -2,8 +2,11 @@ package com.fifo.ticketing.domain.performance.controller.view;
 
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Performance;
+import com.fifo.ticketing.domain.performance.entity.Place;
 import com.fifo.ticketing.domain.performance.service.PerformanceService;
 import java.time.LocalDateTime;
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -93,5 +96,12 @@ public class PerformanceController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPage", performances.getTotalPages());
         model.addAttribute("baseQuery", baseQuery);
+    }
+
+    @GetMapping("/performances/create")
+    public String createPerformance(Model model){
+        List<Place> places = performanceService.getAllPlaces();
+        model.addAttribute("places", places);
+        return "create_performance";
     }
 }

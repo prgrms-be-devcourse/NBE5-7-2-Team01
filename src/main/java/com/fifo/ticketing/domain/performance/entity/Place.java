@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "place")
+@Table(name = "places")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Place {
@@ -22,6 +22,6 @@ public class Place {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(name = "total_seats", nullable = false)
     private Integer totalSeats;
 }

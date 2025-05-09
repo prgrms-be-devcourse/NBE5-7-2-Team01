@@ -66,6 +66,7 @@ public class ExceptionAdvice {
                 case NOT_FOUND -> HttpStatus.NOT_FOUND;
                 // 필요한 경우 다른 상태 추가
                 case SEAT_BOOKING_FAILED -> null;
+                default -> HttpStatus.INTERNAL_SERVER_ERROR;
             };
 
             return ResponseEntity.status(httpStatus)
