@@ -23,7 +23,7 @@ public class PerformanceController {
     private final PerformanceService performanceService;
 
     @GetMapping
-    public void viewPerformances(
+    public String viewPerformances(
         @RequestParam(value = "page", defaultValue = "0", required = false) int page,
         @RequestParam(value = "size", defaultValue = "10", required = false) int size,
         Model model) {
@@ -31,10 +31,12 @@ public class PerformanceController {
         Page<Performance> performances = performanceService.getPerformancesSortedByLatest(pageable);
 
         preparedModel(model, performances, page);
+
+        return "view_performances";
     }
 
     @GetMapping(params = {"sort"})
-    public void viewPerformancesSortedBy(
+    public String viewPerformancesSortedBy(
         @RequestParam(value = "sort", defaultValue = "latest", required = false) String sort,
         @RequestParam(value = "page", defaultValue = "0", required = false) int page,
         @RequestParam(value = "size", defaultValue = "10", required = false) int size,
@@ -47,10 +49,11 @@ public class PerformanceController {
         };
 
         preparedModel(model, performances, page);
+        return "view_performances";
     }
 
     @GetMapping(params = {"startDate", "endDate"})
-    public void viewPerformancesWithinPeriod(
+    public String viewPerformancesWithinPeriod(
         @RequestParam(value = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
         @RequestParam(value = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
         @RequestParam(value = "page", defaultValue = "0") int page,
@@ -62,10 +65,11 @@ public class PerformanceController {
             startDate, endDate, pageable);
 
         preparedModel(model, performances, page);
+        return "view_performances";
     }
 
     @GetMapping(params = "category")
-    public void viewPerformancesByCategory(
+    public String viewPerformancesByCategory(
         @RequestParam(value = "category") Category category,
         @RequestParam(value = "page", defaultValue = "0") int page,
         @RequestParam(value = "size", defaultValue = "10") int size,
@@ -76,6 +80,7 @@ public class PerformanceController {
             pageable);
 
         preparedModel(model, performances, page);
+        return "view_performances";
     }
 
     private void preparedModel(Model model, Page<Performance> performances, int page) {
