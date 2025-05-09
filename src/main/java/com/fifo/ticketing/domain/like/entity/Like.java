@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Builder
 @Table(name = "likes")
 @NoArgsConstructor
 public class Like extends BaseDateEntity {
