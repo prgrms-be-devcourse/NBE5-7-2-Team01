@@ -5,6 +5,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 *.yml
+!application-ci.yml
 
 ### STS ###
 .apt_generated
