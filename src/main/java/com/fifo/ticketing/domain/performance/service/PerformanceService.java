@@ -37,4 +37,15 @@ public class PerformanceService {
         }
         return upcomingPerformances;
     }
+
+    @Transactional(readOnly = true)
+    public Page<Performance> getPerformancesByReservationPeriod(LocalDateTime start,
+        LocalDateTime end, Pageable pageable) {
+        Page<Performance> upcomingPerformances = performanceRepository.findUpcomingPerformancesByReservationPeriod(
+            start, end, pageable);
+        if (upcomingPerformances.isEmpty()) {
+            throw new ErrorException(NOT_FOUND_PERFORMANCES);
+        }
+        return upcomingPerformances;
+    }
 }
