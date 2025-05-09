@@ -29,9 +29,9 @@ public class PerformanceController {
         Model model) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Performance> performances = performanceService.getPerformancesSortedByLatest(pageable);
+        String baseQuery = "?size=" + size;
 
-        preparedModel(model, performances, page);
-
+        preparedModel(model, performances, page, baseQuery);
         return "view_performances";
     }
 
@@ -47,8 +47,9 @@ public class PerformanceController {
             case "likes" -> performanceService.getPerformancesSortedByLikes(pageable);
             default -> performanceService.getPerformancesSortedByLatest(pageable);
         };
+        String baseQuery = "?sort=" + sort + "&size=" + size;
 
-        preparedModel(model, performances, page);
+        preparedModel(model, performances, page, baseQuery);
         return "view_performances";
     }
 
@@ -63,8 +64,9 @@ public class PerformanceController {
         Pageable pageable = PageRequest.of(page, size);
         Page<Performance> performances = performanceService.getPerformancesByReservationPeriod(
             startDate, endDate, pageable);
+        String baseQuery = "?startDate=" + startDate + "&endDate=" + endDate + "&size=" + size;
 
-        preparedModel(model, performances, page);
+        preparedModel(model, performances, page, baseQuery);
         return "view_performances";
     }
 
@@ -78,15 +80,18 @@ public class PerformanceController {
         Pageable pageable = PageRequest.of(page, size);
         Page<Performance> performances = performanceService.getPerformancesByCategory(category,
             pageable);
+        String baseQuery = "?category=" + category + "&size=" + size;
 
-        preparedModel(model, performances, page);
+        preparedModel(model, performances, page, baseQuery);
         return "view_performances";
     }
 
-    private void preparedModel(Model model, Page<Performance> performances, int page) {
+    private void preparedModel(Model model, Page<Performance> performances, int page,
+        String baseQuery) {
         model.addAttribute("performances", performances.getContent());
         model.addAttribute("categories", Category.values());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPage", performances.getTotalPages());
+        model.addAttribute("baseQuery", baseQuery);
     }
 }
