@@ -11,14 +11,14 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/book")
+@RequestMapping("/performances/{performanceId}/book")
 public class BookController {
 
     private final BookService bookService;
 
     @PostMapping
-    public ResponseEntity<Map<String, Long>> createBook(@RequestParam Long userId, @RequestBody BookCreateRequest request) {
-        Long bookId = bookService.createBook(userId, request);
+    public ResponseEntity<Map<String, Long>> createBook(@PathVariable Long performanceId, @RequestParam Long userId, @RequestBody BookCreateRequest request) {
+        Long bookId = bookService.createBook(performanceId, userId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("bookId", bookId));

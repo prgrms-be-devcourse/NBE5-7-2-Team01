@@ -36,11 +36,11 @@ public class BookService {
     private final BookSeatRepository bookSeatRepository;
 
     @Transactional
-    public Long createBook(Long userId, BookCreateRequest request) {
+    public Long createBook(Long performanceId, Long userId, BookCreateRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ErrorException(NOT_FOUND_MEMBER));
 
-        Performance performance = performanceRepository.findById(request.getPerformanceId())
+        Performance performance = performanceRepository.findById(performanceId)
                 .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
 
         List<Seat> selectedSeats = seatRepository.findAllById(request.getSeatIds());

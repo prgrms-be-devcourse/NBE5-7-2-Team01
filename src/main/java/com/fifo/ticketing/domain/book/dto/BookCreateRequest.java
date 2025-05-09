@@ -12,8 +12,6 @@ import java.util.List;
 @AllArgsConstructor
 public class BookCreateRequest {
     @NotBlank
-    private Long performanceId;
-    @NotBlank
     private List<Long> seatIds;
 
 }

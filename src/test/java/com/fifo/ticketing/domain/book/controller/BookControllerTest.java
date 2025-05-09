@@ -40,14 +40,14 @@ class BookControllerTest {
     void book_create_test() throws Exception {
         // given
         Long userId = 1L;
+        Long performanceId = 1L;
 
         BookCreateRequest request = BookCreateRequest.builder()
-                .performanceId(1L)
                 .seatIds(List.of(1L, 2L))
                 .build();
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.post("/book")
+        mockMvc.perform(MockMvcRequestBuilders.post("/performances/{performanceId}/book", performanceId)
                         .param("userId", String.valueOf(userId))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))

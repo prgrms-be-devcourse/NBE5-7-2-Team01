@@ -1,6 +1,5 @@
 package com.fifo.ticketing.domain.book.entity;
 
-import com.fifo.ticketing.domain.book.dto.BookCreateRequest;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.user.entity.User;
 import com.fifo.ticketing.global.entity.BaseDateEntity;
