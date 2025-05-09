@@ -9,9 +9,14 @@ import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.user.entity.User;
 import com.fifo.ticketing.domain.user.repository.UserRepository;
+import com.fifo.ticketing.global.exception.ErrorException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_MEMBER;
+import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
 
 
 @Service
@@ -22,13 +27,15 @@ public class LikeService {
     private final UserRepository userRepository;
     private final PerformanceRepository performanceRepository;
 
+
+    @Transactional
     public boolean toggleLike(LikeRequest likeRequest) {
 
         User user = userRepository.findById(likeRequest.getUserId())
-                .orElseThrow(() -> new EntityNotFoundException("not found"));
+                .orElseThrow(() -> new ErrorException(NOT_FOUND_MEMBER));
 
         Performance performance = performanceRepository.findById(likeRequest.getPerformanceId())
-                .orElseThrow( ()-> new EntityNotFoundException("Performance not found"))    ;
+                .orElseThrow( ()-> new ErrorException(NOT_FOUND_PERFORMANCE))    ;
 
         Like existingLike = likeRepository.findByUserAndPerformance(user, performance);
 
@@ -63,7 +70,7 @@ public class LikeService {
 
     private void updateLike(Performance performance, int cnt) {
         LikeCount likeCount = likeCountRepository.findByPerformance(performance)
-                .orElseThrow(() -> new EntityNotFoundException("not found"));
+                .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
 
         long updatedCnt = likeCount.getLikeCount() + cnt;
         updatedCnt = Math.max(0, updatedCnt); //  음수 방지
