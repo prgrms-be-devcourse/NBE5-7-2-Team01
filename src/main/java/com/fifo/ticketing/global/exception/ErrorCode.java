@@ -10,6 +10,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ErrorCode {
     NOT_FOUND_MEMBER("AUTH-001", "존재하지 않는 회원입니다.", NOT_FOUND),
+    NOT_FOUND_PERFORMANCE("PERFORM-001", "존재하지 않는 공연입니다.", NOT_FOUND),
     SEAT_ALREADY_BOOKED("임시","해당 좌석은 이미 예약되었습니다.",SEAT_BOOKING_FAILED);
 
     private final String code;

@@ -1,11 +1,13 @@
 package com.fifo.ticketing.domain.book.entity;
 
+import com.fifo.ticketing.domain.book.dto.BookCreateRequest;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.user.entity.User;
 import com.fifo.ticketing.global.entity.BaseDateEntity;
 import com.fifo.ticketing.global.entity.File;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +16,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@Builder
 @Table(name = "book")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,12 +26,10 @@ public class Book extends BaseDateEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @MapsId("performanceId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "performance_id", nullable = false)
     private Performance performance;
@@ -36,7 +37,6 @@ public class Book extends BaseDateEntity {
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookSeat> bookSeats = new ArrayList<>();
 
-    @MapsId("fileId")
     @OneToOne
     @JoinColumn(name = "file_id")
     private File file;
@@ -49,5 +49,16 @@ public class Book extends BaseDateEntity {
 
     @Column(nullable = false)
     private Integer quantity;
-}
 
+    public static Book create( User user, Performance performance, int totalPrice, int quantity) {
+        return Book.builder()
+            .user(user)
+            .performance(performance)
+            .totalPrice(totalPrice)
+            .quantity(quantity)
+            .bookStatus(BookStatus.CONFIRMED)
+            .build();
+
+    }
+
+}
