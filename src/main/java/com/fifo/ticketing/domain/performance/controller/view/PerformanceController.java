@@ -64,6 +64,20 @@ public class PerformanceController {
         preparedModel(model, performances, page);
     }
 
+    @GetMapping(params = "category")
+    public void viewPerformancesByCategory(
+        @RequestParam(value = "category") Category category,
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "size", defaultValue = "10") int size,
+        Model model
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Performance> performances = performanceService.getPerformancesByCategory(category,
+            pageable);
+
+        preparedModel(model, performances, page);
+    }
+
     private void preparedModel(Model model, Page<Performance> performances, int page) {
         model.addAttribute("performances", performances.getContent());
         model.addAttribute("categories", Category.values());

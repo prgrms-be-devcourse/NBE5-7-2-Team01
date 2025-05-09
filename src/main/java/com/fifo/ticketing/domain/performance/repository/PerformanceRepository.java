@@ -1,5 +1,6 @@
 package com.fifo.ticketing.domain.performance.repository;
 
+import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import java.time.LocalDateTime;
 import org.springframework.data.domain.Page;
@@ -33,4 +34,10 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
         @Param("endDate") LocalDateTime endDate,
         Pageable pageable
     );
+
+    @Query("SELECT p FROM Performance p " +
+        "WHERE p.reservationStartTime > :now and p.category = :category " +
+        "ORDER BY p.reservationStartTime ASC, p.startTime ASC")
+    Page<Performance> findUpcomingPerformancesByCategory(@Param("now") LocalDateTime now,
+        @Param("category") Category category, Pageable pageable);
 }
