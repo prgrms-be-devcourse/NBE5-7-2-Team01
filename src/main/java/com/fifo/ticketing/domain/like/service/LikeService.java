@@ -16,7 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_MEMBER;
-import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
+import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCES;
+
 
 
 @Service
@@ -35,7 +36,7 @@ public class LikeService {
                 .orElseThrow(() -> new ErrorException(NOT_FOUND_MEMBER));
 
         Performance performance = performanceRepository.findById(likeRequest.getPerformanceId())
-                .orElseThrow( ()-> new ErrorException(NOT_FOUND_PERFORMANCE))    ;
+                .orElseThrow( ()-> new ErrorException(NOT_FOUND_PERFORMANCES));
 
         Like existingLike = likeRepository.findByUserAndPerformance(user, performance);
 
@@ -70,7 +71,7 @@ public class LikeService {
 
     private void updateLike(Performance performance, int cnt) {
         LikeCount likeCount = likeCountRepository.findByPerformance(performance)
-                .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
+                .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCES));
 
         long updatedCnt = likeCount.getLikeCount() + cnt;
         updatedCnt = Math.max(0, updatedCnt); //  음수 방지
