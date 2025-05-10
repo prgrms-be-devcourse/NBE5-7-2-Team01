@@ -154,6 +154,6 @@ public class PerformanceApiControllerFileUploadTests {
         assertThat(dbFile.getOriginalFileName()).isEqualTo("001.png"); // 원래 파일 이름 확인
 
         // [선택 사항] 저장된 파일 삭제 (테스트 후 정리)
-//        Files.deleteIfExists(storedFilePath);
+        Files.deleteIfExists(storedFilePath);
     }
 }
