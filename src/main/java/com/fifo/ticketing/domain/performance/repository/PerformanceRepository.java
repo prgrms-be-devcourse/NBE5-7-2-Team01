@@ -40,5 +40,4 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
         "ORDER BY p.reservationStartTime ASC, p.startTime ASC")
     Page<Performance> findUpcomingPerformancesByCategory(@Param("now") LocalDateTime now,
         @Param("category") Category category, Pageable pageable);
-
 }
