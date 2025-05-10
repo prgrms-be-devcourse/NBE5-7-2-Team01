@@ -1,5 +1,6 @@
 package com.fifo.ticketing.domain.performance.controller.view;
 
+import com.fifo.ticketing.domain.performance.dto.PlaceResponseDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.entity.Place;
@@ -100,7 +101,7 @@ public class PerformanceController {
 
     @GetMapping("/create")
     public String createPerformance(Model model){
-        List<Place> places = performanceService.getAllPlaces();
+        List<PlaceResponseDto> places = performanceService.getAllPlaces();
         model.addAttribute("places", places);
         return "create_performance";
     }

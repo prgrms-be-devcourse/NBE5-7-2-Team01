@@ -5,6 +5,7 @@ import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.entity.Place;
+import com.fifo.ticketing.domain.performance.mapper.PerformanceMapper;
 import com.fifo.ticketing.domain.performance.repository.GradeRepository;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.performance.repository.PlaceRepository;
@@ -20,6 +21,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -30,6 +33,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ActiveProfiles("ci")
+@Sql("classpath:data.sql")
 @ExtendWith(MockitoExtension.class)
 class PerformanceServiceTests {
 
@@ -79,7 +84,7 @@ class PerformanceServiceTests {
         // Given
         when(placeRepository.findById(any(Long.class))).thenReturn(Optional.of(place));
 
-        Performance performance = Performance.from(performanceRequestDto, place);
+        Performance performance = PerformanceMapper.toEntity(performanceRequestDto, place);
         when(performanceRepository.save(any(Performance.class))).thenReturn(performance);
 
         File uploadedFile = new File(null, "encoded-uuid.webp", "default.webp");
@@ -129,7 +134,7 @@ class PerformanceServiceTests {
     void test_create_performance_file_upload_failed() throws Exception {
         // Given
         when(placeRepository.findById(any(Long.class))).thenReturn(Optional.of(place));
-        when(performanceRepository.save(any(Performance.class))).thenReturn(Performance.from(performanceRequestDto, place));
+        when(performanceRepository.save(any(Performance.class))).thenReturn(PerformanceMapper.toEntity(performanceRequestDto, place));
         when(imageFileService.uploadFile(file)).thenThrow(new IOException("파일 업로드 실패"));
 
         // When & Then
@@ -147,7 +152,7 @@ class PerformanceServiceTests {
     void test_create_performance_not_found_grade() throws Exception {
         // Given
         when(placeRepository.findById(any(Long.class))).thenReturn(Optional.of(place));
-        when(performanceRepository.save(any(Performance.class))).thenReturn(Performance.from(performanceRequestDto, place));
+        when(performanceRepository.save(any(Performance.class))).thenReturn(PerformanceMapper.toEntity(performanceRequestDto, place));
         when(imageFileService.uploadFile(file)).thenReturn(new File(null, "encoded-uuid.webp", "default.webp"));
         when(gradeRepository.findAllByPlaceId(any(Long.class))).thenReturn(Arrays.asList());
 
@@ -167,7 +172,7 @@ class PerformanceServiceTests {
 
         // Given
         when(placeRepository.findById(any(Long.class))).thenReturn(Optional.of(place));
-        when(performanceRepository.save(any(Performance.class))).thenReturn(Performance.from(performanceRequestDto, place));
+        when(performanceRepository.save(any(Performance.class))).thenReturn(PerformanceMapper.toEntity(performanceRequestDto, place));
         when(imageFileService.uploadFile(file)).thenReturn(new File(null, "encoded-uuid.webp", "default.webp"));
         when(gradeRepository.findAllByPlaceId(any(Long.class))).thenReturn(Arrays.asList(new Grade(1L, place, "S", 10, 10000)));
         doThrow(new RuntimeException("Seat create failed")).when(seatService).createSeats(anyList());

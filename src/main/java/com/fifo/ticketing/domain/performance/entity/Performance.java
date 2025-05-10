@@ -4,15 +4,13 @@ import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
 import com.fifo.ticketing.global.entity.BaseDateEntity;
 import com.fifo.ticketing.global.entity.File;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Builder
 @Table(name = "performances")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -51,9 +49,5 @@ public class Performance extends BaseDateEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "file_id", foreignKey = @ForeignKey(name = "fk_performance_to_file"))
     private File file;
-
-    public static Performance from(PerformanceRequestDto dto, Place place) {
-        return new Performance(null, dto.getTitle(), dto.getDescription(), place, dto.getStartTime(), dto.getEndTime(), dto.getCategory(), dto.isPerformanceStatus(), dto.getReservationStartTime(), null);
-    }
 
 }

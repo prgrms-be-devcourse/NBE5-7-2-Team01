@@ -1,13 +1,15 @@
 package com.fifo.ticketing.domain.performance.service;
 
-import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCES;
-import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PLACES;
+import static com.fifo.ticketing.global.exception.ErrorCode.*;
 
 import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
+import com.fifo.ticketing.domain.performance.dto.PlaceResponseDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.entity.Place;
+import com.fifo.ticketing.domain.performance.mapper.PerformanceMapper;
+import com.fifo.ticketing.domain.performance.mapper.PlaceMapper;
 import com.fifo.ticketing.domain.performance.repository.GradeRepository;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.performance.repository.PlaceRepository;
@@ -53,39 +55,65 @@ public class PerformanceService {
     @Transactional
     public Performance createPerformance(PerformanceRequestDto dto, MultipartFile file) throws IOException {
         // Place 조회 및 존재여부 확인
-        Place place = placeRepository.findById(dto.getPlaceId())
-                .orElseThrow(() -> new ErrorException(NOT_FOUND_PLACES));
+        Place place = findPlace(dto.getPlaceId());
         // Performance 생성 및 DB 저장
-        Performance performance = Performance.from(dto, place);
-        Performance savedPerformance = performanceRepository.save(performance);
+        Performance savedPerformance = savePerformance(dto, place);
         // File 업로드
-        File uploadFile;
-        try {
-            uploadFile = imageFileService.uploadFile(file);
-        } catch (IOException e) {
-            throw new ErrorException(ErrorCode.FILE_UPLOAD_FAILED);
-        }
+        File uploadFile = uploadFile(file);
+        // performance의 File을 Update
         savedPerformance.setFile(uploadFile);
         // Grade 조회
-        List<Grade> grades = gradeRepository.findAllByPlaceId(place.getId());
-        if (grades.isEmpty()) {
-            throw new ErrorException(ErrorCode.NOT_FOUND_GRADE);
+        List<Grade> grades = findGradesByPlace(place.getId());
+        // Seat 목록 생성
+        List<Seat> allSeats = generateSeatsForGrades(grades, savedPerformance);
+        // Seats 저장 (Batch) - 100개 단위
+        saveSeatsInBatch(allSeats);
+
+        return savedPerformance;
+    }
+
+    private Place findPlace(Long placeId) {
+        return placeRepository.findById(placeId)
+                .orElseThrow(() -> new ErrorException(NOT_FOUND_PLACES));
+    }
+
+    private Performance savePerformance(PerformanceRequestDto dto, Place place) {
+        Performance performance = PerformanceMapper.toEntity(dto, place);
+        return performanceRepository.save(performance);
+    }
+
+    private File uploadFile(MultipartFile file) {
+        try {
+            return imageFileService.uploadFile(file);
+        } catch (IOException e) {
+            throw new ErrorException(FILE_UPLOAD_FAILED);
         }
-        // Grade에 따른 Seats 생성
+    }
+
+    private List<Grade> findGradesByPlace(Long placeId) {
+        List<Grade> grades = gradeRepository.findAllByPlaceId(placeId);
+        if (grades.isEmpty()) {
+            throw new ErrorException(NOT_FOUND_GRADE);
+        }
+        return grades;
+    }
+
+    private List<Seat> generateSeatsForGrades(List<Grade> grades, Performance performance) {
         List<Seat> allSeats = new ArrayList<>();
         for (Grade grade : grades) {
-            for (int i = 1; i <= grade.getSeatCount(); i++) {
-                Seat seat = Seat.of(performance, grade, i);
-                allSeats.add(seat);
+            for (int seatNumber = 1; seatNumber <= grade.getSeatCount(); seatNumber++) {
+                allSeats.add(Seat.of(performance, grade, seatNumber));
             }
         }
-        // Seats 저장 (Batch) - 100개 단위
+        return allSeats;
+    }
+
+    private void saveSeatsInBatch(List<Seat> allSeats) {
         try {
             seatService.createSeats(allSeats);
         } catch (RuntimeException e) {
-            throw new ErrorException(ErrorCode.SEAT_CREATE_FAILED);
+            throw new ErrorException(SEAT_CREATE_FAILED);
         }
-        return savedPerformance;
     }
 
     @Transactional(readOnly = true)
@@ -120,7 +148,10 @@ public class PerformanceService {
     }
 
     @Transactional(readOnly = true)
-    public List<Place> getAllPlaces() {
-        return placeRepository.findAll();
+    public List<PlaceResponseDto> getAllPlaces() {
+        List<Place> places = placeRepository.findAll();
+        return places.stream()
+                .map(PlaceMapper::toDtoForPerformanceCreate)
+                .toList();
     }
 }

@@ -1,11 +1,13 @@
 package com.fifo.ticketing.domain.performance.dto;
 
 import com.fifo.ticketing.domain.performance.entity.Grade;
+import lombok.Builder;
+import lombok.Getter;
 
-public record GradeResponseDto(
-        String grade, Integer seatCount, Integer defaultPrice
-) {
-    public static GradeResponseDto from(Grade grade) {
-        return new GradeResponseDto(grade.getGrade(), grade.getSeatCount(), grade.getDefaultPrice());
-    }
+@Getter
+@Builder
+public class GradeResponseDto {
+    String grade;
+    Integer seatCount;
+    Integer defaultPrice;
 }

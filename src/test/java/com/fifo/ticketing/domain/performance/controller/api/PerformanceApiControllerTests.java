@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -20,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 @AutoConfigureMockMvc
 @ActiveProfiles("ci")
+@Sql("classpath:data.sql")
 class PerformanceApiControllerTests {
     @Autowired
     private MockMvc mockMvc;

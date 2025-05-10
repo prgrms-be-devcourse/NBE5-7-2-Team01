@@ -1,10 +1,15 @@
--- 데이터 삽입
-INSERT INTO places (address, name, total_seats) VALUES
-('서울특별시 서초구 서초동 1307', '강남아트홀', 100),
-('서울특별시 마포구 와우산로21', '홍대소극장', 100),
-('서울시 종로구 대학로 8', '대학로극장', 100),
-('부산광역시 해운대구 중동2', '해운대문화회관', 100),
-('대구광역시 수성구 무학로 180', '수성아트센터', 100);
+DELETE FROM seats;
+DELETE FROM grades;
+DELETE FROM performances;
+DELETE FROM places;
+
+-- 데이터 삽입 외래키 제약 조건 위반(Foreign Key Constraint Violation) 때문에 id 명시적 선언
+INSERT INTO places (id, address, name, total_seats) VALUES
+(1, '서울특별시 서초구 서초동 1307', '강남아트홀', 100),
+(2, '서울특별시 마포구 와우산로21', '홍대소극장', 100),
+(3, '서울시 종로구 대학로 8', '대학로극장', 100),
+(4, '부산광역시 해운대구 중동2', '해운대문화회관', 100),
+(5, '대구광역시 수성구 무학로 180', '수성아트센터', 100);
 
 INSERT INTO grades (place_id, grade, seat_count, default_price, created_at, updated_at) VALUES
 -- 강남아트홀
