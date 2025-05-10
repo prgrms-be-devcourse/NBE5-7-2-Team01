@@ -13,7 +13,7 @@ public class PerformanceMapper {
 
     private static PerformanceResponseDto toPerformanceResponseDto(Performance performance) {
         return PerformanceResponseDto.builder()
-            .encodedFileName(performance.getFile().getFileName())
+            .encodedFileName(performance.getFile().getEncodedFileName())
             .title(performance.getTitle())
             .category(performance.getCategory().name())
             .place(performance.getPlace().getName())
@@ -35,9 +35,9 @@ public class PerformanceMapper {
                 .performanceStatus(dto.isPerformanceStatus())
                 .reservationStartTime(dto.getReservationStartTime())
                 .build();
+    }
 
-    public static Page<PerformanceResponseDto> toPagePerformanceResponseDto(
-        Page<Performance> performances) {
+    public static Page<PerformanceResponseDto> toPagePerformanceResponseDto(Page<Performance> performances) {
         return performances.map(PerformanceMapper::toPerformanceResponseDto);
     }
 }

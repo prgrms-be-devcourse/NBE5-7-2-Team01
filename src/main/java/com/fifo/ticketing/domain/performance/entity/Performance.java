@@ -1,13 +1,11 @@
 package com.fifo.ticketing.domain.performance.entity;
 
-import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
 import com.fifo.ticketing.global.entity.BaseDateEntity;
 import com.fifo.ticketing.global.entity.File;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Table(name = "performances")
 @NoArgsConstructor
+@AllArgsConstructor
 public class Performance extends BaseDateEntity {
 
     @Id
