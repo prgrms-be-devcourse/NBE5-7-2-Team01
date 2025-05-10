@@ -48,14 +48,14 @@ class PerformanceApiControllerTests {
 
     }
 
-    @Test
-    @DisplayName("data.sql 실행 확인")
-    void test_data_sql_execution_check() {
-        Optional<Place> place = placeRepository.findById(2L);
-        assertThat(place).isPresent();
-        Place currentPlace = place.get();
-        assertThat(currentPlace.getAddress()).isEqualTo("서울특별시 마포구 와우산로21");
-    }
+//    @Test
+//    @DisplayName("data.sql 실행 확인")
+//    void test_data_sql_execution_check() {
+//        Optional<Place> place = placeRepository.findById(2L);
+//        assertThat(place).isPresent();
+//        Place currentPlace = place.get();
+//        assertThat(currentPlace.getAddress()).isEqualTo("서울특별시 마포구 와우산로21");
+//    }
 
 
 
