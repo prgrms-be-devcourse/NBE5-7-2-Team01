@@ -14,6 +14,7 @@ import com.fifo.ticketing.global.entity.File;
 import com.fifo.ticketing.global.exception.ErrorCode;
 import com.fifo.ticketing.global.exception.ErrorException;
 import com.fifo.ticketing.global.util.ImageFileService;
+import org.hibernate.validator.internal.util.Contracts;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -35,8 +37,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ActiveProfiles("ci")
-@TestPropertySource(locations = "classpath:application-ci.yml")
-@Sql(scripts = "classpath:data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @ExtendWith(MockitoExtension.class)
 class PerformanceServiceTests {
 

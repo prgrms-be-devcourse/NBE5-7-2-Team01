@@ -1,6 +1,8 @@
 package com.fifo.ticketing.domain.performance.controller.api;
 
-import jakarta.transaction.Transactional;
+import com.fifo.ticketing.domain.performance.entity.Place;
+import com.fifo.ticketing.domain.performance.repository.PlaceRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +15,15 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@Transactional
 @AutoConfigureMockMvc
 @ActiveProfiles("ci")
 @TestPropertySource(locations = "classpath:application-ci.yml")
@@ -27,6 +31,33 @@ import static org.junit.jupiter.api.Assertions.*;
 class PerformanceApiControllerTests {
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private PlaceRepository placeRepository;
+
+    @BeforeEach
+    void setUp() {
+        Place place = Place.builder()
+                .id(1L)
+                .address("서울특별시 서초구 서초동 1307")
+                .name("강남아트홀")
+                .totalSeats(100)
+                .build();
+        placeRepository.save(place);
+
+
+    }
+
+    @Test
+    @DisplayName("data.sql 실행 확인")
+    void test_data_sql_execution_check() {
+        Optional<Place> place = placeRepository.findById(2L);
+        assertThat(place).isPresent();
+        Place currentPlace = place.get();
+        assertThat(currentPlace.getAddress()).isEqualTo("서울특별시 마포구 와우산로21");
+    }
+
+
 
     @DisplayName("H2 Database에 공연 등록이 성공하는 경우")
     @Test
