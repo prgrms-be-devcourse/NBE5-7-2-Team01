@@ -18,7 +18,6 @@ public class Seat extends BaseDateEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @MapsId("performanceId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "performance_id", foreignKey = @ForeignKey(name = "fk_seat_performance_id"))
     private Performance performance;

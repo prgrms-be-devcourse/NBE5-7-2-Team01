@@ -13,6 +13,8 @@ public enum ErrorCode {
     SEAT_ALREADY_BOOKED("임시","해당 좌석은 이미 예약되었습니다.",SEAT_BOOKING_FAILED),
     NOT_FOUND_PERFORMANCES("AUTH-001", "존재하지 않는 회원입니다.", NOT_FOUND);
 
+
+
     private final String code;
     private final String message;
     private final ErrorStatus errorStatus;
