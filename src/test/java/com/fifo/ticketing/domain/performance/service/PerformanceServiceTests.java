@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ActiveProfiles("ci")
-@Sql("classpath:data.sql")
+@Sql(scripts = "classpath:data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @ExtendWith(MockitoExtension.class)
 class PerformanceServiceTests {
 

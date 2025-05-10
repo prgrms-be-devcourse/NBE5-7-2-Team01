@@ -17,3 +17,8 @@ spring:
     init:
       mode: always
       data-locations: classpath:data.sql
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
