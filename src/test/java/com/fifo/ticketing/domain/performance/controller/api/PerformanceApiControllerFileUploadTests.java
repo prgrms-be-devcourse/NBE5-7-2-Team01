@@ -10,6 +10,7 @@ import com.fifo.ticketing.domain.seat.repository.SeatRepository;
 import com.fifo.ticketing.global.entity.File;
 import com.fifo.ticketing.global.repository.FileRepository;
 import com.fifo.ticketing.global.util.ImageFileService;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,6 +51,8 @@ public class PerformanceApiControllerFileUploadTests {
     private PerformanceRepository performanceRepository;
     @Autowired
     private FileRepository fileRepository;
+    @Autowired
+    private EntityManager entityManager;
 
     @Autowired
     private ImageFileService imageFileService;
@@ -139,7 +142,11 @@ public class PerformanceApiControllerFileUploadTests {
 
         // Then
         // 1. 저장된 Performance 정보 확인
-        Performance savedPerformance = performanceRepository.findByTitle("실제 파일 저장 공연 (png)");
+        Performance savedPerformance = entityManager.createQuery(
+                        "SELECT p FROM Performance p WHERE p.title = :title", Performance.class)
+                .setParameter("title", "실제 파일 저장 공연 (png)")
+                .setMaxResults(1)
+                .getSingleResult();
         assertThat(savedPerformance).isNotNull();
         assertThat(savedPerformance.getFile()).isNotNull();
 

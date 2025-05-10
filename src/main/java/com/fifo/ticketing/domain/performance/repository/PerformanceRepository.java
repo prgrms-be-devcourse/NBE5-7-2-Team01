@@ -41,5 +41,4 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
     Page<Performance> findUpcomingPerformancesByCategory(@Param("now") LocalDateTime now,
         @Param("category") Category category, Pageable pageable);
 
-    Performance findByTitle(String title);
 }

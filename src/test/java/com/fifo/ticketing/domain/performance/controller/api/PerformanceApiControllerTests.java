@@ -10,6 +10,7 @@ import com.fifo.ticketing.domain.seat.repository.SeatRepository;
 import com.fifo.ticketing.global.entity.File;
 import com.fifo.ticketing.global.repository.FileRepository;
 import com.fifo.ticketing.global.util.ImageFileService;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,6 +54,7 @@ class PerformanceApiControllerTests {
     @Autowired
     private PerformanceRepository performanceRepository;
     @Autowired
+    private EntityManager entityManager;
 
     @MockitoBean
     private ImageFileService imageFileService;
@@ -204,7 +206,10 @@ class PerformanceApiControllerTests {
                 .andExpect(content().string("공연이 등록되었습니다."));
 
         // 추가적인 검증: 저장된 Performance에 File이 연결되었는지 확인
-        Performance savedPerformance = performanceRepository.findByTitle("라따뚜이");
+        Performance savedPerformance = entityManager.createQuery("SELECT p FROM Performance p JOIN FETCH p.file WHERE p.title = :title", Performance.class)
+                .setParameter("title", "라따뚜이")
+                .setMaxResults(1) // 결과 수를 1로 제한
+                .getSingleResult(); // 단일 결과를 가져옴
         assertThat(savedPerformance).isNotNull();
         assertThat(savedPerformance.getFile()).isNotNull();
         assertThat(savedPerformance.getFile().getEncodedFileName()).isEqualTo("encoded");
