@@ -11,3 +11,7 @@ spring:
       hibernate:
         show_sql: true
         format_sql: true
+
+file:
+  upload-dir: /tmp/uploads/ # CI 환경 임시 디렉토리
+  url-prefix: /uploads/
