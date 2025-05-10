@@ -1,8 +1,10 @@
 package com.fifo.ticketing.domain.user.entity;
 
+import com.fasterxml.jackson.core.JsonToken;
 import com.fifo.ticketing.global.entity.BaseDateEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class User extends BaseDateEntity {
 
     @Id
@@ -32,4 +35,6 @@ public class User extends BaseDateEntity {
 
     @Column(nullable = false)
     private boolean status;
+
+
 }
