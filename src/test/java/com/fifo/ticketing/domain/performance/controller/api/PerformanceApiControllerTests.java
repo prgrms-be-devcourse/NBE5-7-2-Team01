@@ -1,6 +1,8 @@
 package com.fifo.ticketing.domain.performance.controller.api;
 
+import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.performance.entity.Place;
+import com.fifo.ticketing.domain.performance.repository.GradeRepository;
 import com.fifo.ticketing.domain.performance.repository.PlaceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +17,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,13 +31,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @AutoConfigureMockMvc
 @ActiveProfiles("ci")
 @TestPropertySource(locations = "classpath:application-ci.yml")
-@Sql(scripts = "classpath:data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class PerformanceApiControllerTests {
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private PlaceRepository placeRepository;
+    @Autowired
+    private GradeRepository gradeRepository;
 
     @BeforeEach
     void setUp() {
@@ -45,19 +50,49 @@ class PerformanceApiControllerTests {
                 .build();
         placeRepository.save(place);
 
+        // Grade 객체 생성
+        Grade gradeS = Grade.builder()
+                .id(1L)
+                .place(place) // 해당 Place와 연결
+                .grade("S")
+                .defaultPrice(120000)
+                .seatCount(20)
+                .build();
 
+        Grade gradeA = Grade.builder()
+                .id(2L)
+                .place(place) // 해당 Place와 연결
+                .grade("A")
+                .defaultPrice(90000)
+                .seatCount(30)
+                .build();
+
+        Grade gradeB = Grade.builder()
+                .id(3L)
+                .place(place) // 해당 Place와 연결
+                .grade("B")
+                .defaultPrice(60000)
+                .seatCount(30)
+                .build();
+
+        Grade gradeC = Grade.builder()
+                .id(4L)
+                .place(place) // 해당 Place와 연결
+                .grade("C")
+                .defaultPrice(40000)
+                .seatCount(20)
+                .build();
+
+        // Grades 리스트에 저장
+        List<Grade> grades = new ArrayList<>();
+        grades.add(gradeS);
+        grades.add(gradeA);
+        grades.add(gradeB);
+        grades.add(gradeC);
+
+        // Grade 객체들 저장
+        gradeRepository.saveAll(grades);
     }
-
-//    @Test
-//    @DisplayName("data.sql 실행 확인")
-//    void test_data_sql_execution_check() {
-//        Optional<Place> place = placeRepository.findById(2L);
-//        assertThat(place).isPresent();
-//        Place currentPlace = place.get();
-//        assertThat(currentPlace.getAddress()).isEqualTo("서울특별시 마포구 와우산로21");
-//    }
-
-
 
     @DisplayName("H2 Database에 공연 등록이 성공하는 경우")
     @Test

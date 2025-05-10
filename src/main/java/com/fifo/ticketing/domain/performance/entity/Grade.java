@@ -3,11 +3,13 @@ package com.fifo.ticketing.domain.performance.entity;
 import com.fifo.ticketing.global.entity.BaseDateEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@Builder
 @Table(name = "grades")
 @NoArgsConstructor
 @AllArgsConstructor
