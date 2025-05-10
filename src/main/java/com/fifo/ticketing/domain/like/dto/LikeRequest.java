@@ -6,4 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 
-public record LikeRequest(Long userId, Long performanceId) {}
+@Getter
+@AllArgsConstructor
+public class LikeRequest {
+
+    private final Long userId;
+    private final Long performanceId;
+
+}
