@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "grades")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Grade extends BaseDateEntity {
+public class Grade {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
