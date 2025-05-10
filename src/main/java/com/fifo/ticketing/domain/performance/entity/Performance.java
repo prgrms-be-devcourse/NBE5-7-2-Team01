@@ -7,13 +7,16 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @Builder
 @Table(name = "performances")
 @NoArgsConstructor
-@AllArgsConstructor
 public class Performance extends BaseDateEntity {
 
     @Id
@@ -44,7 +47,7 @@ public class Performance extends BaseDateEntity {
 
     @Column(nullable = false)
     private LocalDateTime reservationStartTime;
-
+  
     @Setter
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "file_id", foreignKey = @ForeignKey(name = "fk_performance_to_file"))
