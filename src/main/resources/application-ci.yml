@@ -22,7 +22,3 @@ spring:
     console:
       enabled: true
       path: /h2-console
-
-file:
-  upload-dir: ${UPLOAD_DIR:/tmp/uploads}  # 환경 변수로 설정된 경로 사용, 없으면 기본값 /tmp/uploads 사용
-  url-prefix: /uploads/

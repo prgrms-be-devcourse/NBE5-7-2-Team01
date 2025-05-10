@@ -42,11 +42,3 @@ jobs:
 
       - name: Generate and submit dependency graph
         uses: gradle/actions/dependency-submission@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
-
-  # 추가된 job: 환경 변수 설정
-  set-env-vars:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set environment variables for file upload path
-        run: |
-          echo "UPLOAD_DIR=/tmp/uploads" >> $GITHUB_ENV  # CI 환경에 맞게 업로드 경로 설정
