@@ -48,7 +48,7 @@ public class Performance extends BaseDateEntity {
     private LocalDateTime reservationStartTime;
   
     @Setter
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "file_id", foreignKey = @ForeignKey(name = "fk_performance_to_file"))
     private File file;
 
