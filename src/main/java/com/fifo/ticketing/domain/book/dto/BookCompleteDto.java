@@ -1,5 +1,6 @@
 package com.fifo.ticketing.domain.book.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,8 +9,8 @@ import lombok.Getter;
 @Builder
 public class BookCompleteDto {
     private String performanceTitle;
-    private String performanceStartTime;
-    private String performanceEndTime;
+    private LocalDateTime performanceStartTime;
+    private LocalDateTime performanceEndTime;
     private String placeName;
     private List<BookSeatViewDto> seats;
     private int totalPrice;

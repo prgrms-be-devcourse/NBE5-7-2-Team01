@@ -1,5 +1,6 @@
 package com.fifo.ticketing.domain.book.controller.view;
 
+import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
 import com.fifo.ticketing.domain.book.dto.BookCreateRequest;
 import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
@@ -24,7 +25,9 @@ public class BookController {
     public String viewBookingComplete(@PathVariable Long performanceId, @PathVariable Long bookId,
         Model model) {
 
+        BookCompleteDto bookCompleteInfo = bookService.getBookCompleteInfo(bookId);
 
+        model.addAttribute("book", bookCompleteInfo);
 
         return "book/complete";
     }

@@ -1,9 +1,11 @@
 package com.fifo.ticketing.domain.book.mapper;
 
+import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
 import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.entity.BookSeat;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.seat.entity.Seat;
+import com.fifo.ticketing.domain.seat.mapper.SeatMapper;
 import com.fifo.ticketing.domain.user.entity.User;
 
 import java.util.List;
@@ -19,5 +21,19 @@ public class BookMapper {
         return seats.stream()
                 .map(seat -> BookSeat.of(book, seat))
                 .collect(Collectors.toList());
+    }
+
+    public static BookCompleteDto toBookCompleteDto(Book book, List<BookSeat> bookSeats) {
+        return BookCompleteDto.builder()
+            .performanceTitle(book.getPerformance().getTitle())
+            .performanceStartTime(book.getPerformance().getStartTime())
+            .performanceEndTime(book.getPerformance().getEndTime())
+            .placeName(book.getPerformance().getPlace().getName())
+            .seats(bookSeats.stream()
+                .map(bs -> SeatMapper.toBookSeatViewDto(bs.getSeat()))
+                .collect(Collectors.toList()))
+            .totalPrice(book.getTotalPrice())
+            .quantity(book.getQuantity())
+            .build();
     }
 }
