@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>공연 등록</title>
+  <style>
+      body {
+          font-family: Arial, sans-serif;
+          margin: 40px;
+      }
+
+      form {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          max-width: 400px;
+      }
+
+      label {
+          font-weight: bold;
+      }
+
+      input, select, textarea, button {
+          padding: 8px;
+          font-size: 14px;
+      }
+  </style>
+</head>
+<body>
+<h1>공연 등록</h1>
+<form id="performance-form">
+  <label for="title">제목</label>
+  <input type="text" id="title" name="title" required>
+
+  <label for="description">설명</label>
+  <textarea id="description" name="description" required></textarea>
+
+  <label for="startTime">시작 시간</label>
+  <input type="datetime-local" id="startTime" name="startTime" required>
+
+  <label for="endTime">종료 시간</label>
+  <input type="datetime-local" id="endTime" name="endTime" required>
+
+  <label for="reservationStartTime">예매 시작 시간</label>
+  <input type="datetime-local" id="reservationStartTime" name="reservationStartTime" required>
+
+  <label for="category">카테고리</label>
+  <select id="category" name="category" required>
+    <option value="CONCERT">콘서트</option>
+    <option value="MOVIE">영화</option>
+    <option value="SPORTS">스포츠</option>
+  </select>
+
+  <label for="performanceStatus">예매 가능 여부</label>
+  <select id="performanceStatus" name="performanceStatus">
+    <option value="true">예매 가능</option>
+    <option value="false">예매 불가</option>
+  </select>
+
+  <label for="placeId">장소 ID</label>
+  <select id="placeId" name="placeId" required>
+    <option value="" disabled selected>장소를 선택해주세요.</option>
+    <th:block th:each="place : ${places}">
+      <option th:value="${place.id}" th:text="${place.name}"></option>
+    </th:block>
+  </select>
+
+  <div id="grade-container">
+
+  </div>
+
+  <label for="file">포스터 이미지</label>
+  <input type="file" id="file" name="file" accept="image/*" required>
+
+  <button type="submit">등록</button>
+</form>
+
+<script>
+    document.getElementById("performance-form").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const form = e.target;
+
+        const dto = {
+            title: form.title.value,
+            description: form.description.value,
+            startTime: new Date(form.startTime.value).toISOString(),
+            endTime: new Date(form.endTime.value).toISOString(),
+            reservationStartTime: new Date(form.reservationStartTime.value).toISOString(),
+            category: form.category.value,
+            performanceStatus: form.performanceStatus.value === "true",
+            placeId: Number(form.placeId.value),
+        };
+
+        const file = form.file.files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("request", new Blob([JSON.stringify(dto)], {type: "application/json"}));
+
+        try {
+            const res = await fetch("/api/performances", {
+                method: "POST",
+                body: formData
+            });
+
+            const text = await res.text();
+            if (res.ok) {
+                alert("공연 등록 성공: " + text);
+                form.reset();
+            } else {
+                alert("등록 실패: " + text);
+            }
+        } catch (err) {
+            console.error("에러:", err);
+            alert("서버 오류가 발생했습니다.");
+        }
+    });
+    document.getElementById("placeId").addEventListener("change", async function () {
+        const placeId = this.value;
+        const gradeContainer = document.getElementById("grade-container");
+        gradeContainer.innerHTML = "";
+
+        try {
+            const response = await fetch(`/api/grades/places/${placeId}`);
+            if (!response.ok) throw new Error("Grade 정보의 로드가 실패했습니다.");
+            const grades = await response.json();
+
+            if (grades.length === 0) {
+                gradeContainer.innerText = "<p>해당 장소에 등록된 좌석 등급이 없습니다.</p>"
+                return;
+            }
+
+            const table = document.createElement("table");
+            table.innerHTML =
+                `
+                <thead>
+                  <tr>
+                    <th>등급</th>
+                    <th>좌석 수</th>
+                    <th>기본 가격</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${grades.map(grade => `
+                    <tr>
+                      <td>${grade.grade}</td>
+                      <td>${grade.seatCount}</td>
+                      <td>${grade.defaultPrice.toLocaleString()}원</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+                `;
+            gradeContainer.appendChild(table);
+        } catch (err) {
+            console.log(err);
+            gradeContainer.innerHTML = "<p style='color:red;'>등급 정보를 불러오는 중 오류가 발생했습니다.</p>";
+        }
+    });
+</script>
+</body>
+</html>

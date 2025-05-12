@@ -2,12 +2,14 @@ package com.fifo.ticketing.domain.performance.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "place")
+@Builder
+@Table(name = "places")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Place {
@@ -22,6 +24,6 @@ public class Place {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(name = "total_seats", nullable = false)
     private Integer totalSeats;
 }

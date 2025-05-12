@@ -16,7 +16,7 @@ import java.util.List;
 @Entity
 @Getter
 @Builder
-@Table(name = "book")
+@Table(name = "books")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Book extends BaseDateEntity {
@@ -49,7 +49,7 @@ public class Book extends BaseDateEntity {
     @Column(nullable = false)
     private Integer quantity;
 
-    public static Book create( User user, Performance performance, int totalPrice, int quantity) {
+    public static Book create(User user, Performance performance, int totalPrice, int quantity) {
         return Book.builder()
             .user(user)
             .performance(performance)

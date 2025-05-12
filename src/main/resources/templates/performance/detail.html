@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title th:text="${performanceDetail.title}">공연 상세</title>
+  <style>
+    .layout {
+      display: flex;
+      gap: 50px;
+      padding: 30px;
+    }
+
+    .left-panel {
+      flex: 1;
+    }
+
+    .right-panel {
+      flex: 1;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      background-color: white;
+      border: 1px solid #ccc;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+    }
+
+    .modal.show {
+      display: block;
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    .overlay.show {
+      display: block;
+    }
+
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .seat {
+      width: 40px;
+      height: 40px;
+      margin: 5px;
+      border: 1px solid #999;
+      display: inline-flex; /* flex로 중앙 정렬 쉽게 */
+      align-items: center;
+      justify-content: center;
+      font-size: 14px; /* 글자 크기 고정 */
+      text-align: center;
+      cursor: pointer;
+      box-sizing: border-box; /* border 포함한 크기 계산 */
+      overflow: hidden; /* 넘치는 글자 숨기기 */
+      white-space: nowrap; /* 줄바꿈 방지 */
+    }
+
+    .seat.available {
+      background-color: #b19cd9;
+    }
+
+    .seat.selected {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .seat.unavailable {
+      background-color: darkgray;
+      cursor: not-allowed;
+    }
+
+    .seat-container {
+      display: flex;
+      flex-direction: column;
+      max-width: 440px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    .modal-right-panel {
+      margin-left: 40px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- 왼쪽 공연 정보 -->
+  <div class="left-panel">
+    <h2 th:text="${performanceDetail.title}">공연 제목</h2>
+    <p th:text="${performanceDetail.description}">공연 설명</p>
+    <p>장소: <span th:text="${performanceDetail.placeName}"></span></p>
+    <p>시작: <span
+        th:text="${#temporals.format(performanceDetail.startTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+    <p>종료: <span
+        th:text="${#temporals.format(performanceDetail.endTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+
+    <h4>좌석 등급 및 가격</h4>
+    <ul>
+      <li th:each="grade : ${performanceDetail.seatGrades}">
+        <span th:text="${grade.grade}"></span>석 -
+        <span th:text="${#numbers.formatInteger(grade.defaultPrice, 3, 'COMMA')}"></span>원
+        (<span th:text="${grade.seatCount}"></span>석)
+      </li>
+    </ul>
+  </div>
+
+  <!-- 오른쪽 좌석 선택/예매 -->
+  <div class="right-panel">
+    <button type="button" id="openModalBtn">좌석 선택</button>
+    <h3>선택한 좌석</h3>
+    <ul id="selected-seat-list-main"></ul>
+    <h4>총 합계: <span id="total-price-main">0</span>원</h4>
+    <form id="bookForm" th:action="@{'/performances/' + ${performanceId} + '/book'}" method="post">
+      <input type="hidden" name="userId" th:value="${userId}"/>
+      <input type="hidden" name="seatIds" id="seatIdsInput"/>
+      <button type="submit" id="bookBtn" disabled>예매하기</button>
+    </form>
+  </div>
+</div>
+
+<!-- 좌석 선택 모달 -->
+<div class="overlay" id="overlay"></div>
+<div class="modal" id="seatModal">
+  <div class="layout">
+    <h3>좌석 선택</h3>
+    <div class="seat-container" id="seat-container">
+      <!-- JavaScript에서 렌더링 -->
+    </div>
+    <div class="modal-right-panel">
+      <h3>선택한 좌석</h3>
+      <ul id="selected-seat-list-modal"></ul>
+      <h4>총 합계: <span id="total-price-modal">0</span>원</h4>
+    </div>
+    <button type="button" id="closeModalBtn">선택 완료</button>
+  </div>
+</div>
+
+<script th:inline="javascript">
+  const seats = [[${seats}]];
+  const selectedSeatIds = new Set();
+  const seatIdsInput = document.getElementById("seatIdsInput");
+  const modal = document.getElementById("seatModal");
+  const overlay = document.getElementById("overlay");
+  const openModalBtn = document.getElementById("openModalBtn");
+  const closeModalBtn = document.getElementById("closeModalBtn");
+  const seatContainer = document.getElementById("seat-container");
+  const mainList = document.getElementById("selected-seat-list-main");
+  const modalList = document.getElementById("selected-seat-list-modal");
+  const seatsPerRow = 10;
+
+  // 모달 열기
+  openModalBtn.addEventListener("click", () => {
+    modal.classList.add("show");
+    overlay.classList.add("show");
+    renderSeats();
+  });
+
+  // 모달 닫기
+  closeModalBtn.addEventListener("click", () => {
+    modal.classList.remove("show");
+    overlay.classList.remove("show");
+
+    // 예매 버튼 활성화 처리
+    const bookBtn = document.getElementById("bookBtn");
+    bookBtn.disabled = selectedSeatIds.size === 0;
+  });
+
+  // 좌석 렌더링
+  function renderSeats() {
+    seatContainer.innerHTML = '';
+    for (let i = 0; i < seats.length; i += seatsPerRow) {
+      const rowDiv = document.createElement("div");
+      rowDiv.classList.add("row");
+
+      for (let j = 0; j < seatsPerRow && i + j < seats.length; j++) {
+        const seat = seats[i + j];
+
+        const seatBtn = document.createElement("button");
+        seatBtn.classList.add("seat");
+        seatBtn.dataset.id = seat.seatId;
+        seatBtn.dataset.grade = seat.grade;
+        seatBtn.dataset.price = seat.price;
+        seatBtn.innerText = seat.seatNumber;
+
+        if (seat.seatStatus === 'AVAILABLE') {
+          seatBtn.classList.add("available");
+
+          if (selectedSeatIds.has(seat.seatId)) {
+            seatBtn.classList.add("selected");
+          }
+
+          seatBtn.addEventListener("click", function (event) {
+            event.preventDefault();
+            toggleSeat(seatBtn, seat);
+          });
+        } else {
+          seatBtn.classList.add("unavailable");
+          seatBtn.setAttribute("disabled", "true");
+        }
+
+        rowDiv.appendChild(seatBtn);
+      }
+
+      seatContainer.appendChild(rowDiv);
+    }
+  }
+
+  function toggleSeat(seatBtn, seat) {
+    const seatId = seat.seatId;
+
+    if (selectedSeatIds.has(seatId)) {
+      selectedSeatIds.delete(seatId);
+      seatBtn.classList.remove("selected");
+      document.getElementById("seat-item-main-" + seatId)?.remove();
+      document.getElementById("seat-item-modal-" + seatId)?.remove();
+    } else {
+      selectedSeatIds.add(seatId);
+      seatBtn.classList.add("selected");
+
+      const liMain = document.createElement("li");
+      liMain.id = "seat-item-main-" + seatId;
+      liMain.innerText = `${seat.seatNumber} - ${seat.grade}석 - ${seat.price.toLocaleString()}원`;
+      mainList.appendChild(liMain);
+
+      const liModal = document.createElement("li");
+      liModal.id = "seat-item-modal-" + seatId;
+      liModal.innerText = `${seat.seatNumber} - ${seat.grade}석 - ${seat.price.toLocaleString()}원`;
+      modalList.appendChild(liModal);
+    }
+
+    seatIdsInput.value = Array.from(selectedSeatIds).join(',');
+
+    updateTotalPrice();
+  }
+
+  function updateTotalPrice() {
+    let total = 0;
+    selectedSeatIds.forEach(id => {
+      const seat = seats.find(s => s.seatId === id);
+      if (seat) {
+        total += seat.price;
+      }
+    });
+
+    document.getElementById("total-price-main").innerText = total.toLocaleString();
+    document.getElementById("total-price-modal").innerText = total.toLocaleString();
+  }
+
+</script>
+
+</body>
+</html>

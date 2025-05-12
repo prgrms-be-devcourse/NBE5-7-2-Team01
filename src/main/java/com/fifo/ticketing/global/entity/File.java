@@ -1,5 +1,6 @@
 package com.fifo.ticketing.global.entity;
 
+import com.fifo.ticketing.domain.performance.entity.Performance;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,7 +17,8 @@ public class File extends BaseDateEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String url;
+    private String encodedFileName;
 
-    private String fileName;
+    private String originalFileName;
+
 }

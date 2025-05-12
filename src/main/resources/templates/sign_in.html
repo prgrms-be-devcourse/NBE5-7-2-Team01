@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>로그인 페이지</title>
+  <style>
+    body {
+      font-family: "맑은 고딕", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 50px;
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-bottom: 40px;
+    }
+
+    .login-box {
+      background-color: #f2f2f2;
+      padding: 30px;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid #ccc;
+    }
+
+    .login-box input {
+      width: 250px;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+    }
+
+    .login-box button.login-btn {
+      width: 100px;
+      height: 82px;
+      margin-left: 10px;
+      font-size: 16px;
+    }
+
+    .login-box a.signup-link {
+      display: block;
+      margin-top: 10px;
+      font-size: 14px;
+      color: gray;
+      text-decoration: none;
+    }
+
+    .social-buttons {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+      gap: 30px;
+    }
+
+    .social-buttons a {
+      width: 100px;
+      height: 100px;
+      background-color: #f7f7f7;
+      border: 2px solid #999;
+      border-radius: 50%;
+      text-align: center;
+      font-weight: bold;
+      text-decoration: none;
+      color: black;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      line-height: normal;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>로그인 페이지</h1>
+<div th:if="${param.signupSuccess}">
+  <p style="color: green;">회원가입이 완료되었습니다. 로그인 해주세요!</p>
+</div>
+
+<div class="login-box">
+  <form action="/users/signin" method="post"
+        style="display: flex; align-items: center; justify-content: center;">
+    <div>
+      <input type="email" id="email" name="email" placeholder="이메일 입력란" required><br>
+      <input type="password" id="loginPwd" name="loginPwd" placeholder="비밀번호 입력란" required>
+    </div>
+    <button class="login-btn" type="submit">로그인<br>버튼</button>
+  </form>
+
+  <div th:if="${param.error}">
+    <p style="color: red;" th:text="${param.error}">이메일 또는 비밀번호가 올바르지 않습니다.</p>
+  </div>
+
+  <div th:if="${signupSuccess}">
+    <p style="color: green;" th:text="${signupSuccess}"></p>
+  </div>
+
+  <a href="/users/signup" class="signup-link">회원가입</a>
+</div>
+
+<div class="social-buttons">
+  <div class="social-buttons">
+    <a href="/oauth2/authorization/google">
+      <span>구글</span>
+      <span>로그인</span>
+    </a>
+    <a href="/oauth2/authorization/kakao">
+      <span>카카오</span>
+      <span>로그인</span>
+    </a>
+    <a href="/oauth2/authorization/naver">
+      <span>네이버</span>
+      <span>로그인</span>
+    </a>
+  </div>
+</div>
+
+</body>
+</html>
