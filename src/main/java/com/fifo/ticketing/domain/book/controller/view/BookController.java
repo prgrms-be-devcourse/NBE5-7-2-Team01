@@ -18,8 +18,6 @@ import java.util.List;
 public class BookController {
 
     private final BookService bookService;
-    private final PerformanceRepository performanceRepository;
-    private final SeatRepository seatRepository;
 
     @GetMapping("/complete/{bookId}")
     public String viewBookingComplete(@PathVariable Long performanceId, @PathVariable Long bookId,
@@ -28,6 +26,7 @@ public class BookController {
         BookCompleteDto bookCompleteInfo = bookService.getBookCompleteInfo(bookId);
 
         model.addAttribute("book", bookCompleteInfo);
+        model.addAttribute("bookId", bookId);
 
         return "book/complete";
     }

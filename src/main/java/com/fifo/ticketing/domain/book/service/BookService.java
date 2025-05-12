@@ -29,6 +29,7 @@ import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANC
 @Service
 @RequiredArgsConstructor
 public class BookService {
+
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
     private final PerformanceRepository performanceRepository;
@@ -38,17 +39,17 @@ public class BookService {
     @Transactional
     public Long createBook(Long performanceId, Long userId, BookCreateRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ErrorException(NOT_FOUND_MEMBER));
+            .orElseThrow(() -> new ErrorException(NOT_FOUND_MEMBER));
 
         Performance performance = performanceRepository.findById(performanceId)
-                .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
+            .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
 
         List<Seat> selectedSeats = seatRepository.findAllById(request.getSeatIds());
 
         for (Seat seat : selectedSeats) {
             if (!seat.getSeatStatus().equals(SeatStatus.AVAILABLE)) {
                 throw new AlertDetailException(ErrorCode.SEAT_ALREADY_BOOKED,
-                        String.format("%d번 좌석은 이미 예약되었습니다.", seat.getId()));
+                    String.format("%d번 좌석은 이미 예약되었습니다.", seat.getId()));
             }
         }
         int totalPrice = selectedSeats.stream().mapToInt(Seat::getPrice).sum();
@@ -56,6 +57,7 @@ public class BookService {
 
         Book book = BookMapper.toBookEntity(user, performance, totalPrice, quantity);
         bookRepository.save(book);
+        bookRepository.flush();
 
         List<BookSeat> bookSeatList = BookMapper.toBookSeatEntities(book, selectedSeats);
 

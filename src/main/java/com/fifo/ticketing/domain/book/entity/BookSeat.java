@@ -22,7 +22,7 @@ public class BookSeat extends BaseDateEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "book_id", foreignKey = @ForeignKey(name = "fk_book_seat_to_book"))
+    @JoinColumn(name = "book_id", foreignKey = @ForeignKey(name = "fk_book_seat_to_books"))
     private Book book;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,9 +31,9 @@ public class BookSeat extends BaseDateEntity {
 
     public static BookSeat of(Book book, Seat seat) {
         return BookSeat.builder()
-                .book(book)
-                .seat(seat)
-                .build();
+            .book(book)
+            .seat(seat)
+            .build();
     }
 }
 

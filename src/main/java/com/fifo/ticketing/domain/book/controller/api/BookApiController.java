@@ -29,13 +29,14 @@ public class BookApiController {
 
     @PostMapping
     public String createBook(
-            @PathVariable Long performanceId,
-            @RequestParam Long userId,
-            @RequestParam List<Long> seatIds
+        @PathVariable Long performanceId,
+        @RequestParam Long userId,
+        @RequestParam List<Long> seatIds
     ) {
         BookCreateRequest request = new BookCreateRequest(seatIds);
-        bookService.createBook(performanceId, userId, request);
-        return "성공";
+        Long bookId = bookService.createBook(performanceId, userId, request);
+        return "redirect:/performances/" + performanceId + "/book/complete/" + bookId;
+
     }
 
 

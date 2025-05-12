@@ -1,10 +1,82 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Title</title>
+  <title>예매 완료</title>
+  <style>
+    .layout {
+      display: flex;
+      gap: 50px;
+      padding: 30px;
+    }
+
+    .left-panel {
+      flex: 1;
+    }
+
+    .right-panel {
+      flex: 1;
+    }
+
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .info, .seats {
+      margin-bottom: 30px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 12px;
+      text-align: center;
+    }
+
+  </style>
 </head>
 <body>
+
+<div class="layout">
+  <h2>예매가 완료되었습니다</h2>
+  <!-- 왼쪽 공연 정보 -->
+  <div class="left-panel">
+    <div class="info">
+      <p><strong>공연명:</strong> <span th:text="${book.performanceTitle}"></span></p>
+      <p><strong>공연일시:</strong> <span th:text="${book.performanceStartTime}"></span> ~ <span th:text="${book.performanceEndTime}"></span></p>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <div class="seats">
+      <h3>선택한 좌석</h3>
+      <table>
+        <thead>
+        <tr>
+          <th>좌석 번호</th>
+          <th>등급</th>
+          <th>가격</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="seat : ${book.seats}">
+          <td th:text="${seat.seatNumber}"></td>
+          <td th:text="${seat.grade}"></td>
+          <td th:text="${#numbers.formatInteger(seat.price, 0, 'COMMA')} + '원'"></td>
+        </tr>
+        </tbody>
+      </table>
+      <p class="total">총 결제 금액: <span th:text="${#numbers.formatInteger(book.totalPrice, 0, 'COMMA')} + '원'"></span></p>
+    </div>
+    <div>
+      <a class="btn">결제하기</a>
+    </div>
+  </div>
+
+</div>
 
 </body>
 </html>
