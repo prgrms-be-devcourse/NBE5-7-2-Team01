@@ -24,6 +24,18 @@
       margin-top: 80px;
     }
 
+    .like-button {
+      font-size: 14px;
+      padding: 4px 8px;
+      border-radius: 50%;
+      line-height: 1;
+      transition: background-color 0.2s ease;
+    }
+
+    .like-button:hover {
+      background-color: #c82333;
+    }
+
     .pagination-container {
       margin-top: 30px;
       display: flex;
@@ -129,9 +141,17 @@
         <tbody>
         <tr th:each="performance : ${performances}">
           <td>
-            <img th:src="@{/image/{fileName}(fileName=${performance.encodedFileName})}"
-                 alt="no image"
-                 style="width: 100px; height: auto; object-fit: cover;"/>
+            <div class="image-wrapper" style="position: relative; width: 100px;">
+              <img th:src="@{/image/{fileName}(fileName=${performance.encodedFileName})}"
+                   alt="no image"
+                   style="width: 100px; height: auto; object-fit: cover;"/>
+
+              <button class="like-button btn btn-sm btn-danger"
+                      style="position: absolute; bottom: 5px; right: 5px;"
+                      th:data-id="${performance.id}">
+                ♡
+              </button>
+            </div>
           </td>
           <td th:text="${performance.title}"></td>
           <td th:text="${performance.category}"></td>
@@ -245,6 +265,29 @@
     const url = `/performances?startDate=${encodeURIComponent(
         startDate)}&endDate=${encodeURIComponent(endDate)}`;
     location.href = url;
+  });
+
+  $(document).on("click", ".like-button", function () {
+    const $btn = $(this);
+    const performanceId = $btn.data("id");
+
+    $.ajax({
+      type: "POST",
+      url: "/user/like",
+      contentType: "application/json",
+      data: JSON.stringify({
+        userId: 1,
+        performanceId: performanceId
+      }),
+      success: function (response) {
+        // ♥ / ♡ 토글
+        const current = $btn.text().trim();
+        $btn.text(current === "♡" ? "♥" : "♡");
+      },
+      error: function () {
+        alert("좋아요 처리 중 오류가 발생했습니다.");
+      }
+    });
   });
 </script>
 
