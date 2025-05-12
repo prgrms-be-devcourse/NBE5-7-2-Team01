@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>예매 완료</title>
+  <title th:if="${!book.paymentCompleted}">예매가 완료되었습니다</title>
+  <title th:if="${book.paymentCompleted}">결제가 완료되었습니다</title>
   <style>
     .layout {
       display: flex;
@@ -41,7 +42,9 @@
 <body>
 
 <div class="layout">
-  <h2>예매가 완료되었습니다</h2>
+  <h2 th:if="${!book.paymentCompleted}">예매가 완료되었습니다</h2>
+  <h2 th:if="${book.paymentCompleted}">결제가 완료되었습니다</h2>
+
   <!-- 왼쪽 공연 정보 -->
   <div class="left-panel">
     <div class="info">
@@ -72,7 +75,13 @@
       <p class="total">총 결제 금액: <span th:text="${#numbers.formatInteger(book.totalPrice, 0, 'COMMA')} + '원'"></span></p>
     </div>
     <div>
-      <a class="btn">결제하기</a>
+      <form th:if="${!book.paymentCompleted}"
+            th:action="@{'/performances/' + ${book.performanceId} + '/book/complete/' + ${bookId} + '/payment'}"
+            method="post">
+        <button type="submit" class="btn">결제하기</button>
+      </form>
+
+      <a th:if="${book.paymentCompleted}" th:href="@{/}" class="btn">홈으로 돌아가기</a>
     </div>
   </div>
 

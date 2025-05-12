@@ -25,6 +25,7 @@ public class BookMapper {
 
     public static BookCompleteDto toBookCompleteDto(Book book, List<BookSeat> bookSeats) {
         return BookCompleteDto.builder()
+            .performanceId(book.getPerformance().getId())
             .performanceTitle(book.getPerformance().getTitle())
             .performanceStartTime(book.getPerformance().getStartTime())
             .performanceEndTime(book.getPerformance().getEndTime())
@@ -34,6 +35,7 @@ public class BookMapper {
                 .collect(Collectors.toList()))
             .totalPrice(book.getTotalPrice())
             .quantity(book.getQuantity())
+            .paymentCompleted(false)
             .build();
     }
 }

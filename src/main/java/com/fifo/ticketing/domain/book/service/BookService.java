@@ -79,4 +79,18 @@ public class BookService {
 
         return BookMapper.toBookCompleteDto(book, bookSeats);
     }
+
+    @Transactional
+    public void completePayment(Long bookId) {
+        Book book = bookRepository.findById(bookId)
+            .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
+
+        List<BookSeat> bookSeats = bookSeatRepository.findAllByBookId(book.getId());
+
+        for (BookSeat bookSeat : bookSeats) {
+            Seat seat = bookSeat.getSeat();
+            seat.occupy();
+        }
+
+    }
 }
