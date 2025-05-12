@@ -8,6 +8,7 @@ import org.springframework.test.context.jdbc.Sql;
 
 @SpringBootTest
 @ActiveProfiles("ci")
+@TestPropertySource(locations = "classpath:application-ci.yml")
 class TicketingApplicationTests {
 
     @Test
