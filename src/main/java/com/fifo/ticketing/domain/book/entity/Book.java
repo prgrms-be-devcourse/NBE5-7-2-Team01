@@ -33,6 +33,7 @@ public class Book extends BaseDateEntity {
     @JoinColumn(name = "performance_id", nullable = false)
     private Performance performance;
 
+    @Builder.Default
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookSeat> bookSeats = new ArrayList<>();
 
