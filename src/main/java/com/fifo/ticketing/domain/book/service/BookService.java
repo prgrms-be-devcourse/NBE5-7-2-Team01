@@ -1,7 +1,7 @@
 package com.fifo.ticketing.domain.book.service;
 
 import com.fifo.ticketing.domain.book.dto.BookCreateRequest;
-import com.fifo.ticketing.domain.book.dto.BookMapper;
+import com.fifo.ticketing.domain.book.mapper.BookMapper;
 import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.entity.BookSeat;
 import com.fifo.ticketing.domain.book.repository.BookRepository;
@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_MEMBER;
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;

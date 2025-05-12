@@ -1,4 +1,4 @@
-package com.fifo.ticketing.domain.book.dto;
+package com.fifo.ticketing.domain.book.mapper;
 
 import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.entity.BookSeat;

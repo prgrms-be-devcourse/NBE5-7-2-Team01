@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(TestSecurityConfig.class)
-class BookControllerTest {
+class BookApiControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
