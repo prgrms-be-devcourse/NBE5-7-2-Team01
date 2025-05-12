@@ -2,10 +2,10 @@ package com.fifo.ticketing.domain.book.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fifo.ticketing.domain.book.dto.BookCreateRequest;
-import com.fifo.ticketing.global.config.TestSecurityConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -25,7 +25,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @SpringBootTest
 @AutoConfigureMockMvc
-@Import(TestSecurityConfig.class)
 class BookApiControllerTest {
 
     @Autowired
