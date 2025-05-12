@@ -1,6 +1,7 @@
 package com.fifo.ticketing.domain.book.mapper;
 
 import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
+import com.fifo.ticketing.domain.book.dto.BookedListView;
 import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.entity.BookSeat;
 import com.fifo.ticketing.domain.performance.entity.Performance;
@@ -23,19 +24,41 @@ public class BookMapper {
                 .collect(Collectors.toList());
     }
 
-    public static BookCompleteDto toBookCompleteDto(Book book, List<BookSeat> bookSeats) {
+    public static BookCompleteDto toBookCompleteDto(Book book) {
         return BookCompleteDto.builder()
             .performanceId(book.getPerformance().getId())
             .performanceTitle(book.getPerformance().getTitle())
             .performanceStartTime(book.getPerformance().getStartTime())
             .performanceEndTime(book.getPerformance().getEndTime())
             .placeName(book.getPerformance().getPlace().getName())
-            .seats(bookSeats.stream()
+            .seats(book.getBookSeats().stream()
                 .map(bs -> SeatMapper.toBookSeatViewDto(bs.getSeat()))
                 .collect(Collectors.toList()))
             .totalPrice(book.getTotalPrice())
             .quantity(book.getQuantity())
             .paymentCompleted(false)
             .build();
+    }
+
+    public BookedListView toBookedListViewDto(Book book) {
+        Performance performance = book.getPerformance();
+
+        return BookedListView.builder()
+            .bookId(book.getId())
+            .performanceId(performance.getId())
+            .performanceTitle(performance.getTitle())
+            .placeName(performance.getPlace().getName())
+            .seats(book.getBookSeats().stream()
+                .map(bs -> SeatMapper.toBookSeatViewDto(bs.getSeat()))
+                .collect(Collectors.toList()))
+            .quantity(book.getQuantity())
+            .totalPrice(book.getTotalPrice())
+            .build();
+    }
+
+    public static List<BookedListView> toBookedListDtoList(List<Book> books) {
+        return books.stream()
+            .map(this::toBookedListViewDto)
+            .collect(Collectors.toList());
     }
 }
