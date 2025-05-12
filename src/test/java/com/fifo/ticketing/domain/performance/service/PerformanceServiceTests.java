@@ -1,5 +1,7 @@
 package com.fifo.ticketing.domain.performance.service;
 
+import com.fifo.ticketing.domain.like.entity.LikeCount;
+import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
 import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Grade;
@@ -19,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -48,6 +51,9 @@ class PerformanceServiceTests {
 
     @Mock
     private PerformanceRepository performanceRepository;
+
+    @Mock
+    private LikeCountRepository likeCountRepository;
 
     @Mock
     private SeatService seatService;
@@ -97,6 +103,9 @@ class PerformanceServiceTests {
 
         doNothing().when(seatService).createSeats(anyList());
 
+        ArgumentCaptor<LikeCount> likeCountCaptor = ArgumentCaptor.forClass(LikeCount.class);
+        when(likeCountRepository.save(likeCountCaptor.capture())).thenReturn(LikeCount.builder().id(1L).likeCount(0L).performance(performance).build());
+
         // When
         Performance savePerformance = performanceService.createPerformance(performanceRequestDto, file);
 
@@ -106,6 +115,9 @@ class PerformanceServiceTests {
         assertThat(savePerformance.getDescription()).isEqualTo(performanceRequestDto.getDescription());
         assertThat(savePerformance.getPlace()).isEqualTo(place);
         assertThat(savePerformance.getFile()).isEqualTo(uploadedFile);
+        LikeCount savedLikeCount = likeCountCaptor.getValue();
+        assertThat(savedLikeCount.getLikeCount()).isEqualTo(0L);
+        assertThat(savedLikeCount.getPerformance()).isEqualTo(performance);
 
         // Verify
         verify(placeRepository).findById(any(Long.class));
@@ -113,6 +125,7 @@ class PerformanceServiceTests {
         verify(imageFileService).uploadFile(file);
         verify(gradeRepository).findAllByPlaceId(any(Long.class));
         verify(seatService).createSeats(anyList());
+        verify(likeCountRepository).save(any(LikeCount.class));
     }
 
     @Test

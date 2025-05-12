@@ -1,5 +1,7 @@
 package com.fifo.ticketing.domain.performance.controller.api;
 
+import com.fifo.ticketing.domain.like.entity.LikeCount;
+import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
 import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.entity.Place;
@@ -53,6 +55,8 @@ class PerformanceApiControllerTests {
     private GradeRepository gradeRepository;
     @Autowired
     private PerformanceRepository performanceRepository;
+    @Autowired
+    private LikeCountRepository likeCountRepository;
     @Autowired
     private EntityManager entityManager;
 
@@ -154,6 +158,18 @@ class PerformanceApiControllerTests {
                         .contentType(MediaType.MULTIPART_FORM_DATA_VALUE))
                 .andExpect(status().isOk())
                 .andExpect(content().string("공연이 등록되었습니다."));
+
+        Performance savedPerformance = entityManager.createQuery("SELECT p FROM Performance p WHERE p.title = :title", Performance.class)
+                .setParameter("title", "라따뚜이")
+                .setMaxResults(1)
+                .getSingleResult();
+        assertThat(savedPerformance).isNotNull();
+
+        List<LikeCount> foundLikeCounts = entityManager.createQuery("SELECT lc FROM LikeCount lc WHERE lc.performance = :performance", LikeCount.class)
+                .setParameter("performance", savedPerformance)
+                .getResultList();
+        assertThat(foundLikeCounts).isNotEmpty();
+        assertThat(foundLikeCounts.get(0).getLikeCount()).isEqualTo(0L);
     }
 
     @DisplayName("H2 Database에 공연 등록이 성공하는 경우 (cascade 설정 확인)")
@@ -161,6 +177,7 @@ class PerformanceApiControllerTests {
     void test_performance_create_success_cascade() throws Exception {
         // Given
         seatRepository.deleteAll();
+        likeCountRepository.deleteAll();
         performanceRepository.deleteAll();
 
         String requestJson = """
@@ -213,5 +230,11 @@ class PerformanceApiControllerTests {
         assertThat(savedPerformance).isNotNull();
         assertThat(savedPerformance.getFile()).isNotNull();
         assertThat(savedPerformance.getFile().getEncodedFileName()).isEqualTo("encoded");
+
+        List<LikeCount> foundLikeCounts = entityManager.createQuery("SELECT lc FROM LikeCount lc WHERE lc.performance = :performance", LikeCount.class)
+                .setParameter("performance", savedPerformance)
+                .getResultList();
+        assertThat(foundLikeCounts).isNotEmpty();
+        assertThat(foundLikeCounts.get(0).getLikeCount()).isEqualTo(0L);
     }
 }
