@@ -3,6 +3,8 @@ package com.fifo.ticketing.domain.performance.service;
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCES;
 
+import com.fifo.ticketing.domain.like.entity.LikeCount;
+import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
 import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
 import com.fifo.ticketing.domain.performance.mapper.PerformanceMapper;
 import com.fifo.ticketing.domain.performance.dto.PerformanceSeatGradeDto;
@@ -48,6 +50,7 @@ public class PerformanceService {
     private final GradeRepository gradeRepository;
     private final SeatService seatService;
     private final ImageFileService imageFileService;
+    private final LikeCountRepository likeCountRepository;
 
 
     @Transactional(readOnly = true)
@@ -88,8 +91,16 @@ public class PerformanceService {
         List<Seat> allSeats = generateSeatsForGrades(grades, savedPerformance);
         // Seats 저장 (Batch) - 100개 단위
         saveSeatsInBatch(allSeats);
-
+        // LikeCount 저장
+        saveLikeCount(savedPerformance);
         return savedPerformance;
+    }
+
+    private void saveLikeCount(Performance savedPerformance) {
+        likeCountRepository.save(LikeCount.builder()
+                .likeCount(0L)
+                .performance(savedPerformance)
+                .build());
     }
 
     private Place findPlace(Long placeId) {
