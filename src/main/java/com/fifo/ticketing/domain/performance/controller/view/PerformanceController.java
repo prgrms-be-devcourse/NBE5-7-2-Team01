@@ -9,6 +9,8 @@ import com.fifo.ticketing.domain.performance.entity.Place;
 import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.service.PerformanceService;
+import com.fifo.ticketing.domain.user.dto.SessionUser;
+import jakarta.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -102,9 +104,11 @@ public class PerformanceController {
     @GetMapping("/{performanceId}")
     public String getPerformanceDetail(
         @PathVariable Long performanceId,
-        @RequestParam Long userId,
+        HttpSession session,
         Model model
     ) {
+        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
+
         PerformanceDetailResponse performanceDetail = performanceService.getPerformanceDetail(
             performanceId);
 
@@ -112,7 +116,7 @@ public class PerformanceController {
 
         model.addAttribute("performanceDetail", performanceDetail);
         model.addAttribute("performanceId", performanceId);
-        model.addAttribute("userId", userId);
+        model.addAttribute("userId", loginUser.id());
         model.addAttribute("seats", seatViewDtos);
 
         return "performance/detail";
@@ -128,7 +132,7 @@ public class PerformanceController {
     }
 
     @GetMapping("/create")
-    public String createPerformance(Model model){
+    public String createPerformance(Model model) {
         List<PlaceResponseDto> places = performanceService.getAllPlaces();
         model.addAttribute("places", places);
         return "create_performance";
