@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>회원 가입 페이지</title>
+  <style>
+    body {
+      font-family: "맑은 고딕", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 50px;
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-bottom: 40px;
+    }
+
+    .signup-box {
+      background-color: #f2f2f2;
+      padding: 40px;
+      border: 1px solid #ccc;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .form-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .form-row input {
+      width: 300px;
+      height: 45px;
+      padding: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    .form-row button {
+      width: 120px;
+      height: 45px;
+      font-size: 15px;
+      font-weight: bold;
+      border-radius: 6px;
+      white-space: nowrap;
+      box-sizing: border-box;
+    }
+
+    #submit-btn {
+      border-radius: 100px;
+    }
+
+    #email-status {
+      margin-top: -10px;
+      margin-bottom: -10px;
+      color: green;
+    }
+  </style>
+
+  <script>
+    let emailVerified = false;
+
+    function isValidEmail(email) {
+      const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return regex.test(email);
+    }
+
+    function sendEmail() {
+      const email = document.getElementById("email").value;
+
+      if (!isValidEmail(email)) {
+        document.getElementById("email-status").innerText = "❌ 유효한 이메일 주소를 입력하세요.";
+        return;
+      }
+
+      fetch("/api/users/email/send", {
+        method: "POST",
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email: email})
+      })
+      .then(res => res.ok ? "인증 메일 전송 완료" : "전송 실패")
+      .then(msg => document.getElementById("email-status").innerText = msg)
+      .catch(() => document.getElementById("email-status").innerText = "오류 발생");
+    }
+
+    function verifyCode() {
+      const email = document.getElementById("email").value;
+      const code = document.getElementById("code").value;
+
+      if (code === "") {
+        document.getElementById("email-status").innerText = "❌ 인증 코드를 입력하세요.";
+        return;
+      }
+
+      fetch("/api/users/email/auth", {
+        method: "POST",
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email: email, authCode: code})
+      })
+      .then(res => {
+        if (res.ok) {
+          emailVerified = true;
+          document.getElementById("email-status").innerText = "✅ 인증 성공!";
+          document.getElementById("submit-btn").disabled = false;
+        } else {
+          document.getElementById("email-status").innerText = "❌ 인증 실패";
+        }
+      })
+      .catch(() => document.getElementById("email-status").innerText = "오류 발생");
+    }
+  </script>
+</head>
+<body>
+<h1>회원 가입 페이지</h1>
+<form class="signup-box" method="post" th:action="@{/users/signup}">
+  <div class="form-row">
+    <input type="email" id="email" name="email" placeholder="이메일 입력란" required>
+    <button type="button" onclick="sendEmail()">인증번호 전송</button>
+  </div>
+
+  <div class="form-row">
+    <input type="text" id="code" name="code" placeholder="인증 코드 입력란">
+    <button type="button" onclick="verifyCode()">인증확인</button>
+  </div>
+
+  <p id="email-status"></p>
+
+  <div class="form-row">
+    <input type="password" id="password" name="password" placeholder="비밀번호 입력란" required>
+  </div>
+
+  <div class="form-row">
+    <input type="text" id="username" name="username" placeholder="유저 명" required>
+    <button id="submit-btn" type="submit" disabled>회원가입</button>
+  </div>
+</form>
+</body>
+</html>
+
+

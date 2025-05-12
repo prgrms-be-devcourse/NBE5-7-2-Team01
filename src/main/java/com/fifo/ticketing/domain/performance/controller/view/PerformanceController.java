@@ -1,5 +1,8 @@
 package com.fifo.ticketing.domain.performance.controller.view;
 
+
+import com.fifo.ticketing.domain.book.dto.BookSeatViewDto;
+import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
 import com.fifo.ticketing.domain.performance.dto.PlaceResponseDto;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.entity.Place;
@@ -9,6 +12,7 @@ import com.fifo.ticketing.domain.performance.service.PerformanceService;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fifo.ticketing.domain.seat.service.SeatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +21,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -26,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class PerformanceController {
 
     private final PerformanceService performanceService;
+    private final SeatService seatService;
 
     @GetMapping
     public String viewPerformances(
@@ -91,6 +97,25 @@ public class PerformanceController {
 
         preparedModel(model, performances, page, baseQuery);
         return "view_performances";
+    }
+
+    @GetMapping("/{performanceId}")
+    public String getPerformanceDetail(
+        @PathVariable Long performanceId,
+        @RequestParam Long userId,
+        Model model
+    ) {
+        PerformanceDetailResponse performanceDetail = performanceService.getPerformanceDetail(
+            performanceId);
+
+        List<BookSeatViewDto> seatViewDtos = seatService.getSeatsForPerformance(performanceId);
+
+        model.addAttribute("performanceDetail", performanceDetail);
+        model.addAttribute("performanceId", performanceId);
+        model.addAttribute("userId", userId);
+        model.addAttribute("seats", seatViewDtos);
+
+        return "performance/detail";
     }
 
     private void preparedModel(Model model, Page<PerformanceResponseDto> performances, int page,

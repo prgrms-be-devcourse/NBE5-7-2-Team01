@@ -8,4 +8,5 @@ import java.util.List;
 public interface GradeRepository extends JpaRepository<Grade, Long> {
 
     List<Grade> findAllByPlaceId(Long id);
+
 }

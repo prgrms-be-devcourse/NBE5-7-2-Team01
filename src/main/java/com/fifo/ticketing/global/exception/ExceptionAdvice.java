@@ -67,6 +67,7 @@ public class ExceptionAdvice {
                 // 필요한 경우 다른 상태 추가
                 case CONFLICT -> HttpStatus.CONFLICT;
                 case INTERNAL_SERVER_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
+                case ALREADY_EXISTS -> HttpStatus.BAD_REQUEST;
             };
 
             return ResponseEntity.status(httpStatus)

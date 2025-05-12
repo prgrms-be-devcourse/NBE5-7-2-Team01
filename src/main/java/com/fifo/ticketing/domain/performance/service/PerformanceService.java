@@ -1,5 +1,11 @@
 package com.fifo.ticketing.domain.performance.service;
 
+import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
+import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCES;
+
+import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
+import com.fifo.ticketing.domain.performance.mapper.PerformanceMapper;
+import com.fifo.ticketing.domain.performance.dto.PerformanceSeatGradeDto;
 import static com.fifo.ticketing.global.exception.ErrorCode.*;
 
 import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
@@ -40,9 +46,22 @@ public class PerformanceService {
     private final PlaceRepository placeRepository;
     private final PerformanceRepository performanceRepository;
     private final GradeRepository gradeRepository;
-
     private final SeatService seatService;
     private final ImageFileService imageFileService;
+
+
+    @Transactional(readOnly = true)
+    public PerformanceDetailResponse getPerformanceDetail(Long performanceId) {
+        Performance performance = performanceRepository.findById(performanceId)
+            .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
+
+        List<Grade> grades = gradeRepository.findAllByPlaceId(performance.getPlace().getId());
+        List<PerformanceSeatGradeDto> seatGrades = grades.stream()
+            .map(PerformanceMapper::toSeatGradeDto)
+            .toList();
+
+        return PerformanceMapper.toDetailResponseDto(performance, seatGrades);
+    }
 
     @Transactional(readOnly = true)
     public Page<PerformanceResponseDto> getPerformancesSortedByLatest(Pageable pageable) {
