@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title th:text="${bookDetail.placeName}">공연 상세</title>
+  <title th:text="${bookDetail.performanceTitle}">예매 상세</title>
   <style>
     body {
       font-family: "맑은 고딕", sans-serif;
@@ -24,16 +24,18 @@
       max-width: 1000px;
       width: 100%;
       align-items: flex-start;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
-    .performance-image {
-      width: 300px;
+    .performance-image img {
+      width: 280px;
       height: 400px;
-      background-color: #e0e0e0;
-      border: 1px solid #ccc;
+      object-fit: cover;
       border-radius: 8px;
-      background-size: cover;
-      background-position: center;
+      border: 1px solid #ccc;
     }
 
     table {
@@ -41,7 +43,7 @@
       border-collapse: collapse;
       background-color: #ffffff;
       border: 1px solid #ccc;
-      box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.03);
       margin-bottom: 20px;
     }
 
@@ -52,7 +54,7 @@
     }
 
     th {
-      background-color: #f2f2f2;
+      background-color: #f9f9f9;
       font-weight: bold;
     }
 
@@ -77,13 +79,14 @@
 
     .btn {
       padding: 10px 20px;
-      margin: 10px;
+      margin-right: 10px;
       font-size: 16px;
       border: none;
       border-radius: 6px;
       background-color: #007bff;
       color: white;
       cursor: pointer;
+      transition: background-color 0.3s ease;
     }
 
     .btn:hover {
@@ -92,6 +95,8 @@
 
     .button-group {
       margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
     }
   </style>
 </head>
@@ -101,9 +106,8 @@
 
 <div class="detail-container">
   <!-- 공연 이미지 영역 -->
-  <div class="performance-image"
-       th:style="'background-image: url(' + ${bookDetail.imageUrl} + ')'"
-       alt="공연 포스터">
+  <div class="performance-image">
+    <img th:src="@{/image/{fileName}(fileName=${bookDetail.encodedFileName})}" alt="공연 포스터"/>
   </div>
 
   <!-- 예매 정보 테이블 -->

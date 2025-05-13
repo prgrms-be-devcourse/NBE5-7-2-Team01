@@ -13,6 +13,7 @@ public class BookCompleteDto {
 
     private Long performanceId;
     private String performanceTitle;
+    private String encodedFileName;
     private LocalDateTime performanceStartTime;
     private LocalDateTime performanceEndTime;
     private String placeName;

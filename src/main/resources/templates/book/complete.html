@@ -4,13 +4,23 @@
   <title th:if="${!book.paymentCompleted}">예매가 완료되었습니다</title>
   <title th:if="${book.paymentCompleted}">결제가 완료되었습니다</title>
   <style>
+    body {
+      font-family: "맑은 고딕", sans-serif;
+      margin: 40px;
+    }
+
     .layout {
       display: flex;
-      gap: 50px;
-      padding: 30px;
+      gap: 40px;
+      align-items: flex-start;
     }
 
     .left-panel {
+      flex: 1;
+      text-align: center;
+    }
+
+    .center-panel {
       flex: 1;
     }
 
@@ -18,41 +28,79 @@
       flex: 1;
     }
 
-    button:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
+    .performance-image img {
+      width: 100%;
+      max-width: 350px;
+      height: auto;
+      border-radius: 12px;
+      object-fit: cover;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    .info, .seats {
-      margin-bottom: 30px;
+    .info p {
+      margin: 10px 0;
+      font-size: 16px;
     }
+
+    .seats h3 {
+      margin-bottom: 10px;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
     }
+
     th, td {
       border: 1px solid #ccc;
-      padding: 12px;
+      padding: 10px;
       text-align: center;
     }
 
+    .total {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    .btn {
+      background-color: #333;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
 
-<div class="layout">
-  <h2 th:if="${!book.paymentCompleted}">예매가 완료되었습니다</h2>
-  <h2 th:if="${book.paymentCompleted}">결제가 완료되었습니다</h2>
+<h2 th:if="${!book.paymentCompleted}">예매가 완료되었습니다</h2>
+<h2 th:if="${book.paymentCompleted}">결제가 완료되었습니다</h2>
 
-  <!-- 왼쪽 공연 정보 -->
+<div class="layout">
+  <!-- 왼쪽: 공연 이미지 -->
   <div class="left-panel">
-    <div class="info">
-      <p><strong>공연명:</strong> <span th:text="${book.performanceTitle}"></span></p>
-      <p><strong>공연일시:</strong> <span th:text="${book.performanceStartTime}"></span> ~ <span th:text="${book.performanceEndTime}"></span></p>
+    <div class="performance-image">
+      <img th:src="@{/image/{fileName}(fileName=${book.encodedFileName})}" alt="공연 포스터"/>
     </div>
   </div>
 
+  <!-- 가운데: 공연 정보 -->
+  <div class="center-panel">
+    <div class="info">
+      <p><strong>공연명:</strong> <span th:text="${book.performanceTitle}"></span></p>
+      <p><strong>공연일시:</strong> <span th:text="${#temporals.format(book.performanceStartTime, 'yyyy-MM-dd HH:mm')}"></span> ~ <span th:text="${#temporals.format(book.performanceEndTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+    </div>
+  </div>
+
+  <!-- 오른쪽: 좌석 정보 -->
   <div class="right-panel">
     <div class="seats">
       <h3>선택한 좌석</h3>
@@ -74,6 +122,7 @@
       </table>
       <p class="total">총 결제 금액: <span th:text="${#numbers.formatInteger(book.totalPrice, 0, 'COMMA')} + '원'"></span></p>
     </div>
+
     <div>
       <form th:if="${!book.paymentCompleted}"
             th:action="@{'/performances/' + ${book.performanceId} + '/book/complete/' + ${bookId} + '/payment'}"
@@ -81,10 +130,9 @@
         <button type="submit" class="btn">결제하기</button>
       </form>
 
-      <button th:if="${book.paymentCompleted}" th:href="@{/}" class="btn">홈으로 돌아가기</button>
+      <button th:if="${book.paymentCompleted}" onclick="location.href='/'" class="btn">홈으로 돌아가기</button>
     </div>
   </div>
-
 </div>
 
 </body>

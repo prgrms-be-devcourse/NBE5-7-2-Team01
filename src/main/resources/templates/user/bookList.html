@@ -18,19 +18,37 @@
       margin-bottom: 30px;
     }
 
-    table {
+    .reservation-card {
+      display: flex;
       width: 90%;
       max-width: 1000px;
-      border-collapse: collapse;
       background-color: #ffffff;
       border: 1px solid #ccc;
       box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+      margin-bottom: 25px;
+      overflow: hidden;
+    }
+
+    .reservation-card img {
+      width: 200px;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .reservation-info {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .reservation-info table {
+      width: 100%;
+      border-collapse: collapse;
     }
 
     th, td {
-      padding: 12px 16px;
+      padding: 10px;
       text-align: center;
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid #eee;
     }
 
     th {
@@ -61,31 +79,37 @@
 <body>
 <h2>예약 목록</h2>
 
-<table>
-  <thead>
-  <tr>
-    <th>공연 제목</th>
-    <th>장소</th>
-    <th>좌석</th>
-    <th>수량</th>
-    <th>총 가격</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr th:each="book : ${bookedList}">
-    <td>
-      <a th:href="@{'/users/books/' + ${book.bookId}}" th:text="${book.performanceTitle}"></a>
-    </td>
-    <td th:text="${book.placeName}"></td>
-    <td>
-      <ul>
-        <li th:each="seat : ${book.seats}" th:text="${seat.seatNumber} + ' (' + ${seat.grade} + ')'"></li>
-      </ul>
-    </td>
-    <td th:text="${book.quantity}"></td>
-    <td th:text="${#numbers.formatInteger(book.totalPrice, 3, 'COMMA')} + '원'"></td>
-  </tr>
-  </tbody>
-</table>
+<div th:each="book : ${bookedList}" class="reservation-card">
+  <img th:src="@{/image/{fileName}(fileName=${book.encodedFileName})}" alt="공연 포스터" />
+
+  <div class="reservation-info">
+    <table>
+      <thead>
+      <tr>
+        <th>공연 제목</th>
+        <th>장소</th>
+        <th>좌석</th>
+        <th>수량</th>
+        <th>총 가격</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>
+          <a th:href="@{'/users/books/' + ${book.bookId}}" th:text="${book.performanceTitle}"></a>
+        </td>
+        <td th:text="${book.placeName}"></td>
+        <td>
+          <ul>
+            <li th:each="seat : ${book.seats}" th:text="${seat.seatNumber} + ' (' + ${seat.grade} + ')'"></li>
+          </ul>
+        </td>
+        <td th:text="${book.quantity}"></td>
+        <td th:text="${#numbers.formatInteger(book.totalPrice, 3, 'COMMA')} + '원'"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 </body>
 </html>

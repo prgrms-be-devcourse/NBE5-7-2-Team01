@@ -12,6 +12,7 @@ public class BookedView {
     private Long bookId;
     private Long performanceId;
     private String performanceTitle;
+    private String encodedFileName;
     private String placeName;
     private List<BookSeatViewDto> seats;
     private int totalPrice;

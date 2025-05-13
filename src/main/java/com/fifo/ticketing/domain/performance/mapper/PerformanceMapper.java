@@ -18,6 +18,7 @@ public class PerformanceMapper {
         return PerformanceDetailResponse.builder().performanceId(performance.getId())
             .title(performance.getTitle()).description(performance.getDescription())
             .category(performance.getCategory().name()).startTime(performance.getStartTime())
+            .encodedFileName(performance.getFile().getEncodedFileName())
             .endTime(performance.getEndTime()).placeName(performance.getPlace().getName())
             .address(performance.getPlace().getAddress())
             .totalSeats(performance.getPlace().getTotalSeats()).seatGrades(seatGrades).build();
