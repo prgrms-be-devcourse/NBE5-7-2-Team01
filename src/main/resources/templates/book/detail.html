@@ -153,6 +153,7 @@
       <form th:if="${bookDetail.bookStatus.name() != 'CANCELED'}"
             th:action="@{'/users/books/' + ${bookDetail.bookId} + '/cancel'}" method="post"
             onsubmit="return confirmCancel()">
+        <input type="hidden" name="_method" value="DELETE" />
         <input type="hidden" name="bookId" th:value="${bookDetail.bookId}" />
         <button type="submit" class="btn">예매 취소</button>
       </form>
