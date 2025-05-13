@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PerformanceResponseDto {
 
+    private Long id;
     private String encodedFileName;
     private String title;
     private String category;
@@ -20,9 +21,10 @@ public class PerformanceResponseDto {
     private boolean performanceStatus;
 
     @Builder
-    public PerformanceResponseDto(String encodedFileName, String title, String category,
+    public PerformanceResponseDto(Long id, String encodedFileName, String title, String category,
         String place, LocalDateTime startTime, LocalDateTime endTime,
         LocalDateTime reservationStartTime, boolean performanceStatus) {
+        this.id = id;
         this.encodedFileName = encodedFileName;
         this.title = title;
         this.category = category;

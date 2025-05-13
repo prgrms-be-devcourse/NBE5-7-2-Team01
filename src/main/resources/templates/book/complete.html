@@ -11,8 +11,8 @@
 
     .layout {
       display: flex;
-      gap: 40px;
-      align-items: flex-start;
+      gap: 50px;
+      padding: 30px;
     }
 
     .left-panel {
@@ -22,6 +22,7 @@
 
     .center-panel {
       flex: 1;
+
     }
 
     .right-panel {
@@ -101,6 +102,7 @@
   </div>
 
   <!-- 오른쪽: 좌석 정보 -->
+
   <div class="right-panel">
     <div class="seats">
       <h3>선택한 좌석</h3>
@@ -133,6 +135,7 @@
       <button th:if="${book.paymentCompleted}" onclick="location.href='/'" class="btn">홈으로 돌아가기</button>
     </div>
   </div>
+
 </div>
 
 </body>

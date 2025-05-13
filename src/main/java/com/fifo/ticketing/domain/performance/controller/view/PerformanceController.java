@@ -3,18 +3,15 @@ package com.fifo.ticketing.domain.performance.controller.view;
 
 import com.fifo.ticketing.domain.book.dto.BookSeatViewDto;
 import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
-import com.fifo.ticketing.domain.performance.dto.PlaceResponseDto;
-import com.fifo.ticketing.domain.performance.entity.Performance;
-import com.fifo.ticketing.domain.performance.entity.Place;
 import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
+import com.fifo.ticketing.domain.performance.dto.PlaceResponseDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.service.PerformanceService;
+import com.fifo.ticketing.domain.seat.service.SeatService;
 import com.fifo.ticketing.domain.user.dto.SessionUser;
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import com.fifo.ticketing.domain.seat.service.SeatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,6 +34,7 @@ public class PerformanceController {
 
     @GetMapping
     public String viewPerformances(
+        HttpSession session,
         @RequestParam(value = "page", defaultValue = "0", required = false) int page,
         @RequestParam(value = "size", defaultValue = "10", required = false) int size,
         Model model) {
@@ -45,12 +43,13 @@ public class PerformanceController {
             pageable);
         String baseQuery = "?size=" + size;
 
-        preparedModel(model, performances, page, baseQuery);
+        preparedModel(session, model, performances, page, baseQuery);
         return "view_performances";
     }
 
     @GetMapping(params = {"sort"})
     public String viewPerformancesSortedBy(
+        HttpSession session,
         @RequestParam(value = "sort", defaultValue = "latest", required = false) String sort,
         @RequestParam(value = "page", defaultValue = "0", required = false) int page,
         @RequestParam(value = "size", defaultValue = "10", required = false) int size,
@@ -63,12 +62,13 @@ public class PerformanceController {
         };
         String baseQuery = "?sort=" + sort + "&size=" + size;
 
-        preparedModel(model, performances, page, baseQuery);
+        preparedModel(session, model, performances, page, baseQuery);
         return "view_performances";
     }
 
     @GetMapping(params = {"startDate", "endDate"})
     public String viewPerformancesWithinPeriod(
+        HttpSession session,
         @RequestParam(value = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
         @RequestParam(value = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
         @RequestParam(value = "page", defaultValue = "0") int page,
@@ -80,12 +80,12 @@ public class PerformanceController {
             startDate, endDate, pageable);
         String baseQuery = "?startDate=" + startDate + "&endDate=" + endDate + "&size=" + size;
 
-        preparedModel(model, performances, page, baseQuery);
+        preparedModel(session, model, performances, page, baseQuery);
         return "view_performances";
     }
 
     @GetMapping(params = "category")
-    public String viewPerformancesByCategory(
+    public String viewPerformancesByCategory(HttpSession session,
         @RequestParam(value = "category") Category category,
         @RequestParam(value = "page", defaultValue = "0") int page,
         @RequestParam(value = "size", defaultValue = "10") int size,
@@ -97,7 +97,7 @@ public class PerformanceController {
             pageable);
         String baseQuery = "?category=" + category + "&size=" + size;
 
-        preparedModel(model, performances, page, baseQuery);
+        preparedModel(session, model, performances, page, baseQuery);
         return "view_performances";
     }
 
@@ -122,8 +122,12 @@ public class PerformanceController {
         return "performance/detail";
     }
 
-    private void preparedModel(Model model, Page<PerformanceResponseDto> performances, int page,
+    private void preparedModel(HttpSession session, Model model,
+        Page<PerformanceResponseDto> performances, int page,
         String baseQuery) {
+        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
+
+        model.addAttribute("userId", loginUser.id());
         model.addAttribute("performances", performances.getContent());
         model.addAttribute("categories", Category.values());
         model.addAttribute("currentPage", page);
