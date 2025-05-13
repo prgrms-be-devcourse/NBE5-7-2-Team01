@@ -14,6 +14,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
 @Controller
@@ -77,5 +79,18 @@ public class ViewController {
         model.addAttribute("userName", loginUser.username());
 
         return "book/detail";
+    }
+
+    @PostMapping("/users/books/{bookId}/cancel")
+    public String cancelBook(
+        HttpSession session,
+        @PathVariable Long bookId,
+        RedirectAttributes redirectAttributes
+    ) {
+        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
+
+        bookService.cancelBook(bookId, loginUser.id());
+        redirectAttributes.addFlashAttribute("alertMessage", "예매가 성공적으로 취소되었습니다.");
+        return "redirect:/users/books";
     }
 }

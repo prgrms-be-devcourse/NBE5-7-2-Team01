@@ -150,10 +150,21 @@
 
     <div class="button-group">
       <button onclick="location.href='/users/books'" class="btn">목록으로</button>
-      <button onclick="location.href='/'" class="btn">주문취소</button>
+      <form th:if="${bookDetail.bookStatus.name() != 'CANCELED'}"
+            th:action="@{'/users/books/' + ${bookDetail.bookId} + '/cancel'}" method="post"
+            onsubmit="return confirmCancel()">
+        <input type="hidden" name="bookId" th:value="${bookDetail.bookId}" />
+        <button type="submit" class="btn">예매 취소</button>
+      </form>
     </div>
   </div>
 </div>
-
 </body>
+
+<script>
+  function confirmCancel() {
+    return confirm("정말 예매를 취소하시겠습니까?");
+  }
+</script>
+
 </html>

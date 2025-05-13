@@ -86,11 +86,30 @@ public class BookService {
 
         List<BookSeat> bookSeats = bookSeatRepository.findAllByBookId(book.getId());
 
+        book.payed();
+
         for (BookSeat bookSeat : bookSeats) {
             Seat seat = bookSeat.getSeat();
             seat.occupy();
         }
 
+    }
+
+    @Transactional
+    public Long cancelBook(Long bookId, Long userId) {
+        Book book = bookRepository.findByUserIdAndId(userId, bookId)
+            .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
+
+        List<BookSeat> bookSeats = bookSeatRepository.findAllByBookId(book.getId());
+
+        book.canceled();
+
+        for (BookSeat bookSeat : bookSeats) {
+            Seat seat = bookSeat.getSeat();
+            seat.available();
+        }
+
+        return bookId;
     }
 
     @Transactional
