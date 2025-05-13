@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Builder
@@ -23,4 +25,8 @@ public class File extends BaseDateEntity {
 
     private String originalFileName;
 
+    public void update(String encodedFileName, String originalFileName) {
+        this.encodedFileName = encodedFileName;
+        this.originalFileName = originalFileName;
+    }
 }

@@ -5,6 +5,8 @@ import com.fifo.ticketing.domain.book.dto.BookCreateRequest;
 import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.seat.repository.SeatRepository;
+import com.fifo.ticketing.domain.user.dto.SessionUser;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,17 +25,19 @@ public class BookController {
     @PostMapping
     public String createBook(
         @PathVariable Long performanceId,
-        @RequestParam Long userId,
+        HttpSession session,
         @RequestParam List<Long> seatIds
     ) {
+        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
         BookCreateRequest request = new BookCreateRequest(seatIds);
-        Long bookId = bookService.createBook(performanceId, userId, request);
+        Long bookId = bookService.createBook(performanceId, loginUser.id(), request);
         return "redirect:/performances/" + performanceId + "/book/complete/" + bookId;
 
     }
 
     @PostMapping("/complete/{bookId}/payment")
-    public String completePayment(@PathVariable Long performanceId, @PathVariable Long bookId, RedirectAttributes redirectAttributes) {
+    public String completePayment(@PathVariable Long performanceId, @PathVariable Long bookId,
+        RedirectAttributes redirectAttributes) {
         bookService.completePayment(bookId);
 
         redirectAttributes.addAttribute("paid", true);
@@ -41,7 +45,7 @@ public class BookController {
     }
 
     @GetMapping("/complete/{bookId}")
-    public String viewBookingComplete(@PathVariable Long performanceId,
+    public String viewBookingComplete(
         @PathVariable Long bookId,
         @RequestParam(value = "paid", required = false, defaultValue = "false") boolean paid,
         Model model) {
