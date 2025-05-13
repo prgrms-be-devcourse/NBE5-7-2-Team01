@@ -4,5 +4,6 @@ public enum ErrorStatus {
     NOT_FOUND,
     CONFLICT,
     INTERNAL_SERVER_ERROR,
-    ALREADY_EXISTS
+    ALREADY_EXISTS,
+    BAD_REQUEST
 }

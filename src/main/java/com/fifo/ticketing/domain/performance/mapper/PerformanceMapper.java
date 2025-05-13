@@ -1,9 +1,6 @@
 package com.fifo.ticketing.domain.performance.mapper;
 
-import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
-import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
-import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
-import com.fifo.ticketing.domain.performance.dto.PerformanceSeatGradeDto;
+import com.fifo.ticketing.domain.performance.dto.*;
 import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.entity.Place;
@@ -20,7 +17,9 @@ public class PerformanceMapper {
             .encodedFileName(performance.getFile().getEncodedFileName())
             .endTime(performance.getEndTime()).placeName(performance.getPlace().getName())
             .address(performance.getPlace().getAddress())
-            .totalSeats(performance.getPlace().getTotalSeats()).seatGrades(seatGrades).build();
+            .totalSeats(performance.getPlace().getTotalSeats())
+            .seatGrades(seatGrades)
+            .build();
 
     }
 
@@ -32,7 +31,7 @@ public class PerformanceMapper {
     private PerformanceMapper() {
     }
 
-    private static PerformanceResponseDto toPerformanceResponseDto(Performance performance) {
+    public static PerformanceResponseDto toPerformanceResponseDto(Performance performance, String urlPrefix) {
         return PerformanceResponseDto.builder()
             .id(performance.getId())
             .encodedFileName(performance.getFile().getEncodedFileName())
@@ -42,7 +41,10 @@ public class PerformanceMapper {
             .startTime(performance.getStartTime())
             .endTime(performance.getEndTime())
             .reservationStartTime(performance.getReservationStartTime())
-            .performanceStatus(performance.isPerformanceStatus()).build();
+            .performanceStatus(performance.isPerformanceStatus())
+            .urlPrefix(urlPrefix)
+            .id(performance.getId())
+            .build();
     }
 
     public static Performance toEntity(PerformanceRequestDto dto, Place place) {
@@ -59,7 +61,30 @@ public class PerformanceMapper {
     }
 
     public static Page<PerformanceResponseDto> toPagePerformanceResponseDto(
-        Page<Performance> performances) {
-        return performances.map(PerformanceMapper::toPerformanceResponseDto);
+        Page<Performance> performances, String urlPrefix) {
+        return performances.map(performance -> PerformanceMapper.toPerformanceResponseDto(performance, urlPrefix));
     }
+
+    public static AdminPerformanceResponseDto toAdminPerformanceResponseDto(Performance performance, String urlPrefix) {
+        return AdminPerformanceResponseDto.builder()
+                .id(performance.getId())
+                .encodedFileName(performance.getFile().getEncodedFileName())
+                .title(performance.getTitle())
+                .description(performance.getDescription())
+                .category(performance.getCategory().name())
+                .place(performance.getPlace().getName())
+                .startTime(performance.getStartTime())
+                .endTime(performance.getEndTime())
+                .reservationStartTime(performance.getReservationStartTime())
+                .performanceStatus(performance.isPerformanceStatus())
+                .urlPrefix(urlPrefix)
+                .id(performance.getId())
+                .build();
+    }
+
+    public static Page<AdminPerformanceResponseDto> toPageAdminPerformanceResponseDto(
+            Page<Performance> performances, String urlPrefix) {
+        return performances.map(performance -> PerformanceMapper.toAdminPerformanceResponseDto(performance, urlPrefix));
+    }
+
 }
