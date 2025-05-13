@@ -155,9 +155,9 @@
           <td th:text="${performance.title}"></td>
           <td th:text="${performance.category}"></td>
           <td th:text="${performance.place}"></td>
-          <td th:text="${performance.startTime}"></td>
-          <td th:text="${performance.endTime}"></td>
-          <td th:text="${performance.reservationStartTime}"></td>
+          <td th:text="${#temporals.format(performance.startTime, 'yyyy-MM-dd HH:mm')}"></td>
+          <td th:text="${#temporals.format(performance.endTime, 'yyyy-MM-dd HH:mm')}"></td>
+          <td th:text="${#temporals.format(performance.reservationStartTime, 'yyyy-MM-dd HH:mm')}"></td>
           <td th:text="${performance.performanceStatus} ? '예매 가능' : '예매 불가'"></td>
           <td>
             <a th:href="@{/admin/performances/update/{performanceId}(performanceId=${performance.id})}" class="btn btn-warning btn-sm">수정</a>

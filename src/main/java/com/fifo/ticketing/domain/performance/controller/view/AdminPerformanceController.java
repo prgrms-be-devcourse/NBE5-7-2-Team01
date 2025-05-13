@@ -2,9 +2,7 @@ package com.fifo.ticketing.domain.performance.controller.view;
 
 
 import com.fifo.ticketing.domain.book.dto.BookSeatViewDto;
-import com.fifo.ticketing.domain.performance.dto.AdminPerformanceDetailResponse;
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceResponseDto;
-import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
 import com.fifo.ticketing.domain.performance.dto.PlaceResponseDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.service.PerformanceService;
@@ -46,7 +44,7 @@ public class AdminPerformanceController {
         String baseQuery = "?size=" + size;
 
         preparedModelAdmin(session, model, performances, page, baseQuery);
-        return "view_performances_admin";
+        return "admin/view_performances_admin";
     }
 
     @GetMapping(params = {"sort"})
@@ -65,7 +63,7 @@ public class AdminPerformanceController {
         String baseQuery = "?sort=" + sort + "&size=" + size;
 
         preparedModelAdmin(session, model, performances, page, baseQuery);
-        return "view_performances_admin";
+        return "admin/view_performances_admin";
     }
 
     @GetMapping(params = {"startDate", "endDate"})
@@ -83,7 +81,7 @@ public class AdminPerformanceController {
         String baseQuery = "?startDate=" + startDate + "&endDate=" + endDate + "&size=" + size;
 
         preparedModelAdmin(session, model, performances, page, baseQuery);
-        return "view_performances_admin";
+        return "admin/view_performances_admin";
     }
 
     @GetMapping(params = "category")
@@ -101,7 +99,7 @@ public class AdminPerformanceController {
         String baseQuery = "?category=" + category + "&size=" + size;
 
         preparedModelAdmin(session, model, performances, page, baseQuery);
-        return "view_performances_admin";
+        return "admin/view_performances_admin";
     }
 
     @GetMapping("/{performanceId}")
@@ -142,7 +140,7 @@ public class AdminPerformanceController {
     public String createPerformance(Model model) {
         List<PlaceResponseDto> places = performanceService.getAllPlaces();
         model.addAttribute("places", places);
-        return "create_performance";
+        return "admin/create_performance";
     }
 
     @GetMapping("/update/{performanceId}")
@@ -151,7 +149,7 @@ public class AdminPerformanceController {
         List<PlaceResponseDto> places = performanceService.getAllPlaces();
         model.addAttribute("performance", performanceDetail);
         model.addAttribute("places", places);
-        return "update_performance";
+        return "admin/update_performance";
     }
 
 }
