@@ -17,6 +17,7 @@ public class PerformanceDetailResponse {
     private String title;
     private String description;
     private String placeName;
+    private String encodedFileName;
     private String address;
     private String category;
     private LocalDateTime startTime;

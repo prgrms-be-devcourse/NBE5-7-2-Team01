@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 public interface PerformanceRepository extends JpaRepository<Performance, Long> {
 
     @Query("SELECT p FROM Performance p " +
+        "JOIN FETCH p.file " +
         "WHERE p.reservationStartTime > :now " +
         "ORDER BY p.reservationStartTime ASC, p.startTime ASC")
     Page<Performance> findUpcomingPerformancesOrderByReservationStartTime(
@@ -40,4 +41,29 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
         "ORDER BY p.reservationStartTime ASC, p.startTime ASC")
     Page<Performance> findUpcomingPerformancesByCategory(@Param("now") LocalDateTime now,
         @Param("category") Category category, Pageable pageable);
+
+    @Query("SELECT p FROM Performance p " +
+            "JOIN FETCH p.file " +
+            "ORDER BY p.reservationStartTime ASC, p.startTime ASC")
+    Page<Performance> findUpcomingPerformancesOrderByReservationStartTimeForAdmin(Pageable pageable);
+
+    @Query("SELECT p FROM Performance p " +
+            "WHERE p.reservationStartTime BETWEEN :startDate AND :endDate " +
+            "ORDER BY p.reservationStartTime ASC, p.startTime ASC")
+    Page<Performance> findUpcomingPerformancesByReservationPeriodForAdmin(
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            Pageable pageable
+    );
+
+    @Query("SELECT p FROM Performance p " +
+            "WHERE p.category = :category " +
+            "ORDER BY p.reservationStartTime ASC, p.startTime ASC")
+    Page<Performance> findUpcomingPerformancesByCategoryForAdmin(@Param("category") Category category, Pageable pageable);
+
+    @Query("SELECT p FROM Performance p" +
+            " LEFT JOIN LikeCount lc ON lc.performance = p " +
+            " ORDER BY COALESCE(lc.likeCount, 0) DESC, p.reservationStartTime ASC")
+    Page<Performance> findUpcomingPerformancesOrderByLikesForAdmin(Pageable pageable);
+
 }

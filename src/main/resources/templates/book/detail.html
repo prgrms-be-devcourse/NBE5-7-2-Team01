@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${bookDetail.performanceTitle}">예매 상세</title>
+  <style>
+    body {
+      font-family: "맑은 고딕", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 50px 20px;
+      background-color: #fafafa;
+    }
+
+    h2 {
+      font-size: 32px;
+      margin-bottom: 30px;
+    }
+
+    .detail-container {
+      display: flex;
+      gap: 30px;
+      max-width: 1000px;
+      width: 100%;
+      align-items: flex-start;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .performance-image img {
+      width: 280px;
+      height: 400px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.03);
+      margin-bottom: 20px;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f9f9f9;
+      font-weight: bold;
+    }
+
+    ul {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    ul li {
+      margin: 2px 0;
+    }
+
+    a {
+      text-decoration: none;
+      color: #007bff;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      margin-right: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+
+    .button-group {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+    }
+  </style>
+</head>
+<body>
+
+<h2>예매 상세 정보</h2>
+
+<div class="detail-container">
+  <!-- 공연 이미지 영역 -->
+  <div class="performance-image">
+    <img th:src="@{/image/{fileName}(fileName=${bookDetail.encodedFileName})}" alt="공연 포스터"/>
+  </div>
+
+  <!-- 예매 정보 테이블 -->
+  <div style="flex: 1;">
+    <table>
+      <thead>
+      <tr>
+        <th>공연 제목</th>
+        <th>장소</th>
+        <th>좌석</th>
+        <th>수량</th>
+        <th>총 가격</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>
+          <a th:href="@{'/performances/' + ${bookDetail.performanceId}}" th:text="${bookDetail.performanceTitle}"></a>
+        </td>
+        <td th:text="${bookDetail.placeName}"></td>
+        <td>
+          <ul>
+            <li th:each="seat : ${bookDetail.seats}" th:text="${seat.seatNumber} + ' (' + ${seat.grade} + ')'"></li>
+          </ul>
+        </td>
+        <td th:text="${bookDetail.quantity}"></td>
+        <td th:text="${#numbers.formatInteger(bookDetail.totalPrice, 3, 'COMMA')} + '원'"></td>
+      </tr>
+      </tbody>
+    </table>
+
+    <table>
+      <tr>
+        <th>예매자</th>
+        <td th:text="${userName}"></td>
+        <th>주문 상태</th>
+        <td th:text="${bookDetail.bookStatus}"></td>
+      </tr>
+    </table>
+
+    <div class="button-group">
+      <button onclick="location.href='/users/books'" class="btn">목록으로</button>
+      <button onclick="location.href='/'" class="btn">주문취소</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

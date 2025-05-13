@@ -5,19 +5,15 @@ import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANC
 
 import com.fifo.ticketing.domain.like.entity.LikeCount;
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
-import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
+import com.fifo.ticketing.domain.performance.dto.*;
 import com.fifo.ticketing.domain.performance.mapper.PerformanceMapper;
-import com.fifo.ticketing.domain.performance.dto.PerformanceSeatGradeDto;
+
 import static com.fifo.ticketing.global.exception.ErrorCode.*;
 
-import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
-import com.fifo.ticketing.domain.performance.dto.PlaceResponseDto;
-import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.entity.Place;
-import com.fifo.ticketing.domain.performance.mapper.PerformanceMapper;
 import com.fifo.ticketing.domain.performance.mapper.PlaceMapper;
 import com.fifo.ticketing.domain.performance.repository.GradeRepository;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
@@ -25,7 +21,6 @@ import com.fifo.ticketing.domain.performance.repository.PlaceRepository;
 import com.fifo.ticketing.domain.seat.entity.Seat;
 import com.fifo.ticketing.domain.seat.service.SeatService;
 import com.fifo.ticketing.global.entity.File;
-import com.fifo.ticketing.global.exception.ErrorCode;
 import com.fifo.ticketing.global.exception.ErrorException;
 
 import java.io.IOException;
@@ -35,6 +30,7 @@ import java.util.List;
 
 import com.fifo.ticketing.global.util.ImageFileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -44,6 +40,9 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class PerformanceService {
+
+    @Value("${file.url-prefix}")
+    private String urlPrefix;
 
     private final PlaceRepository placeRepository;
     private final PerformanceRepository performanceRepository;
@@ -67,14 +66,33 @@ public class PerformanceService {
     }
 
     @Transactional(readOnly = true)
+    public AdminPerformanceResponseDto getPerformanceDetailForAdmin(Long performanceId) {
+        Performance performance = performanceRepository.findById(performanceId)
+                .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
+        return PerformanceMapper.toAdminPerformanceResponseDto(performance, urlPrefix);
+    }
+
+    @Transactional(readOnly = true)
     public Page<PerformanceResponseDto> getPerformancesSortedByLatest(Pageable pageable) {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByReservationStartTime(
             LocalDateTime.now(), pageable);
         if (performances.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCES);
         }
-        return PerformanceMapper.toPagePerformanceResponseDto(performances);
+        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
     }
+
+    @Transactional(readOnly = true)
+    public Page<AdminPerformanceResponseDto> getPerformancesSortedByLatestForAdmin(Pageable pageable) {
+        Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByReservationStartTimeForAdmin(
+            pageable);
+        if (performances.isEmpty()) {
+            throw new ErrorException(NOT_FOUND_PERFORMANCES);
+        }
+        return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
+    }
+
+
     @Transactional
     public Performance createPerformance(PerformanceRequestDto dto, MultipartFile file) throws IOException {
         // Place 조회 및 존재여부 확인
@@ -94,6 +112,45 @@ public class PerformanceService {
         // LikeCount 저장
         saveLikeCount(savedPerformance);
         return savedPerformance;
+    }
+
+    @Transactional
+    public Performance updatePerformance(Long id, PerformanceRequestDto dto, MultipartFile file) throws IOException {
+        // 1. 수정을 위한 Performance 조회.
+        Performance findPerformance = performanceRepository.findById(id).orElseThrow(
+                () -> new ErrorException(NOT_FOUND_PERFORMANCE));
+
+        // 2. Place 조회
+        Place newPlace = findPlace(dto.getPlaceId());
+
+
+        // 3. 동일 장소인지 확인 후 수정 및 삭제
+        if (!findPerformance.getPlace().getId().equals(dto.getPlaceId())) {
+            // 기존 좌석 삭제 (soft or hard) -> 일단 soft라는 인식
+            seatService.deleteSeatsByPerformanceId(id);
+
+            // 새로운 장소 기준 등급 조회 및 좌석 재생성
+            List<Grade> newGrades = findGradesByPlace(newPlace.getId());
+            List<Seat> newSeats = generateSeatsForGrades(newGrades, findPerformance);
+            saveSeatsInBatch(newSeats);
+        }
+
+        // 4. 공연 정보 수정
+        findPerformance.update(dto, newPlace);
+
+        // 5. 신규 파일이 업로드된 경우
+        if (file != null && !file.isEmpty()) {
+            // 기존 파일 정보가 있는 경우 파일 삭제
+            File existFile = findPerformance.getFile();
+            if (existFile != null) {
+                imageFileService.updateFile(existFile, file);
+            } else {
+                // 5. 기존 파일 정보가 없는 경우에 새로 업로드된 경우
+                File newFile = imageFileService.uploadFile(file);
+                findPerformance.setFile(newFile);
+            }
+        }
+        return findPerformance;
     }
 
     private void saveLikeCount(Performance savedPerformance) {
@@ -154,18 +211,18 @@ public class PerformanceService {
         if (performances.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCES);
         }
-        return PerformanceMapper.toPagePerformanceResponseDto(performances);
+        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
     }
 
     @Transactional(readOnly = true)
-    public Page<PerformanceResponseDto> getPerformancesByReservationPeriod(LocalDateTime start,
+    public Page<AdminPerformanceResponseDto> getPerformancesByReservationPeriod(LocalDateTime start,
         LocalDateTime end, Pageable pageable) {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesByReservationPeriod(
             start, end, pageable);
         if (performances.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCES);
         }
-        return PerformanceMapper.toPagePerformanceResponseDto(performances);
+        return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
 
     @Transactional(readOnly = true)
@@ -176,7 +233,7 @@ public class PerformanceService {
         if (performances.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCES);
         }
-        return PerformanceMapper.toPagePerformanceResponseDto(performances);
+        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
     }
 
     @Transactional(readOnly = true)
@@ -186,4 +243,37 @@ public class PerformanceService {
                 .map(PlaceMapper::toDtoForPerformanceCreate)
                 .toList();
     }
+
+
+    @Transactional(readOnly = true)
+    public Page<AdminPerformanceResponseDto> getPerformancesSortedByLikesForAdmin(Pageable pageable) {
+        Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByLikesForAdmin(pageable);
+        if (performances.isEmpty()) {
+            throw new ErrorException(NOT_FOUND_PERFORMANCES);
+        }
+        return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AdminPerformanceResponseDto> getPerformancesByReservationPeriodForAdmin(LocalDateTime start,
+                                                                                   LocalDateTime end, Pageable pageable) {
+        Page<Performance> performances = performanceRepository.findUpcomingPerformancesByReservationPeriodForAdmin(
+                start, end, pageable);
+        if (performances.isEmpty()) {
+            throw new ErrorException(NOT_FOUND_PERFORMANCES);
+        }
+        return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AdminPerformanceResponseDto> getPerformancesByCategoryForAdmin(Category category,
+                                                                          Pageable pageable) {
+        Page<Performance> performances = performanceRepository.findUpcomingPerformancesByCategoryForAdmin(
+                category, pageable);
+        if (performances.isEmpty()) {
+            throw new ErrorException(NOT_FOUND_PERFORMANCES);
+        }
+        return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
+    }
+
 }

@@ -11,6 +11,11 @@
 
     .left-panel {
       flex: 1;
+      text-align: center;
+    }
+
+    .center-panel {
+      flex: 1;
     }
 
     .right-panel {
@@ -104,8 +109,13 @@
 <body>
 
 <div class="layout">
-  <!-- 왼쪽 공연 정보 -->
   <div class="left-panel">
+    <div class="performance-image">
+      <img th:src="@{/image/{fileName}(fileName=${performanceDetail.encodedFileName})}" alt="공연 포스터"/>
+    </div>
+  </div>
+
+  <div class="center-panel">
     <h2 th:text="${performanceDetail.title}">공연 제목</h2>
     <p th:text="${performanceDetail.description}">공연 설명</p>
     <p>장소: <span th:text="${performanceDetail.placeName}"></span></p>

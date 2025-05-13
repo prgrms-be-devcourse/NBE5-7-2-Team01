@@ -31,9 +31,9 @@ public class LikeService {
 
 
     @Transactional
-    public boolean toggleLike(LikeRequest likeRequest) {
+    public boolean toggleLike(Long userId, LikeRequest likeRequest) {
 
-        User user = userRepository.findById(likeRequest.getUserId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ErrorException(NOT_FOUND_MEMBER));
 
         Performance performance = performanceRepository.findById(likeRequest.getPerformanceId())

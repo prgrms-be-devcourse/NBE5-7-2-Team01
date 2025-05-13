@@ -1,5 +1,6 @@
 package com.fifo.ticketing.domain.performance.entity;
 
+import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
 import com.fifo.ticketing.global.entity.BaseDateEntity;
 import com.fifo.ticketing.global.entity.File;
 import jakarta.persistence.*;
@@ -51,5 +52,17 @@ public class Performance extends BaseDateEntity {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "file_id", foreignKey = @ForeignKey(name = "fk_performance_to_file"))
     private File file;
+
+
+    public void update(PerformanceRequestDto dto, Place place) {
+        this.title = dto.getTitle();
+        this.description = dto.getDescription();
+        this.place = place;
+        this.startTime = dto.getStartTime();
+        this.endTime = dto.getEndTime();
+        this.category = dto.getCategory();
+        this.performanceStatus = dto.isPerformanceStatus();
+        this.reservationStartTime = dto.getReservationStartTime();
+    }
 
 }
