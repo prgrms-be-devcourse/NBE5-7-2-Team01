@@ -10,6 +10,7 @@ import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.user.entity.User;
 import com.fifo.ticketing.global.exception.ErrorException;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ public class LikeMailNotificationService {
     private final LikeMailService likeMailService;
     private final PerformanceRepository performanceRepository;
 
+    @Transactional
     public boolean sendLikeNotification(Long performanceId) {
         Performance performance = performanceRepository.findById(performanceId)
             .orElseThrow( ()-> new ErrorException(NOT_FOUND_PERFORMANCES));

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>예약 목록</title>
+  <style>
+    body {
+      font-family: "맑은 고딕", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 50px;
+      background-color: #fafafa;
+    }
+
+    h2 {
+      font-size: 36px;
+      margin-bottom: 30px;
+    }
+
+    .reservation-card {
+      display: flex;
+      width: 90%;
+      max-width: 1000px;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+      margin-bottom: 25px;
+      overflow: hidden;
+    }
+
+    .reservation-card img {
+      width: 200px;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .reservation-info {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .reservation-info table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+
+    ul {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    ul li {
+      margin: 2px 0;
+    }
+
+    a {
+      text-decoration: none;
+      color: #007bff;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+<h2>예약 목록</h2>
+
+<div th:each="book : ${bookedList}" class="reservation-card">
+  <img th:src="@{/image/{fileName}(fileName=${book.encodedFileName})}" alt="공연 포스터" />
+
+  <div class="reservation-info">
+    <table>
+      <thead>
+      <tr>
+        <th>공연 제목</th>
+        <th>장소</th>
+        <th>좌석</th>
+        <th>수량</th>
+        <th>총 가격</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>
+          <a th:href="@{'/users/books/' + ${book.bookId}}" th:text="${book.performanceTitle}"></a>
+        </td>
+        <td th:text="${book.placeName}"></td>
+        <td>
+          <ul>
+            <li th:each="seat : ${book.seats}" th:text="${seat.seatNumber} + ' (' + ${seat.grade} + ')'"></li>
+          </ul>
+        </td>
+        <td th:text="${book.quantity}"></td>
+        <td th:text="${#numbers.formatInteger(book.totalPrice, 3, 'COMMA')} + '원'"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>

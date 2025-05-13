@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LikeRequest {
 
-    private Long userId;
     private Long performanceId;
 
 }

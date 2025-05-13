@@ -1,14 +1,18 @@
 package com.fifo.ticketing.domain.user.controller;
 
+import com.fifo.ticketing.domain.book.dto.BookedView;
+import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.user.dto.SessionUser;
 import com.fifo.ticketing.domain.user.dto.form.SignUpForm;
 import com.fifo.ticketing.domain.user.service.UserFormService;
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Slf4j
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class ViewController {
 
     private final UserFormService userFormService;
+    private final BookService bookService;
 
     @GetMapping("/")
     public String homePage(HttpSession session, Model model) {
@@ -52,4 +57,25 @@ public class ViewController {
         return "sign_in";
     }
 
+    @GetMapping("/users/books")
+    public String getBookList(HttpSession session, Model model) {
+        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
+        List<BookedView> bookedList = bookService.getBookedList(loginUser.id());
+
+        model.addAttribute("bookedList", bookedList);
+        return "user/bookList";
+    }
+
+    @GetMapping("/users/books/{bookId}")
+    public String getBookDetail(HttpSession session,
+        @PathVariable Long bookId,
+        Model model) {
+        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
+        BookedView bookDetail = bookService.getBookDetail(loginUser.id(), bookId);
+
+        model.addAttribute("bookDetail", bookDetail);
+        model.addAttribute("userName", loginUser.username());
+
+        return "book/detail";
+    }
 }

@@ -2,6 +2,7 @@ package com.fifo.ticketing.domain.book.service;
 
 import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
 import com.fifo.ticketing.domain.book.dto.BookCreateRequest;
+import com.fifo.ticketing.domain.book.dto.BookedView;
 import com.fifo.ticketing.domain.book.mapper.BookMapper;
 import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.entity.BookSeat;
@@ -75,9 +76,7 @@ public class BookService {
         Book book = bookRepository.findById(bookId)
             .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
 
-        List<BookSeat> bookSeats = bookSeatRepository.findAllByBookId(book.getId());
-
-        return BookMapper.toBookCompleteDto(book, bookSeats);
+        return BookMapper.toBookCompleteDto(book);
     }
 
     @Transactional
@@ -92,5 +91,20 @@ public class BookService {
             seat.occupy();
         }
 
+    }
+
+    @Transactional
+    public List<BookedView> getBookedList(Long userId) {
+        List<Book> bookList = bookRepository.findAllByUserId(userId);
+
+        return BookMapper.toBookedViewDtoList(bookList);
+    }
+
+    @Transactional
+    public BookedView getBookDetail(Long userId, Long bookId) {
+        Book book = bookRepository.findByUserIdAndId(userId, bookId)
+            .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
+
+        return BookMapper.toBookedViewDto(book);
     }
 }
