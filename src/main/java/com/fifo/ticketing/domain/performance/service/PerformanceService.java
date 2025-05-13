@@ -125,10 +125,11 @@ public class PerformanceService {
         // 2. Place 조회
         Place newPlace = findPlace(dto.getPlaceId());
 
-        // 3. 동일 장소인지 확인 후 수정 및 삭제
+        // 3. 공연 정보 수정
+        findPerformance.update(dto, newPlace);
+
+        // 4. 동일 장소인지 확인 후 수정 및 삭제
         if (!findPerformance.getPlace().getId().equals(dto.getPlaceId())) {
-            // 4. 공연 정보 수정
-            findPerformance.update(dto, newPlace);
             // 기존 좌석 삭제 (soft or hard) -> 일단 soft라는 인식
             seatService.deleteSeatsByPerformanceId(id);
 
