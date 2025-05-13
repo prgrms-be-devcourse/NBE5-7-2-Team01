@@ -11,7 +11,9 @@ import com.fifo.ticketing.domain.user.entity.User;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Component;
 
+@Component
 public class BookMapper {
 
     public static Book toBookEntity(User user, Performance performance, int totalPrice, int quantity) {
@@ -56,7 +58,7 @@ public class BookMapper {
             .build();
     }
 
-    public static List<BookedListView> toBookedListDtoList(List<Book> books) {
+    public List<BookedListView> toBookedListDtoList(List<Book> books) {
         return books.stream()
             .map(this::toBookedListViewDto)
             .collect(Collectors.toList());

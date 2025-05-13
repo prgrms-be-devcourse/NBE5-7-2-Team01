@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>예약 목록</title>
+</head>
+<body>
+<h2>예약 목록</h2>
+
+<table>
+  <thead>
+  <tr>
+    <th>공연 제목</th>
+    <th>장소</th>
+    <th>좌석</th>
+    <th>수량</th>
+    <th>총 가격</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="book : ${bookedList}">
+    <td>
+      <a th:href="@{'/bookings/' + ${book.bookId}}" th:text="${booking.performanceTitle}"></a>
+    </td>
+    <td th:text="${book.placeName}"></td>
+    <td>
+      <ul>
+        <li th:each="seat : ${book.seats}" th:text="${seat.seatNumber} + ' (' + ${seat.grade} + ')'"></li>
+      </ul>
+    </td>
+    <td th:text="${book.quantity}"></td>
+    <td th:text="${#numbers.formatInteger(book.totalPrice, 3, 'COMMA')} + '원'"></td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>

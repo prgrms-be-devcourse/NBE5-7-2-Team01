@@ -1,9 +1,12 @@
 package com.fifo.ticketing.domain.user.controller;
 
+import com.fifo.ticketing.domain.book.dto.BookedListView;
+import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.user.dto.SessionUser;
 import com.fifo.ticketing.domain.user.dto.form.SignUpForm;
 import com.fifo.ticketing.domain.user.service.UserFormService;
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class ViewController {
 
     private final UserFormService userFormService;
+    private final BookService bookService;
 
     @GetMapping("/")
     public String homePage(HttpSession session, Model model) {
@@ -51,5 +55,15 @@ public class ViewController {
     public String signin() {
         return "sign_in";
     }
+
+    @GetMapping("/users/books")
+    public String getBookList(HttpSession session, Model model) {
+        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
+        List<BookedListView> bookedList = bookService.getBookedList(loginUser.id());
+
+        model.addAttribute("bookedList", bookedList);
+        return "user/bookList";
+    }
+
 
 }

@@ -36,6 +36,7 @@ public class BookService {
     private final PerformanceRepository performanceRepository;
     private final SeatRepository seatRepository;
     private final BookSeatRepository bookSeatRepository;
+    private final BookMapper bookMapper;
 
     @Transactional
     public Long createBook(Long performanceId, Long userId, BookCreateRequest request) {
@@ -97,6 +98,6 @@ public class BookService {
     public List<BookedListView> getBookedList(Long userId) {
         List<Book> bookList = bookRepository.findAllByUserId(userId);
 
-        return BookMapper.toBookedListDtoList(bookList);
+        return bookMapper.toBookedListDtoList(bookList);
     }
 }
