@@ -11,7 +11,7 @@ import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Getter
-@Table(name = "seats", uniqueConstraints = @UniqueConstraint(columnNames = {"performance_id", "seat_number"}))
+@Table(name = "seats")
 @NoArgsConstructor
 @AllArgsConstructor
 @BatchSize(size = 100)

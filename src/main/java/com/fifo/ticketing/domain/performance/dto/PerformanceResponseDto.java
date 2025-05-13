@@ -5,11 +5,14 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PerformanceResponseDto {
 
+    private Long performanceId;
+    private String description;
     private String encodedFileName;
     private String title;
     private String category;
@@ -18,18 +21,26 @@ public class PerformanceResponseDto {
     private LocalDateTime endTime;
     private LocalDateTime reservationStartTime;
     private boolean performanceStatus;
+    private String urlPrefix;
 
     @Builder
-    public PerformanceResponseDto(String encodedFileName, String title, String category,
+    public PerformanceResponseDto(String encodedFileName, String title, String description, String category,
         String place, LocalDateTime startTime, LocalDateTime endTime,
-        LocalDateTime reservationStartTime, boolean performanceStatus) {
+        LocalDateTime reservationStartTime, boolean performanceStatus, String urlPrefix, Long performanceId) {
         this.encodedFileName = encodedFileName;
+        this.performanceId = performanceId;
         this.title = title;
+        this.description = description;
         this.category = category;
         this.place = place;
         this.startTime = startTime;
         this.endTime = endTime;
         this.reservationStartTime = reservationStartTime;
         this.performanceStatus = performanceStatus;
+        this.urlPrefix = urlPrefix;
+    }
+
+    public String getUrl() {
+        return urlPrefix + encodedFileName;
     }
 }

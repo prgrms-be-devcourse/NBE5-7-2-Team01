@@ -1,6 +1,8 @@
 package com.fifo.ticketing.domain.seat.service;
 
 import com.fifo.ticketing.domain.book.dto.BookSeatViewDto;
+import com.fifo.ticketing.domain.performance.entity.Performance;
+import com.fifo.ticketing.domain.seat.entity.SeatStatus;
 import com.fifo.ticketing.domain.seat.mapper.SeatMapper;
 import com.fifo.ticketing.domain.seat.repository.SeatRepository;
 import com.fifo.ticketing.domain.seat.entity.Seat;
@@ -41,5 +43,10 @@ public class SeatService {
         }
         entityManager.flush();
         entityManager.clear();
+    }
+
+    @Transactional
+    public void deleteSeatsByPerformanceId(Long performanceId) {
+        seatRepository.updateSeatStatusByPerformanceId(performanceId, SeatStatus.DELETED);
     }
 }

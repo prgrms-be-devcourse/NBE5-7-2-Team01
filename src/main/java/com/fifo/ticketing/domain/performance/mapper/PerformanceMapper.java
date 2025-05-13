@@ -15,12 +15,18 @@ public class PerformanceMapper {
 
     public static PerformanceDetailResponse toDetailResponseDto(Performance performance,
         List<PerformanceSeatGradeDto> seatGrades) {
-        return PerformanceDetailResponse.builder().performanceId(performance.getId())
-            .title(performance.getTitle()).description(performance.getDescription())
-            .category(performance.getCategory().name()).startTime(performance.getStartTime())
-            .endTime(performance.getEndTime()).placeName(performance.getPlace().getName())
+        return PerformanceDetailResponse.builder()
+            .performanceId(performance.getId())
+            .title(performance.getTitle())
+            .description(performance.getDescription())
+            .category(performance.getCategory().name())
+            .startTime(performance.getStartTime())
+            .endTime(performance.getEndTime())
+            .placeName(performance.getPlace().getName())
             .address(performance.getPlace().getAddress())
-            .totalSeats(performance.getPlace().getTotalSeats()).seatGrades(seatGrades).build();
+            .totalSeats(performance.getPlace().getTotalSeats())
+            .seatGrades(seatGrades)
+            .build();
 
     }
 
@@ -33,16 +39,20 @@ public class PerformanceMapper {
     private PerformanceMapper() {
     }
 
-    private static PerformanceResponseDto toPerformanceResponseDto(Performance performance) {
+    public static PerformanceResponseDto toPerformanceResponseDto(Performance performance, String urlPrefix) {
         return PerformanceResponseDto.builder()
             .encodedFileName(performance.getFile().getEncodedFileName())
             .title(performance.getTitle())
+            .description(performance.getDescription())
             .category(performance.getCategory().name())
             .place(performance.getPlace().getName())
             .startTime(performance.getStartTime())
             .endTime(performance.getEndTime())
             .reservationStartTime(performance.getReservationStartTime())
-            .performanceStatus(performance.isPerformanceStatus()).build();
+            .performanceStatus(performance.isPerformanceStatus())
+            .urlPrefix(urlPrefix)
+            .performanceId(performance.getId())
+            .build();
     }
   
     public static Performance toEntity(PerformanceRequestDto dto, Place place) {
@@ -58,7 +68,7 @@ public class PerformanceMapper {
                 .build();
     }
 
-    public static Page<PerformanceResponseDto> toPagePerformanceResponseDto(Page<Performance> performances) {
-        return performances.map(PerformanceMapper::toPerformanceResponseDto);
+    public static Page<PerformanceResponseDto> toPagePerformanceResponseDto(Page<Performance> performances, String urlPrefix) {
+        return performances.map(performance -> PerformanceMapper.toPerformanceResponseDto(performance, urlPrefix));
     }
 }

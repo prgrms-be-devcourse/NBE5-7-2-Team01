@@ -4,5 +4,6 @@ public enum SeatStatus {
     BOOKED,
     AVAILABLE,
     SELECTED,
-    OCCUPIED
+    OCCUPIED,
+    DELETED
 }
