@@ -37,7 +37,7 @@ public class ViewController {
 
     @GetMapping("/users/signup")
     public String signup() {
-        return "sign_up";
+        return "user/sign_up";
     }
 
     @PostMapping("/users/signup")
@@ -46,7 +46,7 @@ public class ViewController {
         String emailVerified = (String) session.getAttribute("emailVerified");
         if (emailVerified == null || !emailVerified.equals(signUpForm.email())) {
             model.addAttribute("emailVerified", signUpForm.email());
-            return "sign_up";
+            return "user/sign_up";
         }
 
         userFormService.save(signUpForm);
@@ -57,7 +57,7 @@ public class ViewController {
 
     @GetMapping("/users/signin")
     public String signin() {
-        return "sign_in";
+        return "user/sign_in";
     }
 
     @GetMapping("/users/books")
@@ -82,6 +82,7 @@ public class ViewController {
         return "book/detail";
     }
 
+
     @DeleteMapping("/users/books/{bookId}")
     public String cancelBook(
         HttpSession session,
@@ -94,4 +95,14 @@ public class ViewController {
         redirectAttributes.addFlashAttribute("alertMessage", "예매가 성공적으로 취소되었습니다.");
         return "redirect:/users/books";
     }
+
+    @GetMapping("/users")
+    public String myPage(HttpSession session, Model model) {
+        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            model.addAttribute("username", loginUser.username());
+        }
+        return "user/my_page";
+    }
+
 }

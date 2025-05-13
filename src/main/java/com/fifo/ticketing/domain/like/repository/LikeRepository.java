@@ -4,6 +4,8 @@ import com.fifo.ticketing.domain.like.entity.Like;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.user.entity.User;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +21,9 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
 
     @Query("SELECT l.performance.id FROM Like l WHERE l.user.id = :userId AND l.isLiked = true")
     List<Long> findLikedPerformanceIdsByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT l.performance FROM Like l WHERE l.user.id = :userId AND l.isLiked = true ORDER BY l.performance.startTime ASC")
+    Page<Performance> findLikedPerformancesByUserId(@Param("userId") Long userId,
+        Pageable pageable);
+
 }

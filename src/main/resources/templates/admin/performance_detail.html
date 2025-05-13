@@ -111,7 +111,7 @@
 <div class="layout">
   <div class="left-panel">
     <div class="performance-image">
-      <img th:src="@{'/uploads/' + ${performanceDetail.encodedFileName}}" alt="공연 포스터"/>
+      <img th:src="@{/image/{fileName}(fileName=${performanceDetail.encodedFileName})}" alt="공연 포스터"/>
     </div>
   </div>
 

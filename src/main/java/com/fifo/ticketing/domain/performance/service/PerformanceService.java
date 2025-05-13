@@ -215,14 +215,14 @@ public class PerformanceService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AdminPerformanceResponseDto> getPerformancesByReservationPeriod(LocalDateTime start,
+    public Page<PerformanceResponseDto> getPerformancesByReservationPeriod(LocalDateTime start,
         LocalDateTime end, Pageable pageable) {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesByReservationPeriod(
             start, end, pageable);
         if (performances.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCES);
         }
-        return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
+        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
     }
 
     @Transactional(readOnly = true)

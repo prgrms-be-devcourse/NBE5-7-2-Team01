@@ -35,7 +35,7 @@
 </head>
 <body>
 <h1>공연 수정</h1>
-<form id="performance-form" th:action="@{/performances/edit/{id}(id=${performance.id})}" method="post" enctype="multipart/form-data">
+<form id="performance-form" action="#" enctype="multipart/form-data">
   <div th:if="${performance.encodedFileName}">
     <label>현재 포스터 이미지</label>
     <img th:src="@{{url}(url=${performance.url})}" alt="현재 포스터" class="image-preview"/>
@@ -88,7 +88,7 @@
 
         const form = e.target;
         const pathSegments = window.location.pathname.split('/');
-        const performanceId = pathSegments[pathSegments.length - 1]; // '11' 추출
+        const perfId = pathSegments[pathSegments.length - 1];
 
         const dto = {
             title: form.title.value,
@@ -107,7 +107,7 @@
         formData.append("request", new Blob([JSON.stringify(dto)], { type: "application/json" }));
 
         try {
-            const res = await fetch(`/api/performances/${performanceId}`, { // 변경된 변수명 사용
+            const res = await fetch(`/api/performances/${perfId}`, { // 변경된 변수명 사용
                 method: "PUT",
                 body: formData
             });
@@ -115,7 +115,7 @@
             const text = await res.text();
             if (res.ok) {
                 alert("공연 정보 수정 성공: " + text);
-                window.location.href = '/performances/admin';
+                window.location.href = '/admin/performances';
             } else {
                 alert("수정 실패: " + text);
             }
