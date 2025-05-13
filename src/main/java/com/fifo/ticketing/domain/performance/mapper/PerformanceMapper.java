@@ -50,7 +50,7 @@ public class PerformanceMapper {
             .reservationStartTime(performance.getReservationStartTime())
             .performanceStatus(performance.isPerformanceStatus())
             .urlPrefix(urlPrefix)
-            .performanceId(performance.getId())
+            .id(performance.getId())
             .build();
     }
 
