@@ -1,6 +1,8 @@
 package com.fifo.ticketing.global.util;
 
 import com.fifo.ticketing.global.entity.File;
+import com.fifo.ticketing.global.exception.ErrorCode;
+import com.fifo.ticketing.global.exception.ErrorException;
 import com.fifo.ticketing.global.repository.FileRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,11 +75,11 @@ class ImageFileServiceTests {
     void test_invalid_file_type_throws_exception() throws Exception {
         when(mockFile.getContentType()).thenReturn("text/plain");
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        ErrorException exception = assertThrows(ErrorException.class, () -> {
             imageFileService.uploadFile(mockFile);
         });
 
-        assertThat(exception.getMessage()).isEqualTo("이미지 타입만 업로드 가능합니다.");
+        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.INVALID_IMAGE_TYPE);
     }
 
 }
