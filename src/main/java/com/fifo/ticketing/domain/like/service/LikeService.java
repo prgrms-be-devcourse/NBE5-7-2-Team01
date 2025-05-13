@@ -12,6 +12,7 @@ import com.fifo.ticketing.domain.user.repository.UserRepository;
 import com.fifo.ticketing.global.exception.ErrorException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -78,5 +79,12 @@ public class LikeService {
         likeCount.setLikeCount(updatedCnt);
         likeCountRepository.save(likeCount);
 
+    }
+
+    public List<Long> getLikedPerformancesIds(Long userId) {
+        userRepository.findById(userId)
+            .orElseThrow(() -> new ErrorException(NOT_FOUND_MEMBER));
+
+        return likeRepository.findLikedPerformanceIdsByUserId(userId);
     }
 }

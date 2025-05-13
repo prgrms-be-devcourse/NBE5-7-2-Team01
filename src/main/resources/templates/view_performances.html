@@ -148,8 +148,8 @@
 
               <button class="like-button btn btn-sm btn-danger"
                       style="position: absolute; bottom: 5px; right: 5px;"
-                      th:data-id="${performance.id}">
-                ♡
+                      th:data-id="${performance.id}"
+                      th:text="${likedPerformanceIds.contains(performance.id)} ? '♥' : '♡'">
               </button>
             </div>
           </td>
