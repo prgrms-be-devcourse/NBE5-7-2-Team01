@@ -1,0 +1,96 @@
+package com.fifo.ticketing.domain.book.service;
+
+import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
+import com.fifo.ticketing.domain.book.dto.BookCreateRequest;
+import com.fifo.ticketing.domain.book.mapper.BookMapper;
+import com.fifo.ticketing.domain.book.entity.Book;
+import com.fifo.ticketing.domain.book.entity.BookSeat;
+import com.fifo.ticketing.domain.book.repository.BookRepository;
+import com.fifo.ticketing.domain.book.repository.BookSeatRepository;
+import com.fifo.ticketing.domain.performance.entity.Performance;
+import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
+import com.fifo.ticketing.domain.seat.entity.Seat;
+import com.fifo.ticketing.domain.seat.entity.SeatStatus;
+import com.fifo.ticketing.domain.seat.repository.SeatRepository;
+import com.fifo.ticketing.domain.user.entity.User;
+import com.fifo.ticketing.domain.user.repository.UserRepository;
+import com.fifo.ticketing.global.exception.AlertDetailException;
+import com.fifo.ticketing.global.exception.ErrorCode;
+import com.fifo.ticketing.global.exception.ErrorException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_MEMBER;
+import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
+
+@Service
+@RequiredArgsConstructor
+public class BookService {
+
+    private final BookRepository bookRepository;
+    private final UserRepository userRepository;
+    private final PerformanceRepository performanceRepository;
+    private final SeatRepository seatRepository;
+    private final BookSeatRepository bookSeatRepository;
+
+    @Transactional
+    public Long createBook(Long performanceId, Long userId, BookCreateRequest request) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ErrorException(NOT_FOUND_MEMBER));
+
+        Performance performance = performanceRepository.findById(performanceId)
+            .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
+
+        List<Seat> selectedSeats = seatRepository.findAllById(request.getSeatIds());
+
+        for (Seat seat : selectedSeats) {
+            if (!seat.getSeatStatus().equals(SeatStatus.AVAILABLE)) {
+                throw new AlertDetailException(ErrorCode.SEAT_ALREADY_BOOKED,
+                    String.format("%d번 좌석은 이미 예약되었습니다.", seat.getId()));
+            }
+        }
+        int totalPrice = selectedSeats.stream().mapToInt(Seat::getPrice).sum();
+        int quantity = selectedSeats.size();
+
+        Book book = BookMapper.toBookEntity(user, performance, totalPrice, quantity);
+        bookRepository.save(book);
+        bookRepository.flush();
+
+        List<BookSeat> bookSeatList = BookMapper.toBookSeatEntities(book, selectedSeats);
+
+        bookSeatRepository.saveAll(bookSeatList);
+
+        for (Seat seat : selectedSeats) {
+            seat.book();
+        }
+
+        return book.getId();
+    }
+
+    @Transactional
+    public BookCompleteDto getBookCompleteInfo(Long bookId) {
+        Book book = bookRepository.findById(bookId)
+            .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
+
+        List<BookSeat> bookSeats = bookSeatRepository.findAllByBookId(book.getId());
+
+        return BookMapper.toBookCompleteDto(book, bookSeats);
+    }
+
+    @Transactional
+    public void completePayment(Long bookId) {
+        Book book = bookRepository.findById(bookId)
+            .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
+
+        List<BookSeat> bookSeats = bookSeatRepository.findAllByBookId(book.getId());
+
+        for (BookSeat bookSeat : bookSeats) {
+            Seat seat = bookSeat.getSeat();
+            seat.occupy();
+        }
+
+    }
+}

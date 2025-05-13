@@ -24,9 +24,10 @@ public class PerformanceResponseDto {
     private String urlPrefix;
 
     @Builder
-    public PerformanceResponseDto(String encodedFileName, String title, String description, String category,
-        String place, LocalDateTime startTime, LocalDateTime endTime,
-        LocalDateTime reservationStartTime, boolean performanceStatus, String urlPrefix, Long performanceId) {
+    public PerformanceResponseDto(Long id, String encodedFileName, String title, String description, 
+        String category, String place, LocalDateTime startTime, LocalDateTime endTime,
+        LocalDateTime reservationStartTime, boolean performanceStatus, String urlPrefix) {
+        this.id = id;
         this.encodedFileName = encodedFileName;
         this.id = performanceId;
         this.title = title;

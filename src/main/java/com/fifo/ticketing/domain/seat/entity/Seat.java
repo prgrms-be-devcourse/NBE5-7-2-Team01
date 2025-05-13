@@ -39,6 +39,19 @@ public class Seat extends BaseDateEntity {
     @Column(nullable = false)
     private SeatStatus seatStatus;
 
+
+    public void book() {
+        this.seatStatus = SeatStatus.BOOKED;
+    }
+
+    public void available() {
+        this.seatStatus = SeatStatus.AVAILABLE;
+    }
+
+    public void occupy() {
+        this.seatStatus = SeatStatus.OCCUPIED;
+    }
+
     public static Seat of(Performance performance, Grade grade, int number) {
         return new Seat(null, performance, grade.getGrade() + number, grade.getDefaultPrice(), grade, SeatStatus.AVAILABLE);
     }

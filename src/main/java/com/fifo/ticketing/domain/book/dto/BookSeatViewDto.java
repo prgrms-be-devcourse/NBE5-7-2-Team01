@@ -1,6 +1,5 @@
 package com.fifo.ticketing.domain.book.dto;
 
-import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.seat.entity.SeatStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

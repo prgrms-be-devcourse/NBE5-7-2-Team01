@@ -6,6 +6,7 @@ import com.fifo.ticketing.global.entity.BaseDateEntity;
 import com.fifo.ticketing.global.entity.File;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@Builder
 @Table(name = "books")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,6 +33,7 @@ public class Book extends BaseDateEntity {
     @JoinColumn(name = "performance_id", nullable = false)
     private Performance performance;
 
+    @Builder.Default
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookSeat> bookSeats = new ArrayList<>();
 
@@ -46,5 +49,16 @@ public class Book extends BaseDateEntity {
 
     @Column(nullable = false)
     private Integer quantity;
-}
 
+    public static Book create(User user, Performance performance, int totalPrice, int quantity) {
+        return Book.builder()
+            .user(user)
+            .performance(performance)
+            .totalPrice(totalPrice)
+            .quantity(quantity)
+            .bookStatus(BookStatus.CONFIRMED)
+            .build();
+
+    }
+
+}
