@@ -1,5 +1,6 @@
 package com.fifo.ticketing.domain.book.dto;
 
+import com.fifo.ticketing.domain.book.entity.BookStatus;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,4 +16,5 @@ public class BookedView {
     private List<BookSeatViewDto> seats;
     private int totalPrice;
     private int quantity;
+    private BookStatus bookStatus;
 }

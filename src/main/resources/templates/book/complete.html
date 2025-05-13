@@ -81,7 +81,7 @@
         <button type="submit" class="btn">결제하기</button>
       </form>
 
-      <a th:if="${book.paymentCompleted}" th:href="@{/}" class="btn">홈으로 돌아가기</a>
+      <button th:if="${book.paymentCompleted}" th:href="@{/}" class="btn">홈으로 돌아가기</button>
     </div>
   </div>
 

@@ -55,6 +55,7 @@ public class BookMapper {
                 .collect(Collectors.toList()))
             .quantity(book.getQuantity())
             .totalPrice(book.getTotalPrice())
+            .bookStatus(book.getBookStatus())
             .build();
     }
 

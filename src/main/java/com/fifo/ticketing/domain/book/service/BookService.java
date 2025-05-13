@@ -101,5 +101,11 @@ public class BookService {
         return bookMapper.toBookedViewDtoList(bookList);
     }
 
+    @Transactional
+    public BookedView getBookDetail(Long userId, Long bookId) {
+        Book book = bookRepository.findByUserIdAndId(userId, bookId)
+            .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
 
+        return bookMapper.toBookedViewDto(book);
+    }
 }
