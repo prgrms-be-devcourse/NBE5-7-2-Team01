@@ -54,14 +54,15 @@ class LikeServiceTest {
 
     @Test
     void 좋아요_처음_누를_경우() {
-        LikeRequest request = new LikeRequest(user.getId(), performance.getId());
+
+        LikeRequest request = new LikeRequest(performance.getId());
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(performanceRepository.findById(performance.getId())).thenReturn(Optional.of(performance));
         when(likeRepository.findByUserAndPerformance(user, performance)).thenReturn(null);
         when(likeCountRepository.findByPerformance(performance)).thenReturn(Optional.of(likeCount));
 
-        boolean result = likeService.toggleLike(request);
+        boolean result = likeService.toggleLike(userId, request);
 
         assertThat(result).isTrue();
         verify(likeRepository).save(any(Like.class));
@@ -70,7 +71,7 @@ class LikeServiceTest {
 
     @Test
     void 이미_좋아요를_누른_상태에서_취소하는_경우() {
-        LikeRequest request = new LikeRequest(user.getId(), performance.getId());
+        LikeRequest request = new LikeRequest(performance.getId());
 
         Like existingLike = Like.builder()
                 .user(user)
@@ -83,7 +84,7 @@ class LikeServiceTest {
         when(likeRepository.findByUserAndPerformance(user, performance)).thenReturn(existingLike);
         when(likeCountRepository.findByPerformance(performance)).thenReturn(Optional.of(likeCount));
 
-        boolean result = likeService.toggleLike(request);
+        boolean result = likeService.toggleLike(userId,request);
 
         assertThat(result).isFalse();
         assertThat(existingLike.isLiked()).isFalse();
@@ -95,7 +96,7 @@ class LikeServiceTest {
 
     @Test
     void 좋아요_취소한상태에서_다시_좋아요를_누르는_경우(){
-        LikeRequest request = new LikeRequest(user.getId(), performance.getId());
+        LikeRequest request = new LikeRequest( performance.getId());
 
         Like existingLike = Like.builder()
                 .user(user)
@@ -108,7 +109,7 @@ class LikeServiceTest {
         when(likeRepository.findByUserAndPerformance(user, performance)).thenReturn(existingLike);
         when(likeCountRepository.findByPerformance(performance)).thenReturn(Optional.of(likeCount));
 
-        boolean result = likeService.toggleLike(request);
+        boolean result = likeService.toggleLike(userId,request);
         assertThat(result).isTrue();
         assertThat(existingLike.isLiked()).isTrue();
         assertThat(likeCount.getLikeCount()).isEqualTo(2L);
