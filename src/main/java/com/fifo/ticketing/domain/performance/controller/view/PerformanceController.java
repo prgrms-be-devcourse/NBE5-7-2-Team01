@@ -2,8 +2,8 @@ package com.fifo.ticketing.domain.performance.controller.view;
 
 
 import com.fifo.ticketing.domain.book.dto.BookSeatViewDto;
-import com.fifo.ticketing.domain.like.service.LikeService;
-import com.fifo.ticketing.domain.performance.dto.AdminPerformanceResponseDto;
+import com.fifo.ticketing.domain.like.service.LikeService
+import com.fifo.ticketing.domain.performance.dto.AdminPerformanceResponseDto
 import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
 import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
 import com.fifo.ticketing.domain.performance.dto.PlaceResponseDto;
