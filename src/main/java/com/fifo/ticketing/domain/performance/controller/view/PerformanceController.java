@@ -2,6 +2,7 @@ package com.fifo.ticketing.domain.performance.controller.view;
 
 
 import com.fifo.ticketing.domain.book.dto.BookSeatViewDto;
+import com.fifo.ticketing.domain.performance.dto.AdminPerformanceResponseDto;
 import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
 import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
 import com.fifo.ticketing.domain.performance.dto.PlaceResponseDto;
@@ -49,15 +50,16 @@ public class PerformanceController {
 
     @GetMapping("/admin")
     public String viewPerformancesForAdmin(
+            HttpSession session,
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "size", defaultValue = "10", required = false) int size,
             Model model) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<PerformanceResponseDto> performances =
+        Page<AdminPerformanceResponseDto> performances =
                 performanceService.getPerformancesSortedByLatestForAdmin(pageable);
         String baseQuery = "?size=" + size;
 
-        preparedModel(model, performances, page, baseQuery);
+        preparedModelAdmin(session, model, performances, page, baseQuery);
         return "view_performances_admin";
     }
 
@@ -82,19 +84,20 @@ public class PerformanceController {
 
     @GetMapping(value = "/admin", params = {"sort"})
     public String viewPerformancesSortedByForAdmin(
+            HttpSession session,
             @RequestParam(value = "sort", defaultValue = "latest", required = false) String sort,
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "size", defaultValue = "10", required = false) int size,
             Model model) {
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<PerformanceResponseDto> performances = switch (sort) {
+        Page<AdminPerformanceResponseDto> performances = switch (sort) {
             case "likes" -> performanceService.getPerformancesSortedByLikesForAdmin(pageable);
             default -> performanceService.getPerformancesSortedByLatestForAdmin(pageable);
         };
         String baseQuery = "?sort=" + sort + "&size=" + size;
 
-        preparedModel(model, performances, page, baseQuery);
+        preparedModelAdmin(session, model, performances, page, baseQuery);
         return "view_performances_admin";
     }
 
@@ -110,16 +113,17 @@ public class PerformanceController {
         Model model
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<PerformanceResponseDto> performances = performanceService.getPerformancesByReservationPeriod(
+        Page<AdminPerformanceResponseDto> performances = performanceService.getPerformancesByReservationPeriod(
             startDate, endDate, pageable);
         String baseQuery = "?startDate=" + startDate + "&endDate=" + endDate + "&size=" + size;
 
-        preparedModel(session, model, performances, page, baseQuery);
+        preparedModelAdmin(session, model, performances, page, baseQuery);
         return "view_performances";
     }
 
     @GetMapping(value = "/admin", params = {"startDate", "endDate"})
     public String viewPerformancesWithinPeriodForAdmin(
+            HttpSession session,
             @RequestParam(value = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(value = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             @RequestParam(value = "page", defaultValue = "0") int page,
@@ -127,11 +131,11 @@ public class PerformanceController {
             Model model
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<PerformanceResponseDto> performances = performanceService.getPerformancesByReservationPeriodForAdmin(
+        Page<AdminPerformanceResponseDto> performances = performanceService.getPerformancesByReservationPeriodForAdmin(
             startDate, endDate, pageable);
         String baseQuery = "?startDate=" + startDate + "&endDate=" + endDate + "&size=" + size;
 
-        preparedModel(model, performances, page, baseQuery);
+        preparedModelAdmin(session, model, performances, page, baseQuery);
         return "view_performances_admin";
     }
 
@@ -154,18 +158,19 @@ public class PerformanceController {
 
     @GetMapping(value = "/admin", params = "category")
     public String viewPerformancesByCategoryForAdmin(
+            HttpSession session,
             @RequestParam(value = "category") Category category,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             Model model
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<PerformanceResponseDto> performances = performanceService.getPerformancesByCategoryForAdmin(
+        Page<AdminPerformanceResponseDto> performances = performanceService.getPerformancesByCategoryForAdmin(
             category,
             pageable);
         String baseQuery = "?category=" + category + "&size=" + size;
 
-        preparedModel(model, performances, page, baseQuery);
+        preparedModelAdmin(session, model, performances, page, baseQuery);
         return "view_performances_admin";
     }
 
@@ -201,6 +206,19 @@ public class PerformanceController {
         model.addAttribute("baseQuery", baseQuery);
     }
 
+    private void preparedModelAdmin(HttpSession session, Model model,
+                               Page<AdminPerformanceResponseDto> performances, int page,
+                               String baseQuery) {
+        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
+
+        model.addAttribute("userId", loginUser.id());
+        model.addAttribute("performances", performances.getContent());
+        model.addAttribute("categories", Category.values());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPage", performances.getTotalPages());
+        model.addAttribute("baseQuery", baseQuery);
+    }
+
     @GetMapping("/create")
     public String createPerformance(Model model) {
         List<PlaceResponseDto> places = performanceService.getAllPlaces();
@@ -210,7 +228,7 @@ public class PerformanceController {
 
     @GetMapping("/update/{id}")
     public String updatePerformance(@PathVariable("id") Long id, Model model) {
-        PerformanceResponseDto performanceDetail = performanceService.getPerformanceDetailForAdmin(id);
+        AdminPerformanceResponseDto performanceDetail = performanceService.getPerformanceDetailForAdmin(id);
         List<PlaceResponseDto> places = performanceService.getAllPlaces();
         model.addAttribute("performance", performanceDetail);
         model.addAttribute("places", places);

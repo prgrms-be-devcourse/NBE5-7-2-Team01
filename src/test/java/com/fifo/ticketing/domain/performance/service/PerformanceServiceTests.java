@@ -25,7 +25,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.parameters.P;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -213,10 +212,6 @@ class PerformanceServiceTests {
         Long performanceId = 1L;
         Long newPlaceId = 2L;
 
-        PerformanceRequestDto requestDto = PerformanceRequestDto.builder()
-                .title("신 공연 제목")
-                .placeId(newPlaceId)
-                .build();
 
         Place oldPlace = Place.builder().id(1L).name("구 공연장").build();
         Place newPlace = Place.builder().id(newPlaceId).name("신 공연장").build();
@@ -227,9 +222,15 @@ class PerformanceServiceTests {
                 .place(oldPlace)
                 .file(File.builder().id(1L).originalFileName("oldFile.jpg").build())
                 .build();
+
         List<Grade> grades = List.of(Grade.builder().id(1L).seatCount(10).build());
 
         MultipartFile newFile = new MockMultipartFile("file", "new.jpg", "image/jpeg", "new image".getBytes());
+
+        PerformanceRequestDto requestDto = PerformanceRequestDto.builder()
+                .title("신 공연 제목")
+                .placeId(newPlaceId)
+                .build();
 
         // When
         given(performanceRepository.findById(performanceId)).willReturn(Optional.of(performance));
@@ -243,6 +244,7 @@ class PerformanceServiceTests {
         Performance updated = performanceService.updatePerformance(performanceId, requestDto, newFile);
 
         // Verify
+
         verify(seatService).deleteSeatsByPerformanceId(performanceId);
         verify(seatService).createSeats(anyList());
         verify(imageFileService).updateFile(any(), eq(newFile));

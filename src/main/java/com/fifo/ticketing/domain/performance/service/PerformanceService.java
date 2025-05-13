@@ -5,14 +5,11 @@ import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANC
 
 import com.fifo.ticketing.domain.like.entity.LikeCount;
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
-import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
+import com.fifo.ticketing.domain.performance.dto.*;
 import com.fifo.ticketing.domain.performance.mapper.PerformanceMapper;
-import com.fifo.ticketing.domain.performance.dto.PerformanceSeatGradeDto;
+
 import static com.fifo.ticketing.global.exception.ErrorCode.*;
 
-import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
-import com.fifo.ticketing.domain.performance.dto.PlaceResponseDto;
-import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.performance.entity.Performance;
@@ -69,10 +66,10 @@ public class PerformanceService {
     }
 
     @Transactional(readOnly = true)
-    public PerformanceResponseDto getPerformanceDetailForAdmin(Long performanceId) {
+    public AdminPerformanceResponseDto getPerformanceDetailForAdmin(Long performanceId) {
         Performance performance = performanceRepository.findById(performanceId)
                 .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
-        return PerformanceMapper.toPerformanceResponseDto(performance, urlPrefix);
+        return PerformanceMapper.toAdminPerformanceResponseDto(performance, urlPrefix);
     }
 
     @Transactional(readOnly = true)
@@ -86,13 +83,13 @@ public class PerformanceService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PerformanceResponseDto> getPerformancesSortedByLatestForAdmin(Pageable pageable) {
+    public Page<AdminPerformanceResponseDto> getPerformancesSortedByLatestForAdmin(Pageable pageable) {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByReservationStartTimeForAdmin(
             pageable);
         if (performances.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCES);
         }
-        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
+        return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
 
 
@@ -122,13 +119,12 @@ public class PerformanceService {
         // 1. 수정을 위한 Performance 조회.
         Performance findPerformance = performanceRepository.findById(id).orElseThrow(
                 () -> new ErrorException(NOT_FOUND_PERFORMANCE));
+
         // 2. Place 조회
         Place newPlace = findPlace(dto.getPlaceId());
 
-        // 3. 공연 정보 수정
-        findPerformance.update(dto, newPlace);
 
-        // 4. 동일 장소인지 확인 후 수정 및 삭제
+        // 3. 동일 장소인지 확인 후 수정 및 삭제
         if (!findPerformance.getPlace().getId().equals(dto.getPlaceId())) {
             // 기존 좌석 삭제 (soft or hard) -> 일단 soft라는 인식
             seatService.deleteSeatsByPerformanceId(id);
@@ -138,6 +134,9 @@ public class PerformanceService {
             List<Seat> newSeats = generateSeatsForGrades(newGrades, findPerformance);
             saveSeatsInBatch(newSeats);
         }
+
+        // 4. 공연 정보 수정
+        findPerformance.update(dto, newPlace);
 
         // 5. 신규 파일이 업로드된 경우
         if (file != null && !file.isEmpty()) {
@@ -216,14 +215,14 @@ public class PerformanceService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PerformanceResponseDto> getPerformancesByReservationPeriod(LocalDateTime start,
+    public Page<AdminPerformanceResponseDto> getPerformancesByReservationPeriod(LocalDateTime start,
         LocalDateTime end, Pageable pageable) {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesByReservationPeriod(
             start, end, pageable);
         if (performances.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCES);
         }
-        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
+        return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
 
     @Transactional(readOnly = true)
@@ -247,34 +246,34 @@ public class PerformanceService {
 
 
     @Transactional(readOnly = true)
-    public Page<PerformanceResponseDto> getPerformancesSortedByLikesForAdmin(Pageable pageable) {
+    public Page<AdminPerformanceResponseDto> getPerformancesSortedByLikesForAdmin(Pageable pageable) {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByLikesForAdmin(pageable);
         if (performances.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCES);
         }
-        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
+        return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
 
     @Transactional(readOnly = true)
-    public Page<PerformanceResponseDto> getPerformancesByReservationPeriodForAdmin(LocalDateTime start,
+    public Page<AdminPerformanceResponseDto> getPerformancesByReservationPeriodForAdmin(LocalDateTime start,
                                                                                    LocalDateTime end, Pageable pageable) {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesByReservationPeriodForAdmin(
                 start, end, pageable);
         if (performances.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCES);
         }
-        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
+        return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
 
     @Transactional(readOnly = true)
-    public Page<PerformanceResponseDto> getPerformancesByCategoryForAdmin(Category category,
+    public Page<AdminPerformanceResponseDto> getPerformancesByCategoryForAdmin(Category category,
                                                                           Pageable pageable) {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesByCategoryForAdmin(
                 category, pageable);
         if (performances.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCES);
         }
-        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
+        return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
 
 }
