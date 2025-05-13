@@ -106,7 +106,7 @@
             const text = await res.text();
             if (res.ok) {
                 alert("공연 등록 성공: " + text);
-                window.location.href = "/performances/admin";
+                window.location.href = "/admin/performances";
             } else {
                 alert("등록 실패: " + text);
             }

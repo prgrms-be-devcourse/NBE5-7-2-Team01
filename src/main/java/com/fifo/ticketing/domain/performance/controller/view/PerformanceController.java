@@ -139,11 +139,4 @@ public class PerformanceController {
         model.addAttribute("totalPage", performances.getTotalPages());
         model.addAttribute("baseQuery", baseQuery);
     }
-
-    @GetMapping("/create")
-    public String createPerformance(Model model) {
-        List<PlaceResponseDto> places = performanceService.getAllPlaces();
-        model.addAttribute("places", places);
-        return "create_performance";
-    }
 }
