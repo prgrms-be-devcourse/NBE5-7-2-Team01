@@ -35,7 +35,7 @@
 </head>
 <body>
 <h1>공연 수정</h1>
-<form id="performance-form" th:action="@{/performances/edit/{id}(id=${performance.performanceId})}" method="post" enctype="multipart/form-data">
+<form id="performance-form" th:action="@{/performances/edit/{id}(id=${performance.id})}" method="post" enctype="multipart/form-data">
   <div th:if="${performance.encodedFileName}">
     <label>현재 포스터 이미지</label>
     <img th:src="@{{url}(url=${performance.url})}" alt="현재 포스터" class="image-preview"/>

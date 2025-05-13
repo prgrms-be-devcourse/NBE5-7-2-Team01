@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PerformanceResponseDto {
 
-    private Long performanceId;
+    private Long id;
     private String description;
     private String encodedFileName;
     private String title;
@@ -28,7 +28,7 @@ public class PerformanceResponseDto {
         String place, LocalDateTime startTime, LocalDateTime endTime,
         LocalDateTime reservationStartTime, boolean performanceStatus, String urlPrefix, Long performanceId) {
         this.encodedFileName = encodedFileName;
-        this.performanceId = performanceId;
+        this.id = performanceId;
         this.title = title;
         this.description = description;
         this.category = category;

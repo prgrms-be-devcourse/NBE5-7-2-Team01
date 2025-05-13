@@ -142,7 +142,7 @@
           <td th:text="${performance.reservationStartTime}"></td>
           <td th:text="${performance.performanceStatus} ? '예매 가능' : '예매 불가'"></td>
           <td>
-            <a th:href="@{/performances/update/{id}(id=${performance.performanceId})}" class="btn btn-warning btn-sm">수정</a>
+            <a th:href="@{/performances/update/{id}(id=${performance.id})}" class="btn btn-warning btn-sm">수정</a>
           </td>
         </tr>
         </tbody>
