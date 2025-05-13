@@ -43,7 +43,7 @@ public class BookMapper {
             .build();
     }
 
-    public BookedView toBookedViewDto(Book book) {
+    public static BookedView toBookedViewDto(Book book) {
         Performance performance = book.getPerformance();
 
         return BookedView.builder()
@@ -61,9 +61,9 @@ public class BookMapper {
             .build();
     }
 
-    public List<BookedView> toBookedViewDtoList(List<Book> books) {
+    public static List<BookedView> toBookedViewDtoList(List<Book> books) {
         return books.stream()
-            .map(this::toBookedViewDto)
+            .map(BookMapper::toBookedViewDto)
             .collect(Collectors.toList());
     }
 }

@@ -36,7 +36,6 @@ public class BookService {
     private final PerformanceRepository performanceRepository;
     private final SeatRepository seatRepository;
     private final BookSeatRepository bookSeatRepository;
-    private final BookMapper bookMapper;
 
     @Transactional
     public Long createBook(Long performanceId, Long userId, BookCreateRequest request) {
@@ -98,7 +97,7 @@ public class BookService {
     public List<BookedView> getBookedList(Long userId) {
         List<Book> bookList = bookRepository.findAllByUserId(userId);
 
-        return bookMapper.toBookedViewDtoList(bookList);
+        return BookMapper.toBookedViewDtoList(bookList);
     }
 
     @Transactional
@@ -106,6 +105,6 @@ public class BookService {
         Book book = bookRepository.findByUserIdAndId(userId, bookId)
             .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
 
-        return bookMapper.toBookedViewDto(book);
+        return BookMapper.toBookedViewDto(book);
     }
 }
