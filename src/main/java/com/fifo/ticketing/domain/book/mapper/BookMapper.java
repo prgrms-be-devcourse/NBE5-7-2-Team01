@@ -1,7 +1,7 @@
 package com.fifo.ticketing.domain.book.mapper;
 
 import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
-import com.fifo.ticketing.domain.book.dto.BookedListView;
+import com.fifo.ticketing.domain.book.dto.BookedView;
 import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.entity.BookSeat;
 import com.fifo.ticketing.domain.performance.entity.Performance;
@@ -42,10 +42,10 @@ public class BookMapper {
             .build();
     }
 
-    public BookedListView toBookedListViewDto(Book book) {
+    public BookedView toBookedViewDto(Book book) {
         Performance performance = book.getPerformance();
 
-        return BookedListView.builder()
+        return BookedView.builder()
             .bookId(book.getId())
             .performanceId(performance.getId())
             .performanceTitle(performance.getTitle())
@@ -58,9 +58,9 @@ public class BookMapper {
             .build();
     }
 
-    public List<BookedListView> toBookedListDtoList(List<Book> books) {
+    public List<BookedView> toBookedViewDtoList(List<Book> books) {
         return books.stream()
-            .map(this::toBookedListViewDto)
+            .map(this::toBookedViewDto)
             .collect(Collectors.toList());
     }
 }

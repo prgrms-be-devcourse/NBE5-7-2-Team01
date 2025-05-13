@@ -2,7 +2,7 @@ package com.fifo.ticketing.domain.book.service;
 
 import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
 import com.fifo.ticketing.domain.book.dto.BookCreateRequest;
-import com.fifo.ticketing.domain.book.dto.BookedListView;
+import com.fifo.ticketing.domain.book.dto.BookedView;
 import com.fifo.ticketing.domain.book.mapper.BookMapper;
 import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.entity.BookSeat;
@@ -95,9 +95,11 @@ public class BookService {
     }
 
     @Transactional
-    public List<BookedListView> getBookedList(Long userId) {
+    public List<BookedView> getBookedList(Long userId) {
         List<Book> bookList = bookRepository.findAllByUserId(userId);
 
-        return bookMapper.toBookedListDtoList(bookList);
+        return bookMapper.toBookedViewDtoList(bookList);
     }
+
+
 }

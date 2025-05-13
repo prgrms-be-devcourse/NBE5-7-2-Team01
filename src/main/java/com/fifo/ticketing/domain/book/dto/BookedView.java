@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class BookedListView {
+public class BookedView {
 
     private Long bookId;
     private Long performanceId;
