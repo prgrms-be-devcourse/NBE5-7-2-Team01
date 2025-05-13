@@ -93,9 +93,9 @@
         const dto = {
             title: form.title.value,
             description: form.description.value,
-            startTime: new Date(form.startTime.value).toISOString(),
-            endTime: new Date(form.endTime.value).toISOString(),
-            reservationStartTime: new Date(form.reservationStartTime.value).toISOString(),
+            startTime: form.startTime.value,
+            endTime: form.endTime.value,
+            reservationStartTime: form.reservationStartTime.value,
             category: form.category.value,
             performanceStatus: form.performanceStatus.value === "true",
             placeId: Number(form.placeId.value),
