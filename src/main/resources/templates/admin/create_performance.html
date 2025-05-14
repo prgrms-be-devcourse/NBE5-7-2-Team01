@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>공연 수정</title>
+  <title>공연 등록</title>
   <style>
       body {
           font-family: Arial, sans-serif;
@@ -24,62 +24,55 @@
           padding: 8px;
           font-size: 14px;
       }
-
-      .image-preview {
-          max-width: 200px;
-          height: auto;
-          margin-bottom: 10px;
-          border: 1px solid #ccc;
-      }
   </style>
 </head>
 <body>
-<h1>공연 수정</h1>
-<form id="performance-form" action="#" enctype="multipart/form-data">
-  <div th:if="${performance.encodedFileName}">
-    <label>현재 포스터 이미지</label>
-    <img th:src="@{{url}(url=${performance.url})}" alt="현재 포스터" class="image-preview"/>
-  </div>
-
+<h1>공연 등록</h1>
+<form id="performance-form">
   <label for="title">제목</label>
-  <input type="text" id="title" name="title" th:value="${performance.title}" required>
+  <input type="text" id="title" name="title" required>
 
   <label for="description">설명</label>
-  <textarea id="description" name="description" required th:text="${performance.description}"></textarea>
+  <textarea id="description" name="description" required></textarea>
 
   <label for="startTime">시작 시간</label>
-  <input type="datetime-local" id="startTime" name="startTime" th:value="${#temporals.format(performance.startTime, 'yyyy-MM-dd''T''HH:mm')}" required>
+  <input type="datetime-local" id="startTime" name="startTime" required>
+
   <label for="endTime">종료 시간</label>
-  <input type="datetime-local" id="endTime" name="endTime" th:value="${#temporals.format(performance.endTime, 'yyyy-MM-dd''T''HH:mm')}" required>
+  <input type="datetime-local" id="endTime" name="endTime" required>
 
   <label for="reservationStartTime">예매 시작 시간</label>
-  <input type="datetime-local" id="reservationStartTime" name="reservationStartTime" th:value="${#temporals.format(performance.reservationStartTime, 'yyyy-MM-dd''T''HH:mm')}" required>
+  <input type="datetime-local" id="reservationStartTime" name="reservationStartTime" required>
 
   <label for="category">카테고리</label>
   <select id="category" name="category" required>
-    <option value="CONCERT" th:selected="${performance.category == 'CONCERT'}">콘서트</option>
-    <option value="MOVIE" th:selected="${performance.category == 'MOVIE'}">영화</option>
-    <option value="SPORTS" th:selected="${performance.category == 'SPORTS'}">스포츠</option>
+    <option value="CONCERT">콘서트</option>
+    <option value="MOVIE">영화</option>
+    <option value="SPORTS">스포츠</option>
   </select>
 
   <label for="performanceStatus">예매 가능 여부</label>
   <select id="performanceStatus" name="performanceStatus">
-    <option value="true" th:selected="${performance.performanceStatus}">예매 가능</option>
-    <option value="false" th:selected="${!performance.performanceStatus}">예매 불가</option>
+    <option value="true">예매 가능</option>
+    <option value="false">예매 불가</option>
   </select>
 
   <label for="placeId">장소 ID</label>
   <select id="placeId" name="placeId" required>
     <option value="" disabled selected>장소를 선택해주세요.</option>
     <th:block th:each="place : ${places}">
-      <option th:value="${place.id}" th:text="${place.name}" th:selected="${performance.place == place.name}"></option>
+      <option th:value="${place.id}" th:text="${place.name}"></option>
     </th:block>
   </select>
 
-  <label for="file">포스터 이미지 변경</label>
-  <input type="file" id="file" name="file" accept="image/*">
+  <div id="grade-container">
 
-  <button type="submit">수정</button>
+  </div>
+
+  <label for="file">포스터 이미지</label>
+  <input type="file" id="file" name="file" accept="image/*" required>
+
+  <button type="submit">등록</button>
 </form>
 
 <script>
@@ -87,15 +80,13 @@
         e.preventDefault();
 
         const form = e.target;
-        const pathSegments = window.location.pathname.split('/');
-        const perfId = pathSegments[pathSegments.length - 1];
 
         const dto = {
             title: form.title.value,
             description: form.description.value,
-            startTime: new Date(form.startTime.value).toISOString(),
-            endTime: new Date(form.endTime.value).toISOString(),
-            reservationStartTime: new Date(form.reservationStartTime.value).toISOString(),
+            startTime: form.startTime.value,
+            endTime: form.endTime.value,
+            reservationStartTime: form.reservationStartTime.value,
             category: form.category.value,
             performanceStatus: form.performanceStatus.value === "true",
             placeId: Number(form.placeId.value),
@@ -104,27 +95,26 @@
         const file = form.file.files[0];
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("request", new Blob([JSON.stringify(dto)], { type: "application/json" }));
+        formData.append("request", new Blob([JSON.stringify(dto)], {type: "application/json"}));
 
         try {
-            const res = await fetch(`/api/performances/${perfId}`, { // 변경된 변수명 사용
-                method: "PUT",
+            const res = await fetch("/api/performances", {
+                method: "POST",
                 body: formData
             });
 
             const text = await res.text();
             if (res.ok) {
-                alert("공연 정보 수정 성공: " + text);
-                window.location.href = '/admin/performances';
+                alert("공연 등록 성공: " + text);
+                window.location.href = "/admin/performances";
             } else {
-                alert("수정 실패: " + text);
+                alert("등록 실패: " + text);
             }
         } catch (err) {
             console.error("에러:", err);
-            alert("서버와 통신 중 오류가 발생했습니다.");
+            alert("서버 오류가 발생했습니다.");
         }
     });
-
     document.getElementById("placeId").addEventListener("change", async function () {
         const placeId = this.value;
         const gradeContainer = document.getElementById("grade-container");
