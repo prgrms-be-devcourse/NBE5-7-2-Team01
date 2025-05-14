@@ -90,8 +90,8 @@
     <button class="login-btn" type="submit">로그인<br>버튼</button>
   </form>
 
-  <div th:if="${param.error}">
-    <p style="color: red;" th:text="${param.error}">이메일 또는 비밀번호가 올바르지 않습니다.</p>
+  <div th:if="${errorMessage}">
+    <p style="color: red;" th:text="${errorMessage}"></p>
   </div>
 
   <div th:if="${signupSuccess}">
