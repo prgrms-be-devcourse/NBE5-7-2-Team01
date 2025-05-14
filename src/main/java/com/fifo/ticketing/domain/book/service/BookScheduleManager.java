@@ -11,8 +11,8 @@ import com.fifo.ticketing.domain.book.repository.BookSeatRepository;
 import com.fifo.ticketing.domain.seat.entity.Seat;
 import com.fifo.ticketing.global.exception.ErrorCode;
 import com.fifo.ticketing.global.exception.ErrorException;
+import com.fifo.ticketing.global.util.DateTimeUtil;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -38,12 +38,9 @@ public class BookScheduleManager {
     @Transactional
     public void scheduleCancelTask(Long bookId, LocalDateTime runTime) {
 
-        BookScheduledTask scheduledTask = bookScheduleRepository.save(
-            BookMapper.toBookScheduledTaskEntity(bookId, runTime));
+        bookScheduleRepository.save(BookMapper.toBookScheduledTaskEntity(bookId, runTime));
 
-        Long taskId = scheduledTask.getId();
-
-        Date triggerTime = Date.from(runTime.atZone(ZoneId.systemDefault()).toInstant());
+        Date triggerTime = DateTimeUtil.toDate(runTime);
 
         taskScheduler.schedule(() -> cancelIfUnpaid(bookId), triggerTime);
 

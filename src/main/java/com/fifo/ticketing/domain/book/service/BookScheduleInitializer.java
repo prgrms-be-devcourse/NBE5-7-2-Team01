@@ -1,10 +1,8 @@
 package com.fifo.ticketing.domain.book.service;
 
 import com.fifo.ticketing.domain.book.entity.BookScheduledTask;
-import com.fifo.ticketing.domain.book.mapper.BookMapper;
 import com.fifo.ticketing.domain.book.repository.BookScheduleRepository;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import com.fifo.ticketing.global.util.DateTimeUtil;
 import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +11,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,8 +26,9 @@ public class BookScheduleInitializer {
         List<BookScheduledTask> pendingTasks = bookScheduleRepository.findAllPendingTasks();
 
         for (BookScheduledTask pendingTask : pendingTasks) {
-            Date triggerTime = Date.from(pendingTask.getScheduledTime().atZone(ZoneId.systemDefault()).toInstant());
-            taskScheduler.schedule(() -> bookScheduleManager.cancelIfUnpaid(pendingTask.getBookId()), triggerTime);
+            Date triggerTime = DateTimeUtil.toDate(pendingTask.getScheduledTime());
+            taskScheduler.schedule(
+                () -> bookScheduleManager.cancelIfUnpaid(pendingTask.getBookId()), triggerTime);
         }
     }
 
