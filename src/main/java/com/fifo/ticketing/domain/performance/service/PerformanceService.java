@@ -74,7 +74,7 @@ public class PerformanceService {
 
     @Transactional(readOnly = true)
     public Page<PerformanceResponseDto> getPerformancesSortedByLatest(Pageable pageable) {
-        Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByReservationStartTime(
+        Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByStartTime(
             LocalDateTime.now(), pageable);
         if (performances.isEmpty()) {
             throw new ErrorException(NOT_FOUND_PERFORMANCES);

@@ -143,6 +143,7 @@
     <form id="bookForm" th:action="@{'/performances/' + ${performanceId} + '/book'}" method="post">
       <input type="hidden" name="userId" th:value="${userId}"/>
       <input type="hidden" name="seatIds" id="seatIdsInput"/>
+      <p>10분 내 결제가 완료되지 않을 시 예매가 취소됩니다.</p>
       <button type="submit" id="bookBtn" disabled>예매하기</button>
     </form>
   </div>
