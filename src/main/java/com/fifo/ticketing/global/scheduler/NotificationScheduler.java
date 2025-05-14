@@ -12,7 +12,7 @@ public class NotificationScheduler {
 
     private final LikeMailNotificationService likeMailNotificationService;
 
-    @Scheduled(cron = "0 0 * * * *") // 매 정시 (00분)에 실행
+    @Scheduled(cron = "0 30 * * * *") // 매 시 (30분)에 실행
     public void likeMailNotification(){
         likeMailNotificationService.sendTimeNotification();
     }
