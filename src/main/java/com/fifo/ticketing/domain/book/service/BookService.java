@@ -3,6 +3,7 @@ package com.fifo.ticketing.domain.book.service;
 import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
 import com.fifo.ticketing.domain.book.dto.BookCreateRequest;
 import com.fifo.ticketing.domain.book.dto.BookedView;
+import com.fifo.ticketing.domain.book.entity.BookStatus;
 import com.fifo.ticketing.domain.book.mapper.BookMapper;
 import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.entity.BookSeat;
@@ -18,7 +19,12 @@ import com.fifo.ticketing.domain.user.repository.UserRepository;
 import com.fifo.ticketing.global.exception.AlertDetailException;
 import com.fifo.ticketing.global.exception.ErrorCode;
 import com.fifo.ticketing.global.exception.ErrorException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +42,10 @@ public class BookService {
     private final PerformanceRepository performanceRepository;
     private final SeatRepository seatRepository;
     private final BookSeatRepository bookSeatRepository;
+
+    @Qualifier("taskScheduler")
+    private final TaskScheduler taskScheduler;
+    private final BookCancelService bookCancelService;
 
     @Transactional
     public Long createBook(Long performanceId, Long userId, BookCreateRequest request) {
@@ -68,7 +78,16 @@ public class BookService {
             seat.book();
         }
 
-        return book.getId();
+        Long bookId = book.getId();
+
+        // 10분 뒤 작업 예약
+        LocalDateTime runTime = LocalDateTime.now().plusMinutes(1);
+        // taskScheduler는 작업 실행 시간을 date 타입으로 받아서 변환행주어야 함.
+        Date triggerTime = Date.from(runTime.atZone(ZoneId.systemDefault()).toInstant());
+
+        taskScheduler.schedule(() -> bookCancelService.cancelIfUnpaid(bookId), triggerTime);
+
+        return bookId;
     }
 
     @Transactional
@@ -111,6 +130,7 @@ public class BookService {
 
         return bookId;
     }
+
 
     @Transactional
     public List<BookedView> getBookedList(Long userId) {
