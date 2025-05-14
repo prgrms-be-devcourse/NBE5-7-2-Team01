@@ -5,5 +5,6 @@ public enum ErrorStatus {
     CONFLICT,
     INTERNAL_SERVER_ERROR,
     ALREADY_EXISTS,
-    BAD_REQUEST
+    BAD_REQUEST,
+    UNAUTHORIZED
 }
