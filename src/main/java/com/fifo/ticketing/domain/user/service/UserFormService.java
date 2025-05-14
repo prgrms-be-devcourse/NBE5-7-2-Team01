@@ -41,7 +41,7 @@ public class UserFormService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Optional<User> userOptional = userRepository.findByEmail(email);
         User findUser = userOptional.orElseThrow(
-            () -> new UsernameNotFoundException("잘못된 이메일 혹은 비밀번호 입니다.")
+            () -> new ErrorException(ErrorCode.NOT_FOUND_MEMBER)
         );
         return new UserFormDetails(findUser);
     }
