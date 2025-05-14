@@ -21,7 +21,7 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
             "ORDER BY p.reservationStartTime ASC, p.startTime ASC",
         countQuery = "SELECT COUNT(p) FROM Performance p WHERE p.startTime > :now"
     )
-    Page<Performance> findUpcomingPerformancesOrderByReservationStartTime(
+    Page<Performance> findUpcomingPerformancesOrderByStartTime(
         @Param("now") LocalDateTime now, Pageable pageable);
 
     @EntityGraph(attributePaths = {"file"})
