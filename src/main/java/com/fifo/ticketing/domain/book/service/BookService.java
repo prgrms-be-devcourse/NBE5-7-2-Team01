@@ -8,6 +8,7 @@ import com.fifo.ticketing.domain.book.mapper.BookMapper;
 import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.entity.BookSeat;
 import com.fifo.ticketing.domain.book.repository.BookRepository;
+import com.fifo.ticketing.domain.book.repository.BookScheduleRepository;
 import com.fifo.ticketing.domain.book.repository.BookSeatRepository;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
@@ -21,6 +22,7 @@ import com.fifo.ticketing.global.exception.ErrorCode;
 import com.fifo.ticketing.global.exception.ErrorException;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,7 @@ import java.util.List;
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_MEMBER;
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookService {
@@ -39,6 +42,7 @@ public class BookService {
     private final SeatRepository seatRepository;
     private final BookSeatRepository bookSeatRepository;
     private final BookScheduleManager bookScheduleManager;
+    private final BookCancelScheduleService bookCancelScheduleService;
 
     @Transactional
     public Long createBook(Long performanceId, Long userId, BookCreateRequest request) {
@@ -73,9 +77,9 @@ public class BookService {
 
         Long bookId = book.getId();
 
-        LocalDateTime runTime = LocalDateTime.now().plusMinutes(10);
+        LocalDateTime runTime = LocalDateTime.now().plusMinutes(5);
 
-        bookScheduleManager.scheduleCancelTask(bookId, runTime, () -> cancelIfUnpaid(bookId));
+        bookScheduleManager.scheduleCancelTask(bookId, runTime);
 
         return bookId;
     }
@@ -119,23 +123,6 @@ public class BookService {
         }
 
         return bookId;
-    }
-
-    @Transactional
-    public void cancelIfUnpaid(Long bookId) {
-        Book book = bookRepository.findById(bookId)
-            .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
-
-        if (book.getBookStatus() == BookStatus.CONFIRMED) {
-
-            List<BookSeat> bookSeats = bookSeatRepository.findAllByBookId(book.getId());
-            book.canceled();
-
-            for (BookSeat bookSeat : bookSeats) {
-                Seat seat = bookSeat.getSeat();
-                seat.available();
-            }
-        }
     }
 
 

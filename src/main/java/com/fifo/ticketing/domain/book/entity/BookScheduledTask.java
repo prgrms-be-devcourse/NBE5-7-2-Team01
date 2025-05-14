@@ -33,6 +33,13 @@ public class BookScheduledTask extends BaseDateEntity {
     @Enumerated(EnumType.STRING)
     private TaskStatus taskStatus;
 
+    public void complete() {
+        this.taskStatus = TaskStatus.COMPLETED;
+    }
+    public void cancel() {
+        this.taskStatus = TaskStatus.CANCELED;
+    }
+
     public static BookScheduledTask create(Long bookId, LocalDateTime scheduledTime) {
         return BookScheduledTask.builder()
             .bookId(bookId)
