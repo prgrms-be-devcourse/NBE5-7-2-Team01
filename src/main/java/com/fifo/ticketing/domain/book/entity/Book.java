@@ -1,6 +1,7 @@
 package com.fifo.ticketing.domain.book.entity;
 
 import com.fifo.ticketing.domain.performance.entity.Performance;
+import com.fifo.ticketing.domain.seat.entity.SeatStatus;
 import com.fifo.ticketing.domain.user.entity.User;
 import com.fifo.ticketing.global.entity.BaseDateEntity;
 import com.fifo.ticketing.global.entity.File;
@@ -49,6 +50,11 @@ public class Book extends BaseDateEntity {
 
     @Column(nullable = false)
     private Integer quantity;
+
+    public void canceled() {
+        this.bookStatus = bookStatus.CANCELED;
+    }
+    public void payed() {this.bookStatus = bookStatus.PAYED;}
 
     public static Book create(User user, Performance performance, int totalPrice, int quantity) {
         return Book.builder()

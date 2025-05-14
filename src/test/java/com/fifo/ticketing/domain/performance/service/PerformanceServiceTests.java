@@ -16,7 +16,6 @@ import com.fifo.ticketing.global.entity.File;
 import com.fifo.ticketing.global.exception.ErrorCode;
 import com.fifo.ticketing.global.exception.ErrorException;
 import com.fifo.ticketing.global.util.ImageFileService;
-import org.hibernate.validator.internal.util.Contracts;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,18 +24,22 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.*;
 
 @ActiveProfiles("ci")
@@ -199,5 +202,96 @@ class PerformanceServiceTests {
 
         verify(seatService).createSeats(anyList());
         verifyNoMoreInteractions(seatService);
+    }
+
+    @Test
+    @DisplayName("공연 수정이 성공하는 경우")
+    void test_update_performance_success() throws Exception {
+
+        // Given
+        Long performanceId = 1L;
+        Long newPlaceId = 2L;
+
+
+        Place oldPlace = Place.builder().id(1L).name("구 공연장").build();
+        Place newPlace = Place.builder().id(newPlaceId).name("신 공연장").build();
+
+        Performance performance = Performance.builder()
+                .id(performanceId)
+                .title("구 공연 제목")
+                .place(oldPlace)
+                .file(File.builder().id(1L).originalFileName("oldFile.jpg").build())
+                .build();
+
+        List<Grade> grades = List.of(Grade.builder().id(1L).seatCount(10).build());
+
+        MultipartFile newFile = new MockMultipartFile("file", "new.jpg", "image/jpeg", "new image".getBytes());
+
+        PerformanceRequestDto requestDto = PerformanceRequestDto.builder()
+                .title("신 공연 제목")
+                .placeId(newPlaceId)
+                .build();
+
+        // When
+        given(performanceRepository.findById(performanceId)).willReturn(Optional.of(performance));
+        given(placeRepository.findById(newPlaceId)).willReturn(Optional.of(newPlace));
+        given(gradeRepository.findAllByPlaceId(newPlaceId)).willReturn(grades);
+
+        // 기존 파일이 있는 경우 -> updateFile
+        willDoNothing().given(imageFileService).updateFile(any(), any());
+
+        // Then
+        Performance updated = performanceService.updatePerformance(performanceId, requestDto, newFile);
+
+        // Verify
+
+        verify(seatService).deleteSeatsByPerformanceId(performanceId);
+        verify(seatService).createSeats(anyList());
+        verify(imageFileService).updateFile(any(), eq(newFile));
+        assertEquals("신 공연 제목", updated.getTitle());
+        assertEquals(newPlace, updated.getPlace());
+    }
+
+    @Test
+    @DisplayName("공연 수정 파일만 변경하는 경우")
+    void test_update_performance_file_success() throws Exception {
+
+        // Given
+        Long performanceId = 1L;
+        Place oldPlace = Place.builder().id(1L).name("구 공연장").build();
+        Performance performance = Performance.builder()
+                .id(performanceId)
+                .title("구 공연 제목")
+                .place(oldPlace)
+                .file(File.builder().id(10L).originalFileName("001.png").build())
+                .build();
+
+        PerformanceRequestDto requestDto = PerformanceRequestDto.builder()
+                .title("구 공연 제목")
+                .placeId(1L)
+                .build();
+
+        MultipartFile newFile = new MockMultipartFile(
+                "encodedFile",
+                "001.png",
+                "image/png",
+                Files.readAllBytes(Path.of("src/test/resources/uploads/001.png"))  // 실제 이미지 파일 바이트
+        );
+
+        File uploadedFile = File.builder().id(10L).originalFileName("001.png").build();
+
+        given(performanceRepository.findById(performanceId)).willReturn(Optional.of(performance));
+        given(placeRepository.findById(1L)).willReturn(Optional.of(oldPlace));
+        doNothing().when(imageFileService).updateFile(any(), eq(newFile));
+
+        // When
+        Performance updated = performanceService.updatePerformance(performanceId, requestDto, newFile);
+
+        // Verify
+        verify(imageFileService).updateFile(any(), eq(newFile));
+        assertEquals("구 공연 제목", updated.getTitle());
+        assertEquals(oldPlace, updated.getPlace());
+        assertEquals(uploadedFile.getId(), updated.getFile().getId());
+
     }
 }

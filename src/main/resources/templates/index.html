@@ -12,6 +12,7 @@
 <div th:if="${username}">
   <p th:text="|안녕하세요, ${username}님!|"></p>
   <button type="button"><a href="/signout">로그아웃</a></button>
+  <button type="button"><a href="/users">마이페이지</a></button>
 </div>
 <div th:if="${username == null}">
   <button type="button">

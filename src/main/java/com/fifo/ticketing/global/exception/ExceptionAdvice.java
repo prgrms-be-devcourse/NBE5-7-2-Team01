@@ -68,6 +68,7 @@ public class ExceptionAdvice {
                 case CONFLICT -> HttpStatus.CONFLICT;
                 case INTERNAL_SERVER_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
                 case ALREADY_EXISTS -> HttpStatus.BAD_REQUEST;
+                case BAD_REQUEST -> HttpStatus.BAD_REQUEST;
             };
 
             return ResponseEntity.status(httpStatus)

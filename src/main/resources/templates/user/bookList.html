@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>예약 목록</title>
+  <title>예매 목록</title>
   <style>
     body {
       font-family: "맑은 고딕", sans-serif;
@@ -77,10 +77,10 @@
   </style>
 </head>
 <body>
-<h2>예약 목록</h2>
+<h2>예매 목록</h2>
 
 <div th:each="book : ${bookedList}" class="reservation-card">
-  <img th:src="@{/image/{fileName}(fileName=${book.encodedFileName})}" alt="공연 포스터" />
+  <img th:src="@{/image/{fileName}(fileName=${book.encodedFileName})}" alt="공연 포스터"/>
 
   <div class="reservation-info">
     <table>
@@ -91,6 +91,7 @@
         <th>좌석</th>
         <th>수량</th>
         <th>총 가격</th>
+        <th>예매 상태</th>
       </tr>
       </thead>
       <tbody>
@@ -101,15 +102,29 @@
         <td th:text="${book.placeName}"></td>
         <td>
           <ul>
-            <li th:each="seat : ${book.seats}" th:text="${seat.seatNumber} + ' (' + ${seat.grade} + ')'"></li>
+            <li th:each="seat : ${book.seats}"
+                th:text="${seat.seatNumber} + ' (' + ${seat.grade} + ')'"></li>
           </ul>
         </td>
         <td th:text="${book.quantity}"></td>
         <td th:text="${#numbers.formatInteger(book.totalPrice, 3, 'COMMA')} + '원'"></td>
+        <td>
+            <span th:switch="${book.bookStatus.name()}">
+              <span th:case="'CANCELED'" style="color: red;">취소 완료</span>
+              <span th:case="'CONFIRMED'" style="color: green;">예매 완료</span>
+              <span th:case="'PAYED'" style="color: blue;">결제 완료</span>
+              <span th:case="*">-</span>
+            </span>
+        </td>
       </tr>
       </tbody>
     </table>
   </div>
 </div>
 </body>
+
+<script th:inline="javascript" th:if="${alertMessage != null}">
+  alert([[${alertMessage}]]);
+</script>
+
 </html>

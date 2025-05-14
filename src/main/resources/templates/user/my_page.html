@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>마이페이지</title>
+  <meta charset="UTF-8">
+</head>
+<style>
+  #liked-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 0;
+    list-style: none;
+  }
+
+  #liked-list li {
+    width: 220px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #fff;
+    transition: transform 0.2s ease-in-out;
+  }
+
+  #liked-list li:hover {
+    transform: translateY(-4px);
+  }
+
+  #liked-list img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+
+  #liked-list h4 {
+    margin: 10px 0 5px;
+    font-size: 1.1em;
+  }
+
+  #liked-list p {
+    margin: 4px 0;
+    font-size: 0.9em;
+    color: #333;
+  }
+</style>
+<body>
+<h1>마이페이지</h1>
+
+<div th:if="${username != null}">
+  <p><strong>로그인 사용자:</strong> <span th:text="${username}">사용자 이름</span></p>
+  <a href="/signout">로그아웃</a>
+
+  <h2>예매 내역 확인</h2>
+  <button type="button"><a href="/users/books">예매 내역</a></button>
+
+  <h2>좋아요한 공연 목록</h2>
+  <ul id="liked-list"></ul>
+
+  <div>
+    <button id="prev-btn">이전</button>
+    <span id="page-info"></span>
+    <button id="next-btn">다음</button>
+  </div>
+</div>
+
+<div th:if="${username == null}">
+  <p>로그인하지 않았습니다. <a href="/users/signin">로그인</a> 후 이용해주세요.</p>
+</div>
+<script>
+  let currentPage = 0;
+  const size = 5;
+
+  function loadLikes(page) {
+    fetch(`/users/likes?page=${page}&size=${size}`)
+    .then(response => response.json())
+    .then(data => {
+      const list = document.getElementById("liked-list");
+      list.innerHTML = "";
+
+      data.content.forEach(perf => {
+        const li = document.createElement("li");
+        li.style.cursor = "pointer";
+
+        li.addEventListener("click", () => {
+          window.location.href = `/performances/${perf.id}`;
+        });
+
+        const title = document.createElement("h4");
+        title.innerText = perf.title;
+
+        const image = document.createElement("img");
+        image.src = "/uploads/" + perf.encodedFileName;
+        image.alt = perf.title;
+        image.width = 120;
+
+        const time = document.createElement("p");
+        time.innerText = `기간: ${perf.startTime} ~ ${perf.endTime}`;
+
+        const place = document.createElement("p");
+        place.innerText = `장소: ${perf.placeName}`;
+
+        li.appendChild(title);
+        li.appendChild(image);
+        li.appendChild(time);
+        li.appendChild(place);
+        list.appendChild(li);
+      });
+
+      document.getElementById("page-info").innerText = `페이지 ${data.number
+      + 1} / ${data.totalPages}`;
+
+      document.getElementById("prev-btn").disabled = data.first;
+      document.getElementById("next-btn").disabled = data.last;
+
+      currentPage = data.number;
+    });
+  }
+
+  document.getElementById("prev-btn").addEventListener("click", () => {
+    if (currentPage > 0) {
+      loadLikes(currentPage - 1);
+    }
+  });
+
+  document.getElementById("next-btn").addEventListener("click", () => {
+    loadLikes(currentPage + 1);
+  });
+
+  loadLikes(currentPage);
+</script>
+</body>
+</html>

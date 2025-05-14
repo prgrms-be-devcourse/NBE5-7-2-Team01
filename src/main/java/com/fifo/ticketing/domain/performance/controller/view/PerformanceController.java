@@ -2,6 +2,7 @@ package com.fifo.ticketing.domain.performance.controller.view;
 
 
 import com.fifo.ticketing.domain.book.dto.BookSeatViewDto;
+import com.fifo.ticketing.domain.like.service.LikeService;
 import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
 import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
 import com.fifo.ticketing.domain.performance.dto.PlaceResponseDto;
@@ -31,6 +32,7 @@ public class PerformanceController {
 
     private final PerformanceService performanceService;
     private final SeatService seatService;
+    private final LikeService likeService;
 
     @GetMapping
     public String viewPerformances(
@@ -126,19 +128,15 @@ public class PerformanceController {
         Page<PerformanceResponseDto> performances, int page,
         String baseQuery) {
         SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
+        Long userId = loginUser.id();
+        List<Long> likedPerformancesIds = likeService.getLikedPerformancesIds(userId);
 
-        model.addAttribute("userId", loginUser.id());
+        model.addAttribute("userId", userId);
         model.addAttribute("performances", performances.getContent());
         model.addAttribute("categories", Category.values());
+        model.addAttribute("likedPerformanceIds", likedPerformancesIds);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPage", performances.getTotalPages());
         model.addAttribute("baseQuery", baseQuery);
-    }
-
-    @GetMapping("/create")
-    public String createPerformance(Model model) {
-        List<PlaceResponseDto> places = performanceService.getAllPlaces();
-        model.addAttribute("places", places);
-        return "create_performance";
     }
 }
