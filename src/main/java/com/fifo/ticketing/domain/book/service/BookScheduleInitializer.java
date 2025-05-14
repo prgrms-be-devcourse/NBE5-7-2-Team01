@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class BookScheduleService {
+public class BookScheduleInitializer {
 
     private final BookService bookService;
     private final BookScheduleRepository bookScheduleRepository;
@@ -32,17 +32,6 @@ public class BookScheduleService {
             Date triggerTime = Date.from(pendingTask.getScheduledTime().atZone(ZoneId.systemDefault()).toInstant());
             taskScheduler.schedule(() -> bookService.cancelIfUnpaid(pendingTask.getBookId()), triggerTime);
         }
-    }
-
-    @Transactional
-    public void scheduleCancelTask(Long bookId, LocalDateTime runTime) {
-
-        bookScheduleRepository.save(BookMapper.toBookScheduledTaskEntity(bookId, runTime));
-
-        Date triggerTime = Date.from(runTime.atZone(ZoneId.systemDefault()).toInstant());
-
-        taskScheduler.schedule(() -> bookService.cancelIfUnpaid(bookId), triggerTime);
-
     }
 
 }

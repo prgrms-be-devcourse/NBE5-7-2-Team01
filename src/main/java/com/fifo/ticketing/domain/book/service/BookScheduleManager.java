@@ -1,0 +1,34 @@
+package com.fifo.ticketing.domain.book.service;
+
+import com.fifo.ticketing.domain.book.mapper.BookMapper;
+import com.fifo.ticketing.domain.book.repository.BookScheduleRepository;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class BookScheduleManager {
+
+    private final BookScheduleRepository bookScheduleRepository;
+    @Qualifier("taskScheduler")
+    private final TaskScheduler taskScheduler;
+
+
+    @Transactional
+    public void scheduleCancelTask(Long bookId, LocalDateTime runTime, Runnable task) {
+
+        bookScheduleRepository.save(BookMapper.toBookScheduledTaskEntity(bookId, runTime));
+
+        Date triggerTime = Date.from(runTime.atZone(ZoneId.systemDefault()).toInstant());
+
+        taskScheduler.schedule(task, triggerTime);
+
+    }
+
+}

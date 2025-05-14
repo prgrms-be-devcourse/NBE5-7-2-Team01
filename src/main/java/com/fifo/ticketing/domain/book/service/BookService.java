@@ -38,7 +38,7 @@ public class BookService {
     private final PerformanceRepository performanceRepository;
     private final SeatRepository seatRepository;
     private final BookSeatRepository bookSeatRepository;
-    private final BookScheduleService bookScheduleService;
+    private final BookScheduleManager bookScheduleManager;
 
     @Transactional
     public Long createBook(Long performanceId, Long userId, BookCreateRequest request) {
@@ -75,7 +75,7 @@ public class BookService {
 
         LocalDateTime runTime = LocalDateTime.now().plusMinutes(10);
 
-        bookScheduleService.scheduleCancelTask(bookId, runTime);
+        bookScheduleManager.scheduleCancelTask(bookId, runTime, () -> cancelIfUnpaid(bookId));
 
         return bookId;
     }
