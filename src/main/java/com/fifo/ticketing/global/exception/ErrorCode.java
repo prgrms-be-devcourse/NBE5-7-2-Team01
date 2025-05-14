@@ -26,7 +26,8 @@ public enum ErrorCode {
     EMAIL_ALREADY_EXISTS("EMAIL-001", "이미 사용하는 이메일입니다.", ALREADY_EXISTS),
     NOT_FOUND_AUTH("AUTH-002", "잘못된 인증번호 입니다.", NOT_FOUND),
     NOT_FOUND_PROVIDER("PROVIDER-001", "지원하지 않는 플랫폼 서비스입니다.", NOT_FOUND),
-    NOT_FOUND_BOOK("BOOK-001", "예약 정보가 존재하지 않습니다.", NOT_FOUND);
+    NOT_FOUND_BOOK("BOOK-001", "예약 정보가 존재하지 않습니다.", NOT_FOUND),
+    NOT_FOUND_SCHEDULE("SCHEDULE-001", "존재하지 않는 스케줄 업무입니다.", NOT_FOUND);
 
 
     private final String code;
