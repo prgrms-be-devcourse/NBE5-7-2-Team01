@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.fifo.ticketing.global.util.ImageFileService;
 import lombok.RequiredArgsConstructor;
@@ -121,7 +122,7 @@ public class PerformanceService {
 
     @Transactional
     public Performance updatePerformance(Long id, PerformanceRequestDto dto, MultipartFile file) throws IOException {
-        // 1. 수정을 위한 Performance 조회.
+        // 1. 수정을 위한 Performance 조회
         Performance findPerformance = performanceRepository.findById(id).orElseThrow(
                 () -> new ErrorException(NOT_FOUND_PERFORMANCE));
 
@@ -156,6 +157,17 @@ public class PerformanceService {
             }
         }
         return findPerformance;
+    }
+
+    @Transactional
+    public void deletePerformance(Long id) {
+        // 1. 삭제를 위한 Performance 조회 (삭제되지 않은 파일만)
+        Performance findPerformance = performanceRepository.findByIdAndDeletedFlagFalse(id).orElseThrow(
+                () -> new ErrorException(NOT_FOUND_PERFORMANCE));
+        // 2. 좌석 삭제
+        seatService.deleteSeatsByPerformanceId(id);
+        // 3. 공연 삭제
+        findPerformance.delete();
     }
 
     private void saveLikeCount(Performance savedPerformance) {

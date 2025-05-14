@@ -46,6 +46,9 @@ public class Performance extends BaseDateEntity {
     private boolean performanceStatus;
 
     @Column(nullable = false)
+    private boolean deletedFlag;
+
+    @Column(nullable = false)
     private LocalDateTime reservationStartTime;
   
     @Setter
@@ -63,6 +66,10 @@ public class Performance extends BaseDateEntity {
         this.category = dto.getCategory();
         this.performanceStatus = dto.isPerformanceStatus();
         this.reservationStartTime = dto.getReservationStartTime();
+    }
+
+    public void delete() {
+        this.deletedFlag = true;
     }
 
 }

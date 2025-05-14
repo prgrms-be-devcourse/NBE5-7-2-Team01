@@ -28,13 +28,21 @@ public class PerformanceApiController {
         return ResponseEntity.ok("공연이 등록되었습니다.");
     }
 
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value ="/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updatePerformance(
             @PathVariable Long id,
             @RequestPart(value = "file", required = false) MultipartFile file,
             @RequestPart("request") PerformanceRequestDto request) throws IOException {
         performanceService.updatePerformance(id, request, file);
         return ResponseEntity.ok("공연이 수정되었습니다.");
+    }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<?> deletePerformance(@PathVariable Long id) {
+        performanceService.deletePerformance(id);
+        return ResponseEntity.ok("공연이 삭제되었습니다.");
+    }
+
     }
 
 

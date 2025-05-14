@@ -13,6 +13,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.text.html.Option;
+
 @Repository
 public interface PerformanceRepository extends JpaRepository<Performance, Long> {
 
@@ -90,4 +92,5 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
         " ORDER BY COALESCE(lc.likeCount, 0) DESC, p.reservationStartTime ASC")
     Page<Performance> findUpcomingPerformancesOrderByLikesForAdmin(Pageable pageable);
 
+    Optional<Performance> findByIdAndDeletedFlagFalse(Long id);
 }

@@ -92,13 +92,12 @@
     <div class="filter-form-container">
       <form id="filterForm" class="mb-4" action="/admin/performances">
         <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="sort" id="latest" value="latest"
-                 th:checked="${param.sort == null or param.sort.contains('latest')}">
+          <input class="form-check-input" type="radio" name="filter" id="latest" value="latest"
+                 checked>
           <label class="form-check-label" for="latest">최신순</label>
         </div>
         <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="sort" id="likes" value="likes"
-                 th:checked="${param.sort != null and param.sort.contains('likes')}">
+          <input class="form-check-input" type="radio" name="filter" id="likes" value="likes">
           <label class="form-check-label" for="likes">좋아요순</label>
         </div>
         <div class="form-check form-check-inline">
@@ -115,6 +114,7 @@
                  data-toggle="modal" data-target="#customDateModal">
           <label class="form-check-label" for="custom">사용자 지정</label>
         </div>
+
         <div id="customDateFields" class="mt-2" style="display: none;">
           <label>시작 시간:
             <input type="datetime-local" id="startDate" name="startDate"
@@ -148,9 +148,11 @@
         <tbody>
         <tr th:each="performance : ${performances}">
           <td>
-            <img th:src="@{{url}(url=${performance.getUrl()})}"
-                 alt="no image"
-                 style="width: 100px; height: auto; object-fit: cover;"/>
+            <div class="image-wrapper" style="position: relative; width: 100px;">
+              <img th:src="@{{url}(url=${performance.getUrl()})}"
+                   alt="no image"
+                   style="width: 100px; height: auto; object-fit: cover;"/>
+            </div>
           </td>
           <td>
             <a th:href="@{/admin/performances/{performanceId}(performanceId=${performance.id})}"
@@ -164,7 +166,7 @@
           <td th:text="${performance.performanceStatus} ? '예매 가능' : '예매 불가'"></td>
           <td>
             <a th:href="@{/admin/performances/update/{performanceId}(performanceId=${performance.id})}"
-               class="btn btn-warning btn-sm">수정</a>
+               class="btn btn-warning">수정</a>
           </td>
         </tr>
         </tbody>
@@ -173,27 +175,27 @@
 
     <div class="pagination-container" th:if="${totalPage > 1}">
       <div style="display: flex; gap: 6px; flex-wrap: wrap; min-height: 40px;">
-        <a th:href="@{|/performances/admin?sort=${#request.getParameter('sort')}${baseQuery}&page=0|}"
+        <a th:href="@{|/admin/performances${baseQuery}&page=0|}"
            th:style="${currentPage > 0} ? 'visibility: visible;' : 'visibility: hidden;'"
            class="custom-pagination">&laquo;</a>
 
-        <a th:href="@{|/performances/admin?sort=${#request.getParameter('sort')}${baseQuery}&page=${currentPage - 1}|}"
+        <a th:href="@{|/admin/performances/${baseQuery}&page=${currentPage - 1}|}"
            th:style="${currentPage > 0} ? 'visibility: visible;' : 'visibility: hidden;'"
            class="custom-pagination">&lt;</a>
 
         <a th:each="i : ${#numbers.sequence(
                 currentPage <= 2 ? 0 : (currentPage + 2 >= totalPage ? totalPage - 5 : currentPage - 2),
                 currentPage <= 2 ? (totalPage < 5 ? totalPage - 1 : 4) : (currentPage + 2 >= totalPage ? totalPage - 1 : currentPage + 2))}"
-           th:href="@{|/performances/admin?sort=${#request.getParameter('sort')}${baseQuery}&page=${i}|}"
+           th:href="@{|/admin/performances${baseQuery}&page=${i}|}"
            th:text="${i + 1}"
            th:classappend="${i == currentPage} ? ' button' : ''"
            class="custom-pagination"></a>
 
-        <a th:href="@{|/performances/admin?sort=${#request.getParameter('sort')}${baseQuery}&page=${currentPage + 1}|}"
+        <a th:href="@{|/admin/performances${baseQuery}&page=${currentPage + 1}|}"
            th:style="${currentPage < totalPage - 1} ? 'visibility: visible;' : 'visibility: hidden;'"
            class="custom-pagination">&gt;</a>
 
-        <a th:href="@{|/performances/admin?sort=${#request.getParameter('sort')}${baseQuery}&page=${totalPage - 1}|}"
+        <a th:href="@{|/admin/performances${baseQuery}&page=${totalPage - 1}|}"
            th:style="${currentPage < totalPage - 1} ? 'visibility: visible;' : 'visibility: hidden;'"
            class="custom-pagination">&raquo;</a>
       </div>
@@ -235,7 +237,6 @@
     $("input[name='filter']").on("change", function () {
         const selected = $(this).val();
         $("#categorySelect").hide();
-        $("#customDateFields").hide();
 
         if (selected === "custom") {
             $('#customDateModal').modal('show');
@@ -246,34 +247,32 @@
 
     $("#filterForm").on("submit", function (e) {
         e.preventDefault();
-        const selFilter = $("input[name='filter']:checked").val();
-        const selSort = $("input[name='sort']:checked").val();
+
+        const selected = $("input[name='filter']:checked").val();
         let url = "/admin/performances?";
 
-        if (selFilter === "category") {
-            url += `category=${$("#categorySelect").val()}`;
-        } else if (selFilter === "custom") {
-            url += `startDate=${encodeURIComponent($("#startDate").val())}`
-                + `&endDate=${encodeURIComponent($("#endDate").val())}`;
-        } else {
-            url += `sort=${selSort}`;
+        if (selected === "latest" || selected === "likes") {
+            url += `sort=${selected}`;
+            location.href = url;
+        } else if (selFilter === "category") {
+            const category = $("#categorySelect").val();
+            url += `category=${category}`;
+            location.href = url;
         }
-        location.href = url;
     });
 
     $("#customDateApply").on("click", function () {
         const startDate = $("#modalStartDate").val();
         const endDate = $("#modalEndDate").val();
 
-        if (startDate && endDate) {
-            $("#startDate").val(startDate);
-            $("#endDate").val(endDate);
-            $("#customDateFields").show();
-            $('#customDateModal').modal('hide');
-        } else {
-            alert("시작 시간과 종료 시간을 모두 입력해주세요.");
+        if (!startDate || !endDate) {
+            alert("시작 시간과 종료 시간을 모두 입력하세요.");
             return;
         }
+
+        const url = `/admin/performances?startDate=${encodeURIComponent(
+            startDate)}&endDate=${encodeURIComponent(endDate)}`;
+        location.href = url;
     });
 
 </script>
