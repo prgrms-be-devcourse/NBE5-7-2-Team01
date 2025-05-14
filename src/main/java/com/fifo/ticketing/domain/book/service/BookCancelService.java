@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookCancelService {
@@ -37,16 +36,9 @@ public class BookCancelService {
                 seat.available();
             }
 
-            log.info("===================스케줄러=====================");
-            log.info("{}번 예매 생성 시간", book.getCreatedAt());
-            log.info("{}번 예매 자동 취소", book.getId());
-            log.info("{}번 예매 취소 시간", book.getUpdatedAt());
-            log.info("==============================================");
-
         }
 
     }
-
 
 
 }

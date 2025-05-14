@@ -80,9 +80,7 @@ public class BookService {
 
         Long bookId = book.getId();
 
-        // 10분 뒤 작업 예약
         LocalDateTime runTime = LocalDateTime.now().plusMinutes(1);
-        // taskScheduler는 작업 실행 시간을 date 타입으로 받아서 변환행주어야 함.
         Date triggerTime = Date.from(runTime.atZone(ZoneId.systemDefault()).toInstant());
 
         taskScheduler.schedule(() -> bookCancelService.cancelIfUnpaid(bookId), triggerTime);
