@@ -59,6 +59,7 @@ public class AdminPerformanceController {
 
         Page<AdminPerformanceResponseDto> performances = switch (sort) {
             case "likes" -> performanceService.getPerformancesSortedByLikesForAdmin(pageable);
+            case "deleted" -> performanceService.getPerformancesSortedByDeletedForAdmin(pageable);
             default -> performanceService.getPerformancesSortedByLatestForAdmin(pageable);
         };
         String baseQuery = "?sort=" + sort + "&size=" + size;
@@ -146,9 +147,9 @@ public class AdminPerformanceController {
 
     @GetMapping("/update/{performanceId}")
     public String updatePerformance(@PathVariable("performanceId") Long id, Model model) {
-        AdminPerformanceDetailResponse performanceDetail = performanceService.getPerformanceDetailForAdmin(id);
+        AdminPerformanceResponseDto performance = performanceService.getPerformanceUpdateForAdmin(id);
         List<PlaceResponseDto> places = performanceService.getAllPlaces();
-        model.addAttribute("performance", performanceDetail);
+        model.addAttribute("performance", performance);
         model.addAttribute("places", places);
         return "admin/update_performance";
     }

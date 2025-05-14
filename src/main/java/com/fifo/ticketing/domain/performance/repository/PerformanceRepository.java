@@ -68,6 +68,7 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
 
     @Query("SELECT p FROM Performance p " +
         "JOIN FETCH p.file " +
+        "WHERE p.deletedFlag != true " +
         "ORDER BY p.reservationStartTime ASC, p.startTime ASC")
     Page<Performance> findUpcomingPerformancesOrderByReservationStartTimeForAdmin(
         Pageable pageable);
@@ -83,14 +84,22 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
 
     @Query("SELECT p FROM Performance p " +
         "WHERE p.category = :category " +
+        "AND p.deletedFlag != true " +
         "ORDER BY p.reservationStartTime ASC, p.startTime ASC")
     Page<Performance> findUpcomingPerformancesByCategoryForAdmin(
         @Param("category") Category category, Pageable pageable);
 
-    @Query("SELECT p FROM Performance p" +
-        " LEFT JOIN LikeCount lc ON lc.performance = p " +
-        " ORDER BY COALESCE(lc.likeCount, 0) DESC, p.reservationStartTime ASC")
+    @Query("SELECT p FROM Performance p " +
+        "LEFT JOIN LikeCount lc ON lc.performance = p " +
+        "WHERE p.deletedFlag != true " +
+        "ORDER BY COALESCE(lc.likeCount, 0) DESC, p.reservationStartTime ASC")
     Page<Performance> findUpcomingPerformancesOrderByLikesForAdmin(Pageable pageable);
 
     Optional<Performance> findByIdAndDeletedFlagFalse(Long id);
+
+    @Query("SELECT p FROM Performance p " +
+            "JOIN FETCH p.file " +
+            "WHERE p.deletedFlag = true " +
+            "ORDER BY p.reservationStartTime ASC, p.startTime ASC")
+    Page<Performance> findUpComingPerformancesByDeletedFlagForAdmin(Pageable pageable);
 }

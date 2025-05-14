@@ -42,8 +42,4 @@ public class PerformanceApiController {
         performanceService.deletePerformance(id);
         return ResponseEntity.ok("공연이 삭제되었습니다.");
     }
-
-    }
-
-
 }

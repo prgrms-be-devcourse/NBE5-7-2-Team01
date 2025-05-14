@@ -101,6 +101,10 @@
           <label class="form-check-label" for="likes">좋아요순</label>
         </div>
         <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="filter" id="deleted" value="deleted">
+          <label class="form-check-label" for="deleted">삭제된 공연</label>
+        </div>
+        <div class="form-check form-check-inline">
           <input class="form-check-input" type="radio" name="filter" id="category" value="category">
           <label class="form-check-label" for="category">카테고리</label>
           <select id="categorySelect" class="ml-2" style="display: none;">
@@ -251,10 +255,10 @@
         const selected = $("input[name='filter']:checked").val();
         let url = "/admin/performances?";
 
-        if (selected === "latest" || selected === "likes") {
+        if (selected === "latest" || selected === "likes" || selected === "deleted") {
             url += `sort=${selected}`;
             location.href = url;
-        } else if (selFilter === "category") {
+        } else if (selected === "category") {
             const category = $("#categorySelect").val();
             url += `category=${category}`;
             location.href = url;

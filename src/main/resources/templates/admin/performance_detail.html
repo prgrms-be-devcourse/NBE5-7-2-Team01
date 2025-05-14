@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+  <meta charset="UTF-8">
   <title th:text="${performanceDetail.title}">공연 상세</title>
+  <link rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
   <style>
       .layout {
           display: flex;
-          gap: 50px;
+          gap: 30px;
           padding: 30px;
       }
 
@@ -19,40 +23,8 @@
       }
 
       .right-panel {
-          flex: 1;
-      }
-
-      .modal {
-          display: none;
-          position: fixed;
-          top: 10%;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 60%;
-          background-color: white;
-          border: 1px solid #ccc;
-          padding: 20px;
-          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-          z-index: 1000;
-      }
-
-      .modal.show {
-          display: block;
-      }
-
-      .overlay {
-          display: none;
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0, 0, 0, 0.5);
-          z-index: 999;
-      }
-
-      .overlay.show {
-          display: block;
+          flex: 1.5;
+          min-width: 520px;
       }
 
       button:disabled {
@@ -93,7 +65,7 @@
       .seat-container {
           display: flex;
           flex-direction: column;
-          max-width: 440px;
+          max-width: 520px;
       }
 
       .row {
@@ -107,7 +79,9 @@
   </style>
 </head>
 <body>
-
+<a href="/admin/performances" style="text-decoration: none; color: #333; font-size: 16px; margin-bottom: 20px; display: inline-flex; align-items: center;">
+  &#8592; 공연 목록으로
+</a>
 <div class="layout">
   <div class="left-panel">
     <div class="performance-image">
@@ -132,8 +106,9 @@
         (<span th:text="${grade.seatCount}"></span>석)
       </li>
     </ul>
-    <a th:href="@{/admin/performances/update/{performanceId}(performanceId=${performance.id})}"
-       class="btn btn-warning btn-sm">수정</a>
+    <a th:href="@{/admin/performances/update/{performanceId}(performanceId=${performanceId})}"
+       class="btn btn-warning">수정</a>
+    <button class="btn btn-danger" id="deleteBtn" th:attr="data-id=${performanceId}">삭제</button>
   </div>
 
   <!-- 오른쪽 좌석 선택/예매 -->
@@ -141,47 +116,73 @@
     <h3>좌석 상태</h3>
     <div class="seat-container" id="seat-container"></div>
   </div>
+</div>
 
-  <script th:inline="javascript">
-      const seats = [[${seats}]];
-      const seatContainer = document.getElementById("seat-container");
-      const seatsPerRow = 10;
+<script th:inline="javascript">
+    const seats = [[${seats}]];
+    const seatContainer = document.getElementById("seat-container");
+    const seatsPerRow = 10;
 
-      // 좌석 렌더링 함수
-      function renderSeats() {
-          seatContainer.innerHTML = '';
-          for (let i = 0; i < seats.length; i += seatsPerRow) {
-              const rowDiv = document.createElement("div");
-              rowDiv.classList.add("row");
+    // 좌석 렌더링 함수
+    function renderSeats() {
+        seatContainer.innerHTML = '';
+        for (let i = 0; i < seats.length; i += seatsPerRow) {
+            const rowDiv = document.createElement("div");
+            rowDiv.classList.add("row");
 
-              for (let j = 0; j < seatsPerRow && i + j < seats.length; j++) {
-                  const seat = seats[i + j];
-                  const seatBtn = document.createElement("button");
-                  seatBtn.classList.add("seat");
-                  seatBtn.dataset.id = seat.seatId;
-                  seatBtn.dataset.grade = seat.grade;
-                  seatBtn.dataset.price = seat.price;
-                  seatBtn.innerText = seat.seatNumber;
+            for (let j = 0; j < seatsPerRow && i + j < seats.length; j++) {
+                const seat = seats[i + j];
+                const seatBtn = document.createElement("button");
+                seatBtn.classList.add("seat");
+                seatBtn.dataset.id = seat.seatId;
+                seatBtn.dataset.grade = seat.grade;
+                seatBtn.dataset.price = seat.price;
+                seatBtn.innerText = seat.seatNumber;
 
-                  if (seat.seatStatus === 'AVAILABLE') {
-                      seatBtn.classList.add("available");
-                  } else if (seat.seatStatus === 'UNAVAILABLE') {
-                      seatBtn.classList.add("unavailable");
-                  }
-                  // 좌석 선택 기능은 제거했습니다.
-                  seatBtn.disabled = true;
+                if (seat.seatStatus === 'AVAILABLE') {
+                    seatBtn.classList.add("available");
+                } else if (seat.seatStatus === 'UNAVAILABLE') {
+                    seatBtn.classList.add("unavailable");
+                }
+                // 좌석 선택 기능은 제거했습니다.
+                seatBtn.disabled = true;
 
-                  rowDiv.appendChild(seatBtn);
-              }
-              seatContainer.appendChild(rowDiv);
-          }
-      }
+                rowDiv.appendChild(seatBtn);
+            }
+            seatContainer.appendChild(rowDiv);
+        }
+    }
 
-      // 페이지 로드 시 즉시 렌더링
-      document.addEventListener("DOMContentLoaded", () => {
-          renderSeats();
-      });
-  </script>
+    // 페이지 로드 시 즉시 렌더링
+    document.addEventListener("DOMContentLoaded", () => {
+        renderSeats();
+    });
 
+    document.addEventListener("DOMContentLoaded", () => {
+        const deleteBtn = document.getElementById("deleteBtn");
+        if (deleteBtn) {
+            deleteBtn.addEventListener("click", () => {
+                const performanceId = deleteBtn.dataset.id;
+                if (!confirm("정말 이 공연을 삭제하시겠습니까?")) return;
+
+                fetch(`/api/performances/${performanceId}`, {
+                    method: 'DELETE'
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => { throw new Error(text); });
+                        }
+                        alert("공연이 삭제되었습니다.");
+                        window.location.href = "/admin/performances";
+                    })
+                    .catch(error => {
+                        alert("삭제 중 오류가 발생했습니다: " + error.message);
+                    });
+            });
+        }
+    });
+</script>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
