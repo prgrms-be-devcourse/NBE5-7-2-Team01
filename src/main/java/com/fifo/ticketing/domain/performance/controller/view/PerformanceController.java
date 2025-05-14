@@ -10,6 +10,7 @@ import com.fifo.ticketing.domain.performance.service.PerformanceService;
 import com.fifo.ticketing.domain.seat.service.SeatService;
 import com.fifo.ticketing.domain.user.dto.SessionUser;
 import com.fifo.ticketing.global.util.DateTimeValidator;
+import com.fifo.ticketing.global.util.UserValidator;
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -129,6 +130,8 @@ public class PerformanceController {
     private void preparedModel(HttpSession session, Model model,
         Page<PerformanceResponseDto> performances, int page,
         String baseQuery) {
+        UserValidator.validateSessionUser(session);
+
         SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
         Long userId = loginUser.id();
         List<Long> likedPerformancesIds = likeService.getLikedPerformancesIds(userId);
