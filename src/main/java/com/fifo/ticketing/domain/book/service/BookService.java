@@ -20,11 +20,7 @@ import com.fifo.ticketing.global.exception.AlertDetailException;
 import com.fifo.ticketing.global.exception.ErrorCode;
 import com.fifo.ticketing.global.exception.ErrorException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,7 +73,7 @@ public class BookService {
 
         Long bookId = book.getId();
 
-        LocalDateTime runTime = LocalDateTime.now().plusMinutes(1);
+        LocalDateTime runTime = LocalDateTime.now().plusMinutes(10);
 
         bookScheduleService.scheduleCancelTask(bookId, runTime);
 
