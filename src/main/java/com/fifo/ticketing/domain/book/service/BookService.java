@@ -42,7 +42,6 @@ public class BookService {
     private final SeatRepository seatRepository;
     private final BookSeatRepository bookSeatRepository;
     private final BookScheduleManager bookScheduleManager;
-    private final BookCancelScheduleService bookCancelScheduleService;
 
     @Transactional
     public Long createBook(Long performanceId, Long userId, BookCreateRequest request) {

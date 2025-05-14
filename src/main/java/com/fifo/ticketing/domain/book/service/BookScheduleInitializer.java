@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class BookScheduleInitializer {
 
-    private final BookCancelScheduleService bookCancelScheduleService;
+    private final BookScheduleManager bookScheduleManager;
     private final BookScheduleRepository bookScheduleRepository;
     @Qualifier("taskScheduler")
     private final TaskScheduler taskScheduler;
@@ -30,7 +30,7 @@ public class BookScheduleInitializer {
 
         for (BookScheduledTask pendingTask : pendingTasks) {
             Date triggerTime = Date.from(pendingTask.getScheduledTime().atZone(ZoneId.systemDefault()).toInstant());
-            taskScheduler.schedule(() -> bookCancelScheduleService.cancelIfUnpaid(pendingTask.getBookId(), pendingTask.getId()), triggerTime);
+            taskScheduler.schedule(() -> bookScheduleManager.cancelIfUnpaid(pendingTask.getBookId()), triggerTime);
         }
     }
 
