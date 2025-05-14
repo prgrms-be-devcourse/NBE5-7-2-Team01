@@ -66,10 +66,15 @@ public class PerformanceService {
     }
 
     @Transactional(readOnly = true)
-    public AdminPerformanceResponseDto getPerformanceDetailForAdmin(Long performanceId) {
+    public AdminPerformanceDetailResponse getPerformanceDetailForAdmin(Long performanceId) {
         Performance performance = performanceRepository.findById(performanceId)
                 .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
-        return PerformanceMapper.toAdminPerformanceResponseDto(performance, urlPrefix);
+        List<Grade> grades = gradeRepository.findAllByPlaceId(performance.getPlace().getId());
+        List<PerformanceSeatGradeDto> seatGrades = grades.stream()
+            .map(PerformanceMapper::toSeatGradeDto)
+            .toList();
+
+        return PerformanceMapper.toAdminDetailResponseDto(performance, seatGrades);
     }
 
     @Transactional(readOnly = true)
@@ -87,7 +92,7 @@ public class PerformanceService {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByReservationStartTimeForAdmin(
             pageable);
         if (performances.isEmpty()) {
-            throw new ErrorException(NOT_FOUND_PERFORMANCES);
+            throw new ErrorException(ADMIN_NOT_FOUND_PERFORMANCES);
         }
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
@@ -249,7 +254,7 @@ public class PerformanceService {
     public Page<AdminPerformanceResponseDto> getPerformancesSortedByLikesForAdmin(Pageable pageable) {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByLikesForAdmin(pageable);
         if (performances.isEmpty()) {
-            throw new ErrorException(NOT_FOUND_PERFORMANCES);
+            throw new ErrorException(ADMIN_NOT_FOUND_PERFORMANCES);
         }
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
@@ -260,7 +265,7 @@ public class PerformanceService {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesByReservationPeriodForAdmin(
                 start, end, pageable);
         if (performances.isEmpty()) {
-            throw new ErrorException(NOT_FOUND_PERFORMANCES);
+            throw new ErrorException(ADMIN_NOT_FOUND_PERFORMANCES);
         }
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
@@ -271,7 +276,7 @@ public class PerformanceService {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesByCategoryForAdmin(
                 category, pageable);
         if (performances.isEmpty()) {
-            throw new ErrorException(NOT_FOUND_PERFORMANCES);
+            throw new ErrorException(ADMIN_NOT_FOUND_PERFORMANCES);
         }
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }

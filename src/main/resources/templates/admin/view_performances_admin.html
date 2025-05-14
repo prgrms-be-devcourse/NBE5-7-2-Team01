@@ -152,7 +152,10 @@
                  alt="no image"
                  style="width: 100px; height: auto; object-fit: cover;"/>
           </td>
-          <td th:text="${performance.title}"></td>
+          <td>
+            <a th:href="@{/admin/performances/{performanceId}(performanceId=${performance.id})}"
+               th:text="${performance.title}"></a>
+          </td>
           <td th:text="${performance.category}"></td>
           <td th:text="${performance.place}"></td>
           <td th:text="${#temporals.format(performance.startTime, 'yyyy-MM-dd HH:mm')}"></td>
@@ -160,7 +163,8 @@
           <td th:text="${#temporals.format(performance.reservationStartTime, 'yyyy-MM-dd HH:mm')}"></td>
           <td th:text="${performance.performanceStatus} ? '예매 가능' : '예매 불가'"></td>
           <td>
-            <a th:href="@{/admin/performances/update/{performanceId}(performanceId=${performance.id})}" class="btn btn-warning btn-sm">수정</a>
+            <a th:href="@{/admin/performances/update/{performanceId}(performanceId=${performance.id})}"
+               class="btn btn-warning btn-sm">수정</a>
           </td>
         </tr>
         </tbody>
@@ -243,7 +247,7 @@
     $("#filterForm").on("submit", function (e) {
         e.preventDefault();
         const selFilter = $("input[name='filter']:checked").val();
-        const selSort   = $("input[name='sort']:checked").val();
+        const selSort = $("input[name='sort']:checked").val();
         let url = "/admin/performances?";
 
         if (selFilter === "category") {
