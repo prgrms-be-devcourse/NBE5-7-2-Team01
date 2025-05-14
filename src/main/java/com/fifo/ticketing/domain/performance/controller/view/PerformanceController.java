@@ -47,7 +47,7 @@ public class PerformanceController {
         String baseQuery = "?size=" + size;
 
         preparedModel(session, model, performances, page, baseQuery);
-        return "view_performances";
+        return "/performance/view_performances";
     }
 
     @GetMapping(params = {"sort"})
@@ -66,7 +66,7 @@ public class PerformanceController {
         String baseQuery = "?sort=" + sort + "&size=" + size;
 
         preparedModel(session, model, performances, page, baseQuery);
-        return "view_performances";
+        return "/performance/view_performances";
     }
 
     @GetMapping(params = {"startDate", "endDate"})
@@ -86,7 +86,7 @@ public class PerformanceController {
         String baseQuery = "?startDate=" + startDate + "&endDate=" + endDate + "&size=" + size;
 
         preparedModel(session, model, performances, page, baseQuery);
-        return "view_performances";
+        return "/performance/view_performances";
     }
 
     @GetMapping(params = "category")
@@ -103,7 +103,7 @@ public class PerformanceController {
         String baseQuery = "?category=" + category + "&size=" + size;
 
         preparedModel(session, model, performances, page, baseQuery);
-        return "view_performances";
+        return "/performance/view_performances";
     }
 
     @GetMapping("/{performanceId}")
