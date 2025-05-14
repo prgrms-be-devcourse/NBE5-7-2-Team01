@@ -1,5 +1,6 @@
 package com.fifo.ticketing.global.config;
 
+import com.fifo.ticketing.domain.user.service.FormLoginFailureHandler;
 import com.fifo.ticketing.domain.user.service.FormLoginSuccessHandler;
 import com.fifo.ticketing.domain.user.service.OAuth2LoginFailureHandler;
 import com.fifo.ticketing.domain.user.service.OAuth2LoginSuccessHandler;
@@ -19,6 +20,7 @@ public class SecurityConfig {
 
     private final FormLoginSuccessHandler formLoginSuccessHandler;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final FormLoginFailureHandler formLoginFailureHandler;
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 
     @Bean
@@ -35,7 +37,7 @@ public class SecurityConfig {
                     .usernameParameter("email")
                     .passwordParameter("loginPwd")
                     .successHandler(formLoginSuccessHandler)
-                    .failureUrl("/users/signin?error=true")
+                    .failureHandler(formLoginFailureHandler)
                     .permitAll();
             })
             .logout(logout -> {
@@ -53,9 +55,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> {
                 auth.requestMatchers("/index", "/", "/api/**")
                     .permitAll()
-                    .requestMatchers("/users/signin", "/users/login", "/users/signup",
-                        "/oauth/login")
-                    .anonymous()
+                    .requestMatchers("/users/signin/**", "/users/login/**", "/users/signup/**",
+                        "/oauth/login/**")
+                    .permitAll()
                     .requestMatchers("/user/**")
                     .hasAnyAuthority("USER", "ADMIN")
                     .requestMatchers("/admin/**")
