@@ -9,7 +9,7 @@ import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.service.PerformanceService;
 import com.fifo.ticketing.domain.seat.service.SeatService;
 import com.fifo.ticketing.domain.user.dto.SessionUser;
-import com.fifo.ticketing.global.util.UserValidator;
+import com.fifo.ticketing.global.util.DateTimeValidator;
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -77,6 +77,8 @@ public class PerformanceController {
         @RequestParam(value = "size", defaultValue = "10") int size,
         Model model
     ) {
+        DateTimeValidator.periodValidator(startDate, endDate);
+
         Pageable pageable = PageRequest.of(page, size);
         Page<PerformanceResponseDto> performances = performanceService.getPerformancesByReservationPeriod(
             startDate, endDate, pageable);
@@ -125,11 +127,10 @@ public class PerformanceController {
     }
 
     private void preparedModel(HttpSession session, Model model,
-        Page<PerformanceResponseDto> performances, int page, String baseQuery) {
-        UserValidator.validateSessionUser(session);
+        Page<PerformanceResponseDto> performances, int page,
+        String baseQuery) {
         SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
         Long userId = loginUser.id();
-
         List<Long> likedPerformancesIds = likeService.getLikedPerformancesIds(userId);
 
         model.addAttribute("userId", userId);
