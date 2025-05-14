@@ -5,6 +5,7 @@ import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.user.dto.SessionUser;
 import com.fifo.ticketing.domain.user.dto.form.SignUpForm;
 import com.fifo.ticketing.domain.user.service.UserFormService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
@@ -36,7 +36,11 @@ public class ViewController {
     }
 
     @GetMapping("/users/signup")
-    public String signup() {
+    public String signup(HttpServletRequest request) {
+        SessionUser loginUser = (SessionUser) request.getSession().getAttribute("loginUser");
+        if (loginUser != null) {
+            return "redirect:/";
+        }
         return "user/sign_up";
     }
 
@@ -56,7 +60,17 @@ public class ViewController {
     }
 
     @GetMapping("/users/signin")
-    public String signin() {
+    public String signin(HttpServletRequest request, Model model) {
+        SessionUser loginUser = (SessionUser) request.getSession().getAttribute("loginUser");
+        if (loginUser != null) {
+            return "redirect:/";
+        }
+        String errormessage = (String) request.getSession().getAttribute("errormessage");
+        if (errormessage != null) {
+            model.addAttribute("errorMessage", errormessage);
+            request.getSession().removeAttribute("errormessage");
+        }
+
         return "user/sign_in";
     }
 

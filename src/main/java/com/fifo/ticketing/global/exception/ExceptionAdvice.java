@@ -16,35 +16,36 @@ public class ExceptionAdvice {
 
     @ExceptionHandler({ErrorException.class, AlertDetailException.class})
     public Object handleException(
-            RuntimeException ex,
-            Model model,
-            HandlerMethod handlerMethod
+        RuntimeException ex,
+        Model model,
+        HandlerMethod handlerMethod
     ) {
-        boolean isApiRequest = AnnotatedElementUtils.hasAnnotation(handlerMethod.getMethod(), ResponseBody.class);
+        boolean isApiRequest = AnnotatedElementUtils.hasAnnotation(handlerMethod.getMethod(),
+            ResponseBody.class);
 
         // 예외 타입에 따라 처리
         if (ex instanceof ErrorException errorException) {
             return handleCommonException(
-                    errorException.getErrorCode(),
-                    errorException.getUrl(),
-                    isApiRequest,
-                    model,
-                    errorException
+                errorException.getErrorCode(),
+                errorException.getUrl(),
+                isApiRequest,
+                model,
+                errorException
             );
         } else if (ex instanceof AlertDetailException alertDetailException) {
             return handleCommonException(
-                    alertDetailException.getErrorCode(),
-                    alertDetailException.getUrl(),
-                    isApiRequest,
-                    model,
-                    alertDetailException
+                alertDetailException.getErrorCode(),
+                alertDetailException.getUrl(),
+                isApiRequest,
+                model,
+                alertDetailException
             );
         }
         // 알 수 없는 예외에 대해서는 기본 에러 처리
         log.error("Unhandled exception: ", ex);
         if (isApiRequest) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse("500", "Unexpected error occurred"));
+                .body(new ErrorResponse("500", "Unexpected error occurred"));
         } else {
             model.addAttribute("message", "Unexpected error occurred");
             model.addAttribute("url", "/");
@@ -53,11 +54,11 @@ public class ExceptionAdvice {
     }
 
     private Object handleCommonException(
-            ErrorCode errorCode,
-            String url,
-            boolean isApiRequest,
-            Model model,
-            Exception ex
+        ErrorCode errorCode,
+        String url,
+        boolean isApiRequest,
+        Model model,
+        Exception ex
     ) {
         log.error(errorCode.getMessage(), ex);
 
@@ -67,12 +68,12 @@ public class ExceptionAdvice {
                 // 필요한 경우 다른 상태 추가
                 case CONFLICT -> HttpStatus.CONFLICT;
                 case INTERNAL_SERVER_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
-                case ALREADY_EXISTS -> HttpStatus.BAD_REQUEST;
-                case BAD_REQUEST -> HttpStatus.BAD_REQUEST;
+                case ALREADY_EXISTS, BAD_REQUEST -> HttpStatus.BAD_REQUEST;
+                case UNAUTHORIZED -> HttpStatus.UNAUTHORIZED;
             };
 
             return ResponseEntity.status(httpStatus)
-                    .body(new ErrorResponse(errorCode.getCode(), errorCode.getMessage()));
+                .body(new ErrorResponse(errorCode.getCode(), errorCode.getMessage()));
         } else {
             model.addAttribute("message", errorCode.getMessage());
             model.addAttribute("url", url);

@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableJpaAuditing
 @SpringBootApplication
 @EnableScheduling
+
 public class TicketingApplication {
 
     public static void main(String[] args) {

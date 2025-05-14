@@ -143,8 +143,8 @@
           <td>
             <div class="image-wrapper" style="position: relative; width: 100px;">
               <img th:src="@{{url}(url=${performance.getUrl()})}"
-                 alt="no image"
-                 style="width: 100px; height: auto; object-fit: cover;"/>
+                   alt="no image"
+                   style="width: 100px; height: auto; object-fit: cover;"/>
 
               <button class="like-button btn btn-sm btn-danger"
                       style="position: absolute; bottom: 5px; right: 5px;"
@@ -262,6 +262,11 @@
       return;
     }
 
+    if (endDate <= startDate) {
+      alert("종료 시간은 시작 시간보다 이후여야 합니다.");
+      return;
+    }
+
     const url = `/performances?startDate=${encodeURIComponent(
         startDate)}&endDate=${encodeURIComponent(endDate)}`;
     location.href = url;
@@ -276,7 +281,6 @@
       url: "/user/like",
       contentType: "application/json",
       data: JSON.stringify({
-        userId: 1,
         performanceId: performanceId
       }),
       success: function (response) {
