@@ -42,10 +42,7 @@ public class BookService {
     private final PerformanceRepository performanceRepository;
     private final SeatRepository seatRepository;
     private final BookSeatRepository bookSeatRepository;
-
-    @Qualifier("taskScheduler")
-    private final TaskScheduler taskScheduler;
-    private final BookCancelService bookCancelService;
+    private final BookScheduleService bookScheduleService;
 
     @Transactional
     public Long createBook(Long performanceId, Long userId, BookCreateRequest request) {
@@ -81,9 +78,8 @@ public class BookService {
         Long bookId = book.getId();
 
         LocalDateTime runTime = LocalDateTime.now().plusMinutes(1);
-        Date triggerTime = Date.from(runTime.atZone(ZoneId.systemDefault()).toInstant());
 
-        taskScheduler.schedule(() -> bookCancelService.cancelIfUnpaid(bookId), triggerTime);
+        bookScheduleService.scheduleCancelTask(bookId, runTime);
 
         return bookId;
     }
@@ -127,6 +123,23 @@ public class BookService {
         }
 
         return bookId;
+    }
+
+    @Transactional
+    public void cancelIfUnpaid(Long bookId) {
+        Book book = bookRepository.findById(bookId)
+            .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
+
+        if (book.getBookStatus() == BookStatus.CONFIRMED) {
+
+            List<BookSeat> bookSeats = bookSeatRepository.findAllByBookId(book.getId());
+            book.canceled();
+
+            for (BookSeat bookSeat : bookSeats) {
+                Seat seat = bookSeat.getSeat();
+                seat.available();
+            }
+        }
     }
 
 
