@@ -68,7 +68,7 @@ public class SecurityConfig {
                     .requestMatchers("/user/**")
                     .hasAnyAuthority("USER", "ADMIN")
                     .requestMatchers("/admin/**")
-                    .hasAnyAuthority("ADMIN")
+                    .hasAnyAuthority("USER", "ADMIN")
                     .anyRequest()
                     .permitAll();
             })
