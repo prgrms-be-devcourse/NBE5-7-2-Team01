@@ -21,6 +21,7 @@ public class AdminPerformanceDetailResponse {
     private String category;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    private boolean deletedFlag;
     private boolean performanceStatus;
     private int totalSeats;
     private List<PerformanceSeatGradeDto> seatGrades;
