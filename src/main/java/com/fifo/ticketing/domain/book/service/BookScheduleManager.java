@@ -70,9 +70,4 @@ public class BookScheduleManager {
 
     }
 
-    @Transactional
-    public List<Book> cancelAllBook(Performance performance) {
-        bookRepository.cancelAllByPerformance(performance, BookStatus.ADMIN_REFUNDED, BookStatus.PAYED);
-        return bookRepository.findAllByPerformanceAndBookStatus(performance, BookStatus.ADMIN_REFUNDED);
-    }
 }
