@@ -83,7 +83,7 @@ public class ViewController {
     @GetMapping("/users/books")
     public String getBookList(HttpSession session,
         @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-        @RequestParam(value = "size", defaultValue = "5", required = false) int size,
+        @RequestParam(value = "size", defaultValue = "3", required = false) int size,
         @RequestParam(required = false) String performanceTitle,
         @RequestParam(required = false) BookStatus bookStatus,
         Model model
