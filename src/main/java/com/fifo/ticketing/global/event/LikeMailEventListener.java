@@ -1,8 +1,7 @@
-package com.fifo.ticketing.global.Event;
+package com.fifo.ticketing.global.event;
 
 import com.fifo.ticketing.domain.like.service.LikeMailService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;

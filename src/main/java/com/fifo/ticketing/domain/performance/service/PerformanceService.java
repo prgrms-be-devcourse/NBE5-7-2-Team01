@@ -7,7 +7,6 @@ import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PLACES;
 import static com.fifo.ticketing.global.exception.ErrorCode.SEAT_CREATE_FAILED;
 
 import com.fifo.ticketing.domain.book.entity.Book;
-import com.fifo.ticketing.domain.book.repository.BookRepository;
 import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.like.entity.LikeCount;
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
@@ -29,6 +28,7 @@ import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.performance.repository.PlaceRepository;
 import com.fifo.ticketing.domain.seat.entity.Seat;
 import com.fifo.ticketing.domain.seat.service.SeatService;
+import com.fifo.ticketing.global.event.PerformanceCanceledEvent;
 import com.fifo.ticketing.global.entity.File;
 import com.fifo.ticketing.global.exception.ErrorException;
 import com.fifo.ticketing.global.util.ImageFileService;
@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -58,7 +59,7 @@ public class PerformanceService {
     private final ImageFileService imageFileService;
     private final LikeCountRepository likeCountRepository;
     private final BookService bookService;
-    private final BookRepository bookRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
 
     @Transactional(readOnly = true)
@@ -142,6 +143,11 @@ public class PerformanceService {
 
         // 3. 동일 장소인지 확인 후 수정 및 삭제
         if (!findPerformance.getPlace().getId().equals(dto.getPlaceId())) {
+            // 좌석이 삭제되기 때문에 예약을 먼저 전부 취소하고, 메일도 전송해야 합니다.
+            List<Book> books = bookService.cancelAllBook(findPerformance);
+            // 해당 이벤트 자체는 Transaction의 커밋 이후에 이루어집니다.
+            eventPublisher.publishEvent(new PerformanceCanceledEvent(books));
+
             // 기존 좌석 삭제 (soft or hard) -> 일단 soft라는 인식
             seatService.deleteSeatsByPerformanceId(id);
 
@@ -149,6 +155,7 @@ public class PerformanceService {
             List<Grade> newGrades = findGradesByPlace(newPlace.getId());
             List<Seat> newSeats = generateSeatsForGrades(newGrades, findPerformance);
             saveSeatsInBatch(newSeats);
+
         }
 
         // 4. 공연 정보 수정
@@ -190,6 +197,7 @@ public class PerformanceService {
 
         // 후속 절차로 메일 전송을 EventListener로 보낼 예정입니다.
         // 사용 변수는 books 입니다.
+        eventPublisher.publishEvent(new PerformanceCanceledEvent(books));
     }
 
     private void saveLikeCount(Performance savedPerformance) {
