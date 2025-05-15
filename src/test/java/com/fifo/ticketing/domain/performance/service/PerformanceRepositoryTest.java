@@ -19,9 +19,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
 @ActiveProfiles("ci")
+@TestPropertySource(properties = {
+    "spring.jpa.hibernate.ddl-auto=none",
+    "spring.sql.init.mode=never"
+})
+@Sql(scripts = {"/schema.sql", "/data.sql"})
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 @Transactional(readOnly = true)
