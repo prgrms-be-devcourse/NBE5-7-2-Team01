@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>관리자 - 유저 관리</title>
+  <link rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    .search-box {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 20px;
+    }
+
+    .status-toggle {
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .status-toggle.active {
+      color: green;
+    }
+
+    .status-toggle.blocked {
+      color: red;
+    }
+
+    .status-toggle.disabled-toggle {
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+  </style>
+</head>
+<body>
+<div class="container mt-5">
+  <h2 class="mb-4 text-center">유저 관리</h2>
+
+  <div class="search-box">
+    <form id="searchForm" class="form-inline">
+      <input type="text" name="name" class="form-control mr-2" placeholder="유저명 검색">
+      <select name="role" class="form-control mr-2">
+        <option value="">전체</option>
+        <option value="USER">USER</option>
+        <option value="ADMIN">ADMIN</option>
+      </select>
+      <button type="submit" class="btn btn-dark">검색</button>
+    </form>
+  </div>
+
+  <table class="table table-bordered table-hover text-center">
+    <thead class="thead-light">
+    <tr>
+      <th>ID</th>
+      <th>유저명</th>
+      <th>이메일</th>
+      <th>상태</th>
+      <th>Role</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <nav class="pagination-container d-flex justify-content-center mt-4">
+    <ul class="pagination"></ul>
+  </nav>
+</div>
+
+<script>
+
+  let currentPage = 0;
+
+  function loadUsers(page = 0) {
+    currentPage = page;
+    const name = document.querySelector("input[name='name']").value;
+    const role = document.querySelector("select[name='role']").value;
+
+    fetch(`/users/list?page=${page}&name=${name}&role=${role}`)
+    .then(res => res.json())
+    .then(data => {
+      const tbody = document.querySelector("tbody");
+      tbody.innerHTML = "";
+      data.content.forEach(user => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${user.id}</td>
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td>
+              <span class="status-toggle ${user.isBlocked ? 'blocked' : 'active'} ${user.role
+        === 'ADMIN' ? 'disabled-toggle' : ''}" data-id="${user.id}" data-role="${user.role}">
+                ${user.isBlocked ? '정지' : '활성'}
+              </span>
+            </td>
+            <td>${user.role}</td>
+          `;
+        tbody.appendChild(tr);
+      });
+
+      renderPagination(data);
+    });
+  }
+
+  function renderPagination(data) {
+    const pagination = document.querySelector(".pagination");
+    pagination.innerHTML = "";
+
+    if (data.totalPages > 1) {
+      for (let i = 0; i < data.totalPages; i++) {
+        const li = document.createElement("li");
+        li.className = `page-item ${data.number === i ? "active" : ""}`;
+
+        const a = document.createElement("a");
+        a.className = "page-link";
+        a.href = "#";
+        a.textContent = i + 1;
+
+        a.addEventListener("click", (e) => {
+          e.preventDefault();
+          loadUsers(i);
+        });
+        li.appendChild(a);
+        pagination.appendChild(li);
+      }
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    loadUsers();
+
+    document.getElementById("searchForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      loadUsers(0);
+    });
+
+    document.addEventListener("click", (e) => {
+      if (e.target.classList.contains("status-toggle")) {
+        if (e.target.dataset.role === "ADMIN") {
+          return;
+        }
+        const userId = e.target.dataset.id;
+        fetch(`/users/status/${userId}`, {method: "PUT"})
+        .then(() => loadUsers(currentPage));
+      }
+    });
+  });
+</script>
+</body>
+</html>
