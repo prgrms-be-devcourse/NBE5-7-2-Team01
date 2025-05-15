@@ -2,6 +2,9 @@ package com.fifo.ticketing.domain.user.controller;
 
 import com.fifo.ticketing.domain.performance.dto.LikedPerformanceDto;
 import com.fifo.ticketing.domain.user.dto.SessionUser;
+import com.fifo.ticketing.domain.user.dto.UserDto;
+import com.fifo.ticketing.domain.user.entity.Role;
+import com.fifo.ticketing.domain.user.service.AdminService;
 import com.fifo.ticketing.domain.user.service.MyPageService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final MyPageService myPageService;
+    private final AdminService adminService;
 
     @GetMapping("/users/likes")
     public Page<LikedPerformanceDto> getUserLikes(HttpSession session,
@@ -28,5 +34,32 @@ public class UserController {
         return myPageService.getUserLikedPerformance(
             userId, pageable
         );
+    }
+
+    @GetMapping("/users/list")
+    public Page<UserDto> getUserList(HttpSession session,
+        @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+        @RequestParam(value = "size", defaultValue = "5", required = false) int size,
+        @RequestParam(required = false) String name,
+        @RequestParam(required = false) Role role) {
+        Pageable pageable = PageRequest.of(page, size);
+        return getUserData(name, role, pageable);
+    }
+
+    @PutMapping("/users/status/{userId}")
+    public void updateUserStatus(@PathVariable("userId") Long userId) {
+        adminService.updateUserStatus(userId);
+    }
+
+    private Page<UserDto> getUserData(String name, Role role, Pageable pageable) {
+        if (name != null && role != null) {
+            return adminService.getUsersByRoleAndName(pageable, role, name);
+        } else if (name != null) {
+            return adminService.getUsersByName(pageable, name);
+        } else if (role != null) {
+            return adminService.getUsersByRole(pageable, role);
+        } else {
+            return adminService.getAllUsers(pageable);
+        }
     }
 }

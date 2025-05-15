@@ -50,4 +50,8 @@ public class User extends BaseDateEntity {
         this.username = username;
         this.provider = provider;
     }
+
+    public void updateBlockedState() {
+        isBlocked = !isBlocked;
+    }
 }

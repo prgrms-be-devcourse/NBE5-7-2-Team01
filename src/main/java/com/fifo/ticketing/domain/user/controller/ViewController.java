@@ -5,6 +5,7 @@ import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.user.dto.SessionUser;
 import com.fifo.ticketing.domain.user.dto.form.SignUpForm;
 import com.fifo.ticketing.domain.user.service.UserFormService;
+import com.fifo.ticketing.global.util.UserValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
@@ -117,6 +118,12 @@ public class ViewController {
             model.addAttribute("username", loginUser.username());
         }
         return "user/my_page";
+    }
+
+    @GetMapping("/admin/users")
+    public String adminPage(HttpSession session, Model model) {
+        UserValidator.validateSessionUser(session);
+        return "user/admin";
     }
 
 }

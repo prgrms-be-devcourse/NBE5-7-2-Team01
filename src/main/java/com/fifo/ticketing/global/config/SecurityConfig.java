@@ -1,9 +1,9 @@
 package com.fifo.ticketing.global.config;
 
-import com.fifo.ticketing.domain.user.service.FormLoginFailureHandler;
-import com.fifo.ticketing.domain.user.service.FormLoginSuccessHandler;
-import com.fifo.ticketing.domain.user.service.OAuth2LoginFailureHandler;
-import com.fifo.ticketing.domain.user.service.OAuth2LoginSuccessHandler;
+import com.fifo.ticketing.domain.user.service.handler.FormLoginFailureHandler;
+import com.fifo.ticketing.domain.user.service.handler.FormLoginSuccessHandler;
+import com.fifo.ticketing.domain.user.service.handler.OAuth2LoginFailureHandler;
+import com.fifo.ticketing.domain.user.service.handler.OAuth2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,7 +61,7 @@ public class SecurityConfig {
                     .requestMatchers("/user/**")
                     .hasAnyAuthority("USER", "ADMIN")
                     .requestMatchers("/admin/**")
-                    .hasAnyAuthority("ADMIN")
+                    .hasAnyAuthority("USER", "ADMIN")
                     .anyRequest()
                     .permitAll();
             })
