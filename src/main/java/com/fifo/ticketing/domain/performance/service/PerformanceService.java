@@ -2,7 +2,7 @@ package com.fifo.ticketing.domain.performance.service;
 
 import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.repository.BookRepository;
-import com.fifo.ticketing.domain.book.service.BookCancelService;
+import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.like.entity.LikeCount;
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
 import com.fifo.ticketing.domain.performance.dto.*;
@@ -50,7 +50,7 @@ public class PerformanceService {
     private final SeatService seatService;
     private final ImageFileService imageFileService;
     private final LikeCountRepository likeCountRepository;
-    private final BookCancelService bookCancelService;
+    private final BookService bookService;
     private final BookRepository bookRepository;
 
 
@@ -177,7 +177,7 @@ public class PerformanceService {
 
         // 3. 예약 삭제
         // books를 변수로 가져온 이유는, books의 유저를 기반으로 메일을 전송하기 위해서입니다.
-        List<Book> books = bookCancelService.cancelAllBook(findPerformance);
+        List<Book> books = bookService.cancelAllBook(findPerformance);
 
         // 4. 좌석 삭제
         // 좌석 삭제 시에 Query로 처리하는 부분 때문에 flush가 됩니다.
