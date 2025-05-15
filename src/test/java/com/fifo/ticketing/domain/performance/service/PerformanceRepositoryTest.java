@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
     "spring.sql.init.mode=never"
 })
 @Sql(scripts = {"/schema.sql", "/data.sql"})
-@ExtendWith(MockitoExtension.class)
 @SpringBootTest
 @Transactional(readOnly = true)
 class PerformanceRepositoryTest {
