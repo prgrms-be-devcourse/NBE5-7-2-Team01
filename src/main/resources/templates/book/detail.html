@@ -160,7 +160,8 @@
         <input type="hidden" name="bookId" th:value="${bookDetail.bookId}" />
         <button type="submit" class="btn">예매 취소</button>
       </form>
-      <button th:onclick="|completePayment(${bookDetail.bookId})|" class="btn">결제하기</button>
+      <button th:if="${bookDetail.bookStatus.name() == 'CONFIRMED'}"
+              th:onclick="|completePayment(${bookDetail.bookId})|" class="btn">결제하기</button>
     </div>
   </div>
 </div>
