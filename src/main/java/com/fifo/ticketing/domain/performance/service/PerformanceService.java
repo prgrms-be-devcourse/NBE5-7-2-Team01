@@ -1,6 +1,7 @@
 package com.fifo.ticketing.domain.performance.service;
 
 import static com.fifo.ticketing.global.exception.ErrorCode.FILE_UPLOAD_FAILED;
+import static com.fifo.ticketing.global.exception.ErrorCode.INVALID_DELETED_PERFORMANCE;
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_GRADE;
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PLACES;
