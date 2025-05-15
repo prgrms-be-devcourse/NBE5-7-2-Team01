@@ -17,7 +17,15 @@ public class LikeMailEventListener {
 
     @Async("mailExecutor")
     @TransactionalEventListener
-    public void HandleLikeMailEvent(LikeMailEvent event) {
-        likeMailService.performanceStart(event.getUser() , event.getPerformance());
+    public void handleLikeMailEvent(LikeMailEvent event) {
+
+        switch (event.getMailType()){
+            case NO_PAYED -> likeMailService.NoPayedPerformance(event.getUser() , event.getPerformance());
+            case RESERVATION_NOTICE -> likeMailService.performanceStart(event.getUser() , event.getPerformance());
+        }
+
     }
+
+
+
 }
