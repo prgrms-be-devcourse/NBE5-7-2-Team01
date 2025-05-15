@@ -42,7 +42,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.*;
 
-@ActiveProfiles("ci")
 @ExtendWith(MockitoExtension.class)
 class PerformanceServiceTests {
 
