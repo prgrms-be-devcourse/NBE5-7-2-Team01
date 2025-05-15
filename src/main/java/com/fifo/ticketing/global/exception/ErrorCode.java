@@ -16,6 +16,7 @@ public enum ErrorCode {
     NOT_FOUND_MEMBER("AUTH-001", "존재하지 않는 회원입니다.", NOT_FOUND),
     NOT_FOUND_PERFORMANCES("PERFORMANCE-001", "예매 가능한 공연이 존재하지 않습니다.", NOT_FOUND),
     NOT_FOUND_PERFORMANCE("PERFORMANCE-002", "존재하지 않는 공연입니다.", NOT_FOUND),
+    ADMIN_NOT_FOUND_PERFORMANCES("PERFORMANCE-003", "조회 가능한 공연이 없습니다.", NOT_FOUND),
     SEAT_ALREADY_BOOKED("SEAT-001", "해당 좌석은 이미 예약되었습니다.", CONFLICT),
     FILE_UPLOAD_FAILED("FILE-001", "파일 업로드에 실패하였습니다.", INTERNAL_SERVER_ERROR),
     FILE_UPDATE_FAILED("FILE-002", "파일 수정에 실패하였습니다.", INTERNAL_SERVER_ERROR),
@@ -28,7 +29,10 @@ public enum ErrorCode {
     NOT_FOUND_AUTH("AUTH-002", "잘못된 인증번호 입니다.", NOT_FOUND),
     NOT_FOUND_PROVIDER("PROVIDER-001", "지원하지 않는 플랫폼 서비스입니다.", NOT_FOUND),
     NOT_FOUND_BOOK("BOOK-001", "예약 정보가 존재하지 않습니다.", NOT_FOUND),
-    UNAUTHORIZED_REQUEST("AUTH-003", "올바른 요청이 아닙니다. 로그인을 해주세요.", UNAUTHORIZED);
+    NOT_FOUND_SCHEDULE("SCHEDULE-001", "존재하지 않는 스케줄 업무입니다.", NOT_FOUND),
+    UNAUTHORIZED_REQUEST("AUTH-003", "올바른 요청이 아닙니다. 로그인을 해주세요.", UNAUTHORIZED),
+    INVALID_DATETIME_PERIOD("DATETIME-001", "공연 종료 시간은 공연 시작 시간 이후여야 합니다.", BAD_REQUEST),
+    INVALID_DATETIME_TYPE("DATETIME-002", "날짜 형식이 올바르지 않습니다.", BAD_REQUEST);
 
     private final String code;
     private final String message;

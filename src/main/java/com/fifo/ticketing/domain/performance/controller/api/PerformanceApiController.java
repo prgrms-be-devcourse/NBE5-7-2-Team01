@@ -35,5 +35,11 @@ public class PerformanceApiController {
             @RequestPart("request") PerformanceRequestDto request) throws IOException {
         performanceService.updatePerformance(id, request, file);
         return ResponseEntity.ok("공연이 수정되었습니다.");
-        }
+    }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<?> deletePerformance(@PathVariable Long id) {
+        performanceService.deletePerformance(id);
+        return ResponseEntity.ok("공연이 삭제되었습니다.");
+    }
 }

@@ -1,11 +1,6 @@
 package com.fifo.ticketing.domain.performance.mapper;
 
-import com.fifo.ticketing.domain.performance.dto.AdminPerformanceResponseDto;
-import com.fifo.ticketing.domain.performance.dto.LikedPerformanceDto;
-import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
-import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
-import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
-import com.fifo.ticketing.domain.performance.dto.PerformanceSeatGradeDto;
+import com.fifo.ticketing.domain.performance.dto.*;
 import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.entity.Place;
@@ -28,7 +23,19 @@ public class PerformanceMapper {
             .totalSeats(performance.getPlace().getTotalSeats())
             .seatGrades(seatGrades)
             .build();
+    }
 
+    public static AdminPerformanceDetailResponse toAdminDetailResponseDto(Performance performance,
+        List<PerformanceSeatGradeDto> seatGrades) {
+        return AdminPerformanceDetailResponse.builder().performanceId(performance.getId())
+                .title(performance.getTitle()).description(performance.getDescription())
+                .category(performance.getCategory().name()).startTime(performance.getStartTime())
+                .encodedFileName(performance.getFile().getEncodedFileName())
+                .endTime(performance.getEndTime()).placeName(performance.getPlace().getName())
+                .address(performance.getPlace().getAddress())
+                .totalSeats(performance.getPlace().getTotalSeats())
+                .seatGrades(seatGrades)
+                .build();
     }
 
     public static PerformanceSeatGradeDto toSeatGradeDto(Grade grade) {
@@ -49,7 +56,6 @@ public class PerformanceMapper {
             .reservationStartTime(performance.getReservationStartTime())
             .performanceStatus(performance.isPerformanceStatus())
             .urlPrefix(urlPrefix)
-            .id(performance.getId())
             .build();
     }
 
