@@ -9,6 +9,7 @@ import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.service.PerformanceService;
 import com.fifo.ticketing.domain.seat.service.SeatService;
 import com.fifo.ticketing.domain.user.dto.SessionUser;
+import com.fifo.ticketing.global.util.DateTimeValidator;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -77,6 +78,8 @@ public class AdminPerformanceController {
             @RequestParam(value = "size", defaultValue = "10") int size,
             Model model
     ) {
+        DateTimeValidator.periodValidator(startDate, endDate);
+
         Pageable pageable = PageRequest.of(page, size);
         Page<AdminPerformanceResponseDto> performances = performanceService.getPerformancesByReservationPeriodForAdmin(
             startDate, endDate, pageable);

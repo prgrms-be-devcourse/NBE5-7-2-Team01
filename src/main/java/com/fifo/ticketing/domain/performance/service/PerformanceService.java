@@ -95,11 +95,8 @@ public class PerformanceService {
     @Transactional(readOnly = true)
     public Page<AdminPerformanceResponseDto> getPerformancesSortedByLatestForAdmin(
         Pageable pageable) {
-        Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByReservationStartTimeForAdmin(
-            pageable);
-        if (performances.isEmpty()) {
-            throw new ErrorException(ADMIN_NOT_FOUND_PERFORMANCES);
-        }
+        Page<Performance> performances = performanceRepository
+                .findUpcomingPerformancesOrderByReservationStartTimeForAdmin(pageable);
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
 
@@ -275,9 +272,6 @@ public class PerformanceService {
         Pageable pageable) {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByLikesForAdmin(
             pageable);
-        if (performances.isEmpty()) {
-            throw new ErrorException(ADMIN_NOT_FOUND_PERFORMANCES);
-        }
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
 
@@ -287,9 +281,6 @@ public class PerformanceService {
         LocalDateTime end, Pageable pageable) {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesByReservationPeriodForAdmin(
             start, end, pageable);
-        if (performances.isEmpty()) {
-            throw new ErrorException(ADMIN_NOT_FOUND_PERFORMANCES);
-        }
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
 
@@ -298,17 +289,11 @@ public class PerformanceService {
         Pageable pageable) {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesByCategoryForAdmin(
             category, pageable);
-        if (performances.isEmpty()) {
-            throw new ErrorException(ADMIN_NOT_FOUND_PERFORMANCES);
-        }
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
 
     public Page<AdminPerformanceResponseDto> getPerformancesSortedByDeletedForAdmin(Pageable pageable) {
         Page<Performance> performances = performanceRepository.findUpComingPerformancesByDeletedFlagForAdmin(pageable);
-        if (performances.isEmpty()) {
-            throw new ErrorException(ADMIN_NOT_FOUND_PERFORMANCES);
-        }
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
 }
