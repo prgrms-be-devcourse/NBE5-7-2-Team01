@@ -35,7 +35,7 @@ public class BookController {
 
     }
 
-    @PostMapping("/complete/{bookId}/payment")
+    @PostMapping("/complete/{bookId}/paid")
     public String completePayment(@PathVariable Long performanceId, @PathVariable Long bookId,
         RedirectAttributes redirectAttributes) {
         bookService.completePayment(bookId);

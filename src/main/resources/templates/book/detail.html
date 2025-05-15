@@ -98,6 +98,10 @@
       display: flex;
       justify-content: flex-end;
     }
+
+    tbody tr:hover {
+      background-color: #f0f8ff;
+    }
   </style>
 </head>
 <body>
@@ -123,10 +127,9 @@
       </tr>
       </thead>
       <tbody>
-      <tr>
-        <td>
-          <a th:href="@{'/performances/' + ${bookDetail.performanceId}}" th:text="${bookDetail.performanceTitle}"></a>
-        </td>
+      <tr th:onclick="|window.location.href='/performances/${bookDetail.performanceId}'|"
+          style="cursor: pointer;">
+        <td th:text="${bookDetail.performanceTitle}"></td>
         <td th:text="${bookDetail.placeName}"></td>
         <td>
           <ul>
@@ -157,6 +160,8 @@
         <input type="hidden" name="bookId" th:value="${bookDetail.bookId}" />
         <button type="submit" class="btn">예매 취소</button>
       </form>
+      <button th:if="${bookDetail.bookStatus.name() == 'CONFIRMED'}"
+              th:onclick="|completePayment(${bookDetail.bookId})|" class="btn">결제하기</button>
     </div>
   </div>
 </div>
@@ -165,6 +170,28 @@
 <script>
   function confirmCancel() {
     return confirm("정말 예매를 취소하시겠습니까?");
+  }
+
+  function completePayment(bookId) {
+    fetch(`/users/books/${bookId}/paid`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(async (response) => {
+      const data = await response.json();
+
+      if (response.ok && data.status === 'success') {
+        alert(`결제가 완료되었습니다!`);
+        window.location.reload();
+      } else {
+        throw new Error(data.message || '결제 실패');
+      }
+    })
+    .catch(error => {
+      alert('결제 중 오류가 발생했습니다: ' + error.message);
+    });
   }
 </script>
 

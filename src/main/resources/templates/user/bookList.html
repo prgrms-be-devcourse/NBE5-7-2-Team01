@@ -74,12 +74,20 @@
     a:hover {
       text-decoration: underline;
     }
+
+    .reservation-card:hover {
+      background-color: #f0f8ff;
+    }
   </style>
 </head>
 <body>
 <h2>예매 목록</h2>
 
-<div th:each="book : ${bookedList}" class="reservation-card">
+<div th:each="book : ${bookedList}"
+     class="reservation-card"
+     th:onclick="|window.location.href='/users/books/${book.bookId}'|"
+     style="cursor: pointer;">
+
   <img th:src="@{/image/{fileName}(fileName=${book.encodedFileName})}" alt="공연 포스터"/>
 
   <div class="reservation-info">
@@ -96,9 +104,7 @@
       </thead>
       <tbody>
       <tr>
-        <td>
-          <a th:href="@{'/users/books/' + ${book.bookId}}" th:text="${book.performanceTitle}"></a>
-        </td>
+        <td th:text="${book.performanceTitle}"></td>
         <td th:text="${book.placeName}"></td>
         <td>
           <ul>
