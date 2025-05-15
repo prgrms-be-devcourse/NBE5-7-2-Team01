@@ -5,6 +5,7 @@ import com.fifo.ticketing.domain.performance.dto.LikedPerformanceDto;
 import com.fifo.ticketing.domain.user.dto.SessionUser;
 import com.fifo.ticketing.domain.user.service.MyPageService;
 import jakarta.servlet.http.HttpSession;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,6 +39,10 @@ public class UserController {
     @PostMapping("/users/books/{bookId}/paid")
     public ResponseEntity<?> completePayment(@PathVariable Long bookId) {
         bookService.completePayment(bookId);
-        return ResponseEntity.ok("결제가 완료되었습니다.");
+        return ResponseEntity.ok(Map.of(
+            "status", "success",
+            "bookId", bookId,
+            "message", "결제가 완료되었습니다!"
+        ));
     }
 }
