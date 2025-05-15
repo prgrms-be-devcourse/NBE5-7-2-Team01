@@ -13,6 +13,7 @@ import com.fifo.ticketing.domain.user.entity.User;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -63,10 +64,8 @@ public class BookMapper {
             .build();
     }
 
-    public static List<BookedView> toBookedViewDtoList(List<Book> books) {
-        return books.stream()
-            .map(BookMapper::toBookedViewDto)
-            .collect(Collectors.toList());
+    public static Page<BookedView> toBookedViewDtoList(Page<Book> books) {
+        return books.map(BookMapper::toBookedViewDto);
     }
 
     public static BookScheduledTask toBookScheduledTaskEntity(Long bookId, LocalDateTime runtime) {

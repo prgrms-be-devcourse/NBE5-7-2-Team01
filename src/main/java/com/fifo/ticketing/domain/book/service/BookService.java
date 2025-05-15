@@ -23,6 +23,8 @@ import com.fifo.ticketing.global.exception.ErrorException;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -132,10 +134,10 @@ public class BookService {
     }
 
     @Transactional
-    public List<BookedView> getBookedList(Long userId) {
-        List<Book> bookList = bookRepository.findAllByUserId(userId);
+    public Page<BookedView> getBookedList(Long userId, Pageable pageable) {
+        Page<Book> bookPage = bookRepository.findAllByUserId(userId, pageable);
 
-        return BookMapper.toBookedViewDtoList(bookList);
+        return BookMapper.toBookedViewDtoList(bookPage);
     }
 
     @Transactional
@@ -144,5 +146,27 @@ public class BookService {
             .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
 
         return BookMapper.toBookedViewDto(book);
+    }
+
+    @Transactional
+    public Page<BookedView> getBookedListByBookStatus(Long userId, BookStatus bookStatus, Pageable pageable) {
+        Page<Book> bookPage = bookRepository.findAllByUserIdAndBookStatus(
+            userId, bookStatus, pageable);
+
+        return BookMapper.toBookedViewDtoList(bookPage);
+    }
+    @Transactional
+    public Page<BookedView> getBookedListByTitle(Long userId, String performanceTitle, Pageable pageable) {
+        Page<Book> bookPage = bookRepository.findAllByUserIdAndTitle(
+            userId, performanceTitle, pageable);
+
+        return BookMapper.toBookedViewDtoList(bookPage);
+    }
+    @Transactional
+    public Page<BookedView> getBookedListByTitleAndBookStatus(String performanceTitle, Long userId, BookStatus bookStatus, Pageable pageable) {
+        Page<Book> bookPage = bookRepository.findAllByUserIdAndTitleAndBookStatus(
+            userId, performanceTitle, bookStatus, pageable);
+
+        return BookMapper.toBookedViewDtoList(bookPage);
     }
 }
