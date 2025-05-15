@@ -6,6 +6,7 @@ build/
 !**/src/test/**/build/
 *.yml
 !application-ci.yml
+*.sql
 
 ### STS ###
 .apt_generated
