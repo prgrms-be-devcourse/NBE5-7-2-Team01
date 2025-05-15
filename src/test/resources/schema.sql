@@ -13,8 +13,8 @@ CREATE TABLE grades
     grade         VARCHAR(50) NOT NULL,
     seat_count    INT         NOT NULL,
     default_price INT         NOT NULL,
-    created_at    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_grades_places FOREIGN KEY (place_id) REFERENCES places (id) ON DELETE CASCADE
 );
 
@@ -23,8 +23,8 @@ CREATE TABLE files
     id                 BIGINT PRIMARY KEY AUTO_INCREMENT,
     original_file_name VARCHAR(255),
     encoded_file_name  VARCHAR(255),
-    created_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at         DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at         DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE performances
@@ -34,13 +34,13 @@ CREATE TABLE performances
     description            TEXT         NOT NULL,
     place_id               BIGINT       NOT NULL,
     file_id                BIGINT       NOT NULL,
-    start_time             TIMESTAMP    NOT NULL,
-    end_time               TIMESTAMP    NOT NULL,
+    start_time             DATETIME     NOT NULL,
+    end_time               DATETIME     NOT NULL,
     category               VARCHAR(20)  NOT NULL,
     performance_status     BOOLEAN      NOT NULL DEFAULT TRUE,
-    reservation_start_time TIMESTAMP    NOT NULL,
-    created_at             TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at             TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    reservation_start_time DATETIME     NOT NULL,
+    created_at             DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at             DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_flag           BOOLEAN      NOT NULL DEFAULT FALSE,
     CONSTRAINT fk_performances_places FOREIGN KEY (place_id) REFERENCES places (id) ON DELETE CASCADE,
     CONSTRAINT fk_performances_files FOREIGN KEY (file_id) REFERENCES files (id) ON DELETE CASCADE
@@ -51,7 +51,7 @@ CREATE TABLE like_count
     id             BIGINT PRIMARY KEY AUTO_INCREMENT,
     performance_id BIGINT NOT NULL,
     like_count     BIGINT NOT NULL,
-    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at     DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at     DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_like_count_performances FOREIGN KEY (performance_id) REFERENCES performances (id) ON DELETE CASCADE
 );
