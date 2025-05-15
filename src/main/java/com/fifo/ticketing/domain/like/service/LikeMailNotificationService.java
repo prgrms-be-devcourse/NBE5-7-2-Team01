@@ -1,8 +1,10 @@
 package com.fifo.ticketing.domain.like.service;
 
+import static com.fifo.ticketing.domain.book.entity.BookStatus.PAYED;
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCES;
 import static java.rmi.server.LogStream.log;
 
+import com.fifo.ticketing.domain.book.repository.BookRepository;
 import com.fifo.ticketing.domain.like.entity.Like;
 import com.fifo.ticketing.domain.like.entity.LikeCount;
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
@@ -11,6 +13,7 @@ import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.user.entity.User;
 import com.fifo.ticketing.global.Event.LikeMailEvent;
+import com.fifo.ticketing.global.Event.MailType;
 import com.fifo.ticketing.global.exception.ErrorException;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -31,7 +34,7 @@ public class LikeMailNotificationService {
     private final LikeMailService likeMailService;
     private final PerformanceRepository performanceRepository;
     private final ApplicationEventPublisher eventPublisher;
-
+    private final BookRepository bookRepository;
 
 
     @Transactional
@@ -80,11 +83,48 @@ public class LikeMailNotificationService {
         List<Like> likes = likeRepository.findLikesByTargetTime(start , end);
 
         for (Like like : likes) {
-            User user = like.getUser();
-            Performance performance = like.getPerformance();
+            //좋을 때만
+            if (like.isLiked()){
+                User user = like.getUser();
+                Performance performance = like.getPerformance();
 
-            eventPublisher.publishEvent(new LikeMailEvent(user, performance));
-            //likeMailService.performanceStart(user, performance);
+                eventPublisher.publishEvent(new LikeMailEvent(user, performance , MailType.RESERVATION_NOTICE));
+                //likeMailService.performanceStart(user, performance);
+            }
+
+
+        }
+
+    }
+
+    @Transactional
+    public void sendNoPayedNotification() {
+        LocalDateTime now = LocalDateTime.now();
+
+        //현재시간이 한시간 전에 예약시간 인경우
+        LocalDateTime reservationTime = now.minusHours(1);
+
+        // 정각으로 하면 안보내는 문제가 있어 +- 1분의 시간을 주었습니다.
+        LocalDateTime start = reservationTime.minusMinutes(1);
+        LocalDateTime end = reservationTime.plusMinutes(1);
+
+        //reservationStartTime 이후 1시간 뒤
+        List<Like> likes = likeRepository.findLikesByTargetTime(start , end);
+
+
+        for (Like like : likes) {
+            //좋을 때만
+            if (like.isLiked()){
+                User user = like.getUser();
+                Performance performance = like.getPerformance();
+
+                boolean payed = bookRepository.existsByUserAndPerformanceAndBookStatus(user, performance, PAYED);
+                if (!payed){
+                    eventPublisher.publishEvent(new LikeMailEvent(user, performance, MailType.RESERVATION_NOTICE));
+                }
+
+            }
+
 
         }
 
