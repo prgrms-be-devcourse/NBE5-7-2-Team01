@@ -8,6 +8,7 @@ import com.fifo.ticketing.domain.book.mapper.BookMapper;
 import com.fifo.ticketing.domain.book.repository.BookRepository;
 import com.fifo.ticketing.domain.book.repository.BookScheduleRepository;
 import com.fifo.ticketing.domain.book.repository.BookSeatRepository;
+import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.seat.entity.Seat;
 import com.fifo.ticketing.global.exception.ErrorCode;
 import com.fifo.ticketing.global.exception.ErrorException;
@@ -49,7 +50,7 @@ public class BookScheduleManager {
     @Transactional
     public void cancelIfUnpaid(Long bookId) {
         Book book = bookRepository.findById(bookId)
-            .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
+                .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
 
         if (book.getBookStatus() == BookStatus.CONFIRMED) {
 
@@ -69,5 +70,9 @@ public class BookScheduleManager {
 
     }
 
-
+    @Transactional
+    public List<Book> cancelAllBook(Performance performance) {
+        bookRepository.cancelAllByPerformance(performance, BookStatus.ADMIN_REFUNDED, BookStatus.PAYED);
+        return bookRepository.findAllByPerformanceAndBookStatus(performance, BookStatus.ADMIN_REFUNDED);
+    }
 }
