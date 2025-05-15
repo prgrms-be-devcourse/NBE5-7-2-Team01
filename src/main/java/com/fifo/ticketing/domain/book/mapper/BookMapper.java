@@ -3,14 +3,12 @@ package com.fifo.ticketing.domain.book.mapper;
 import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
 import com.fifo.ticketing.domain.book.dto.BookedView;
 import com.fifo.ticketing.domain.book.entity.Book;
-import com.fifo.ticketing.domain.book.entity.BookScheduledTask;
 import com.fifo.ticketing.domain.book.entity.BookSeat;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.seat.entity.Seat;
 import com.fifo.ticketing.domain.seat.mapper.SeatMapper;
 import com.fifo.ticketing.domain.user.entity.User;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
@@ -67,9 +65,5 @@ public class BookMapper {
         return books.stream()
             .map(BookMapper::toBookedViewDto)
             .collect(Collectors.toList());
-    }
-
-    public static BookScheduledTask toBookScheduledTaskEntity(Long bookId, LocalDateTime runtime) {
-        return BookScheduledTask.create(bookId, runtime);
     }
 }
