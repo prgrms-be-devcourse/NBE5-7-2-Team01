@@ -21,5 +21,5 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     @Modifying
     @Query("UPDATE Book b SET b.bookStatus = :cancelStatus WHERE b.performance = :performance AND b.bookStatus = :currentStatus")
-    int cancelAllByPerformance(@Param("performance") Performance performance, @Param("cancelStatus") BookStatus cancelStatus, @Param("currentStatus") BookStatus currentStatus);
+    void cancelAllByPerformance(@Param("performance") Performance performance, @Param("cancelStatus") BookStatus cancelStatus, @Param("currentStatus") BookStatus currentStatus);
 }

@@ -69,6 +69,7 @@ public class Performance extends BaseDateEntity {
     }
 
     public void delete() {
+        this.performanceStatus = false;
         this.deletedFlag = true;
     }
 
