@@ -17,5 +17,9 @@ public class LikedPerformanceDto {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String placeName;
+    private String urlPrefix;
 
+    public String getUrl() {
+        return urlPrefix + encodedFileName;
+    }
 }

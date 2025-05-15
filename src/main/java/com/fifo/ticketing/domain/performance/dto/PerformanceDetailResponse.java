@@ -1,12 +1,10 @@
 package com.fifo.ticketing.domain.performance.dto;
 
-import com.fifo.ticketing.domain.performance.entity.Category;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Builder
@@ -25,6 +23,9 @@ public class PerformanceDetailResponse {
     private boolean performanceStatus;
     private int totalSeats;
     private List<PerformanceSeatGradeDto> seatGrades;
+    private String urlPrefix;
 
-
+    public String getUrl() {
+        return urlPrefix + encodedFileName;
+    }
 }
