@@ -81,31 +81,22 @@ public class ViewController {
     }
 
     @GetMapping("/users/books")
-    public Page<BookedView> getBookList(HttpSession session,
+    public String getBookList(HttpSession session,
         @RequestParam(value = "page", defaultValue = "0", required = false) int page,
         @RequestParam(value = "size", defaultValue = "5", required = false) int size,
         @RequestParam(required = false) String performanceTitle,
-        @RequestParam(required = false) BookStatus bookStatus
+        @RequestParam(required = false) BookStatus bookStatus,
+        Model model
         ) {
 
         SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
 
         PageRequest pageable = PageRequest.of(page, size);
-        return getBookData(loginUser.id(), performanceTitle, bookStatus, pageable);
-    }
+        Page<BookedView> bookedList = bookService.getBookedList(loginUser.id(), performanceTitle,
+            bookStatus, pageable);
 
-    private Page<BookedView> getBookData(Long userId, String performanceTitle, BookStatus bookStatus,
-        Pageable pageable) {
-        if (performanceTitle != null && bookStatus != null) {
-            return bookService.getBookedListByTitleAndBookStatus(performanceTitle, userId,
-                bookStatus, pageable);
-        } else if (performanceTitle != null) {
-            return bookService.getBookedListByTitle(userId, performanceTitle, pageable);
-        } else if (bookStatus != null) {
-            return bookService.getBookedListByBookStatus(userId, bookStatus, pageable);
-        } else {
-            return bookService.getBookedList(userId, pageable);
-        }
+        model.addAttribute("bookedList", bookedList);
+        return "user/bookList";
     }
 
     @GetMapping("/users/books/{bookId}")

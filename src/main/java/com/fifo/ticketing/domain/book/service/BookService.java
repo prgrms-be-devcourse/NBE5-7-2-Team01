@@ -133,12 +133,6 @@ public class BookService {
         return bookRepository.findAllByPerformanceAndBookStatus(performance, BookStatus.ADMIN_REFUNDED);
     }
 
-    @Transactional
-    public Page<BookedView> getBookedList(Long userId, Pageable pageable) {
-        Page<Book> bookPage = bookRepository.findAllByUserId(userId, pageable);
-
-        return BookMapper.toBookedViewDtoList(bookPage);
-    }
 
     @Transactional
     public BookedView getBookDetail(Long userId, Long bookId) {
@@ -148,24 +142,22 @@ public class BookService {
         return BookMapper.toBookedViewDto(book);
     }
 
-    @Transactional
-    public Page<BookedView> getBookedListByBookStatus(Long userId, BookStatus bookStatus, Pageable pageable) {
-        Page<Book> bookPage = bookRepository.findAllByUserIdAndBookStatus(
-            userId, bookStatus, pageable);
 
-        return BookMapper.toBookedViewDtoList(bookPage);
-    }
     @Transactional
-    public Page<BookedView> getBookedListByTitle(Long userId, String performanceTitle, Pageable pageable) {
-        Page<Book> bookPage = bookRepository.findAllByUserIdAndTitle(
-            userId, performanceTitle, pageable);
-
-        return BookMapper.toBookedViewDtoList(bookPage);
-    }
-    @Transactional
-    public Page<BookedView> getBookedListByTitleAndBookStatus(String performanceTitle, Long userId, BookStatus bookStatus, Pageable pageable) {
-        Page<Book> bookPage = bookRepository.findAllByUserIdAndTitleAndBookStatus(
-            userId, performanceTitle, bookStatus, pageable);
+    public Page<BookedView> getBookedList(Long userId, String title, BookStatus status, Pageable pageable) {
+        Page<Book> bookPage;
+        if (title != null && status != null) {
+            bookPage = bookRepository.findAllByUserIdAndTitleAndBookStatus(
+                userId, title, status, pageable);
+        } else if (title != null) {
+            bookPage = bookRepository.findAllByUserIdAndTitle(userId, title,
+                pageable);
+        } else if (status != null) {
+            bookPage = bookRepository.findAllByUserIdAndBookStatus(userId, status,
+                pageable);
+        } else {
+            bookPage = bookRepository.findAllByUserId(userId, pageable);
+        }
 
         return BookMapper.toBookedViewDtoList(bookPage);
     }
