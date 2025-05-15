@@ -1,20 +1,11 @@
 package com.fifo.ticketing.domain.performance.service;
 
-import static com.fifo.ticketing.global.exception.ErrorCode.FILE_UPLOAD_FAILED;
-import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_GRADE;
-import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
-import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCES;
-import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PLACES;
-import static com.fifo.ticketing.global.exception.ErrorCode.SEAT_CREATE_FAILED;
-
+import com.fifo.ticketing.domain.book.entity.Book;
+import com.fifo.ticketing.domain.book.repository.BookRepository;
+import com.fifo.ticketing.domain.book.service.BookCancelService;
 import com.fifo.ticketing.domain.like.entity.LikeCount;
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
-import com.fifo.ticketing.domain.performance.dto.AdminPerformanceResponseDto;
-import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
-import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
-import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
-import com.fifo.ticketing.domain.performance.dto.PerformanceSeatGradeDto;
-import com.fifo.ticketing.domain.performance.dto.PlaceResponseDto;
+import com.fifo.ticketing.domain.performance.dto.*;
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.performance.entity.Performance;
@@ -33,6 +24,9 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import com.fifo.ticketing.global.util.ImageFileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -40,6 +34,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import static com.fifo.ticketing.global.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -54,6 +50,8 @@ public class PerformanceService {
     private final SeatService seatService;
     private final ImageFileService imageFileService;
     private final LikeCountRepository likeCountRepository;
+    private final BookCancelService bookCancelService;
+    private final BookRepository bookRepository;
 
 
     @Transactional(readOnly = true)
@@ -70,7 +68,18 @@ public class PerformanceService {
     }
 
     @Transactional(readOnly = true)
-    public AdminPerformanceResponseDto getPerformanceDetailForAdmin(Long performanceId) {
+    public AdminPerformanceDetailResponse getPerformanceDetailForAdmin(Long performanceId) {
+        Performance performance = performanceRepository.findById(performanceId)
+                .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
+        List<Grade> grades = gradeRepository.findAllByPlaceId(performance.getPlace().getId());
+        List<PerformanceSeatGradeDto> seatGrades = grades.stream()
+            .map(PerformanceMapper::toSeatGradeDto)
+            .toList();
+
+        return PerformanceMapper.toAdminDetailResponseDto(performance, seatGrades);
+    }
+
+    public AdminPerformanceResponseDto getPerformanceUpdateForAdmin(Long performanceId) {
         Performance performance = performanceRepository.findById(performanceId)
             .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
         return PerformanceMapper.toAdminPerformanceResponseDto(performance, urlPrefix);
@@ -89,7 +98,7 @@ public class PerformanceService {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByReservationStartTimeForAdmin(
             pageable);
         if (performances.isEmpty()) {
-            throw new ErrorException(NOT_FOUND_PERFORMANCES);
+            throw new ErrorException(ADMIN_NOT_FOUND_PERFORMANCES);
         }
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
@@ -154,6 +163,28 @@ public class PerformanceService {
             }
         }
         return findPerformance;
+    }
+
+    @Transactional
+    public void deletePerformance(Long id) {
+        // 1. 삭제를 위한 Performance 조회 (삭제되지 않은 파일만)
+        Performance findPerformance = performanceRepository.findByIdAndDeletedFlagFalse(id).orElseThrow(
+                () -> new ErrorException(NOT_FOUND_PERFORMANCE));
+        // 2. 공연 삭제
+        // 예약 삭제 / 좌석 삭제에서 영속성 컨텍스트가 초기화 되고, findPerformance가 flush 되지 않고 detach되는 문제 때문에 flush를 호출
+        findPerformance.delete();
+        performanceRepository.flush();
+
+        // 3. 예약 삭제
+        // books를 변수로 가져온 이유는, books의 유저를 기반으로 메일을 전송하기 위해서입니다.
+        List<Book> books = bookCancelService.cancelAllBook(findPerformance);
+
+        // 4. 좌석 삭제
+        // 좌석 삭제 시에 Query로 처리하는 부분 때문에 flush가 됩니다.
+        seatService.deleteSeatsByPerformanceId(id);
+
+        // 후속 절차로 메일 전송을 EventListener로 보낼 예정입니다.
+        // 사용 변수는 books 입니다.
     }
 
     private void saveLikeCount(Performance savedPerformance) {
@@ -245,7 +276,7 @@ public class PerformanceService {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByLikesForAdmin(
             pageable);
         if (performances.isEmpty()) {
-            throw new ErrorException(NOT_FOUND_PERFORMANCES);
+            throw new ErrorException(ADMIN_NOT_FOUND_PERFORMANCES);
         }
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
@@ -257,7 +288,7 @@ public class PerformanceService {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesByReservationPeriodForAdmin(
             start, end, pageable);
         if (performances.isEmpty()) {
-            throw new ErrorException(NOT_FOUND_PERFORMANCES);
+            throw new ErrorException(ADMIN_NOT_FOUND_PERFORMANCES);
         }
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
@@ -268,9 +299,16 @@ public class PerformanceService {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesByCategoryForAdmin(
             category, pageable);
         if (performances.isEmpty()) {
-            throw new ErrorException(NOT_FOUND_PERFORMANCES);
+            throw new ErrorException(ADMIN_NOT_FOUND_PERFORMANCES);
         }
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
 
+    public Page<AdminPerformanceResponseDto> getPerformancesSortedByDeletedForAdmin(Pageable pageable) {
+        Page<Performance> performances = performanceRepository.findUpComingPerformancesByDeletedFlagForAdmin(pageable);
+        if (performances.isEmpty()) {
+            throw new ErrorException(ADMIN_NOT_FOUND_PERFORMANCES);
+        }
+        return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
+    }
 }
