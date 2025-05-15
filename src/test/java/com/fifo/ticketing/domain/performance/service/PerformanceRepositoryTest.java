@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
     "spring.jpa.hibernate.ddl-auto=none",
     "spring.sql.init.mode=never"
 })
-@Sql(scripts = {"/schema.sql", "/data.sql"})
+@Sql(scripts = {"classpath:schema.sql", "classpath:data.sql"})
 @SpringBootTest
 @Transactional(readOnly = true)
 class PerformanceRepositoryTest {
