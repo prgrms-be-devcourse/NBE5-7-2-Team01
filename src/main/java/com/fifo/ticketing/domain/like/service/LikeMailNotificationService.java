@@ -10,13 +10,17 @@ import com.fifo.ticketing.domain.like.repository.LikeRepository;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.user.entity.User;
+import com.fifo.ticketing.global.Event.LikeMailEvent;
 import com.fifo.ticketing.global.exception.ErrorException;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Slf4j
 @Service
@@ -26,6 +30,9 @@ public class LikeMailNotificationService {
     private final LikeRepository likeRepository;
     private final LikeMailService likeMailService;
     private final PerformanceRepository performanceRepository;
+    private final ApplicationEventPublisher eventPublisher;
+
+
 
     @Transactional
     public boolean sendLikeNotification(Long performanceId) {
@@ -76,7 +83,8 @@ public class LikeMailNotificationService {
             User user = like.getUser();
             Performance performance = like.getPerformance();
 
-            likeMailService.performanceStart(user, performance);
+            eventPublisher.publishEvent(new LikeMailEvent(user, performance));
+            //likeMailService.performanceStart(user, performance);
 
         }
 
