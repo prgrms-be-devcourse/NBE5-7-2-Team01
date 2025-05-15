@@ -51,6 +51,10 @@ public class Book extends BaseDateEntity {
     @Column(nullable = false)
     private Integer quantity;
 
+    @OneToOne
+    @JoinColumn(name = "task_id")
+    private BookScheduledTask scheduledTask;
+
     public void canceled() {
         this.bookStatus = bookStatus.CANCELED;
     }
