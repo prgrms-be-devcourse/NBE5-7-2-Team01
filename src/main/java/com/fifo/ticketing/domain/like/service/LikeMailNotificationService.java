@@ -4,6 +4,7 @@ import static com.fifo.ticketing.domain.book.entity.BookStatus.PAYED;
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCES;
 import static java.rmi.server.LogStream.log;
 
+import com.fifo.ticketing.domain.book.entity.BookStatus;
 import com.fifo.ticketing.domain.book.repository.BookRepository;
 import com.fifo.ticketing.domain.like.entity.Like;
 import com.fifo.ticketing.domain.like.entity.LikeCount;
@@ -118,9 +119,10 @@ public class LikeMailNotificationService {
                 User user = like.getUser();
                 Performance performance = like.getPerformance();
 
-                boolean payed = bookRepository.existsByUserAndPerformanceAndBookStatus(user, performance, PAYED);
+                boolean payed = bookRepository.existsByUserAndPerformanceAndBookStatus(user, performance,
+                    PAYED);
                 if (!payed){
-                    eventPublisher.publishEvent(new LikeMailEvent(user, performance, MailType.RESERVATION_NOTICE));
+                    eventPublisher.publishEvent(new LikeMailEvent(user, performance, MailType.NO_PAYED));
                 }
 
             }
