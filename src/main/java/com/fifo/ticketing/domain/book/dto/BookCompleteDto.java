@@ -1,5 +1,6 @@
 package com.fifo.ticketing.domain.book.dto;
 
+import com.fifo.ticketing.domain.seat.entity.SeatStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Builder;
@@ -26,4 +27,5 @@ public class BookCompleteDto {
     public String getUrl() {
         return urlPrefix + encodedFileName;
     }
+
 }
