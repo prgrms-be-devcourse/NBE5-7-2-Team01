@@ -4,7 +4,6 @@ import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import java.time.LocalDateTime;
 import java.util.Optional;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -13,15 +12,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import javax.swing.text.html.Option;
-
 @Repository
 public interface PerformanceRepository extends JpaRepository<Performance, Long> {
 
     @EntityGraph(attributePaths = {"file"})
     @Query(
         value = "SELECT p FROM Performance p " +
-            "WHERE p.startTime > :now " +
+            "WHERE p.startTime > :now AND p.deletedFlag = false " +
             "ORDER BY p.reservationStartTime ASC, p.startTime ASC",
         countQuery = "SELECT COUNT(p) FROM Performance p WHERE p.startTime > :now"
     )
@@ -32,7 +29,7 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
     @Query(
         value = "SELECT p FROM Performance p " +
             "LEFT JOIN LikeCount lc ON lc.performance = p " +
-            "WHERE p.startTime > :now " +
+            "WHERE p.startTime > :now AND p.deletedFlag = false " +
             "ORDER BY COALESCE(lc.likeCount, 0) DESC, p.reservationStartTime ASC",
         countQuery = "SELECT COUNT(p) FROM Performance p WHERE p.startTime > :now"
     )
@@ -43,7 +40,7 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
     @EntityGraph(attributePaths = {"file"})
     @Query(
         value = "SELECT p FROM Performance p " +
-            "WHERE p.startTime BETWEEN :startDate AND :endDate " +
+            "WHERE p.startTime BETWEEN :startDate AND :endDate AND p.deletedFlag = false " +
             "ORDER BY p.reservationStartTime ASC, p.startTime ASC",
         countQuery = "SELECT COUNT(p) FROM Performance p " +
             "WHERE p.startTime BETWEEN :startDate AND :endDate"
@@ -56,7 +53,7 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
     @EntityGraph(attributePaths = {"file"})
     @Query(
         value = "SELECT p FROM Performance p " +
-            "WHERE p.startTime > :now AND p.category = :category " +
+            "WHERE p.startTime > :now AND p.category = :category AND p.deletedFlag = false " +
             "ORDER BY p.reservationStartTime ASC, p.startTime ASC",
         countQuery = "SELECT COUNT(p) FROM Performance p " +
             "WHERE p.startTime > :now AND p.category = :category"
@@ -98,8 +95,8 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
     Optional<Performance> findByIdAndDeletedFlagFalse(Long id);
 
     @Query("SELECT p FROM Performance p " +
-            "JOIN FETCH p.file " +
-            "WHERE p.deletedFlag = true " +
-            "ORDER BY p.reservationStartTime ASC, p.startTime ASC")
+        "JOIN FETCH p.file " +
+        "WHERE p.deletedFlag = true " +
+        "ORDER BY p.reservationStartTime ASC, p.startTime ASC")
     Page<Performance> findUpComingPerformancesByDeletedFlagForAdmin(Pageable pageable);
 }
