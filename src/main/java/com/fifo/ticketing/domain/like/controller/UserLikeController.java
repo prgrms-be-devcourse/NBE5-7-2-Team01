@@ -20,7 +20,7 @@ public class UserLikeController {
     public ResponseEntity<String> toggleLike(@RequestBody LikeRequest likeRequest
         ,HttpSession httpSession){
         //LoginSuccessHandler에서 SessionUser로 저장했기 때문에
-        SessionUser sessionUser = UserValidator.validateSessionUser(session);
+        SessionUser sessionUser = UserValidator.validateSessionUser(httpSession);
 
         // record라서 .getId()가 아니라 .id()
         boolean liked = likeService.toggleLike(sessionUser.id() , likeRequest);
