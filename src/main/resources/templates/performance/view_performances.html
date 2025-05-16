@@ -108,8 +108,8 @@
           <input class="form-check-input" type="radio" name="filter" id="category" value="category">
           <label class="form-check-label" for="category">카테고리</label>
           <select id="categorySelect" class="ml-2" style="display: inline;">
+            <option value="" disabled selected>선택</option>
             <option th:each="category : ${categories}" th:value="${category}" th:text="${category}">
-              선택
             </option>
           </select>
         </div>
@@ -130,78 +130,78 @@
           </label>
         </div>
         <button type="submit" class="custom-button mt-3">조회</button>
-      </form>
-    </div>
+    </form>
+  </div>
 
-    <div class="performance-table">
-      <table class="table table-striped">
-        <thead>
-        <tr>
-          <th>Image</th>
-          <th>Title</th>
-          <th>Category</th>
-          <th>Place</th>
-          <th>Start Time</th>
-          <th>End Time</th>
-          <th>Reservation Time</th>
-          <th>Reservation Status</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="performance : ${performances}">
-          <td>
-            <div class="image-wrapper" style="position: relative; width: 100px;">
-              <img th:src="@{{url}(url=${performance.getUrl()})}"
-                   alt="no image"
-                   style="width: 100px; height: auto; object-fit: cover;"/>
+  <div class="performance-table">
+    <table class="table table-striped">
+      <thead>
+      <tr>
+        <th>Image</th>
+        <th>Title</th>
+        <th>Category</th>
+        <th>Place</th>
+        <th>Start Time</th>
+        <th>End Time</th>
+        <th>Reservation Time</th>
+        <th>Reservation Status</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="performance : ${performances}">
+        <td>
+          <div class="image-wrapper" style="position: relative; width: 100px;">
+            <img th:src="@{{url}(url=${performance.getUrl()})}"
+                 alt="no image"
+                 style="width: 100px; height: auto; object-fit: cover;"/>
 
-              <button class="like-button btn btn-sm btn-danger"
-                      style="position: absolute; bottom: 5px; right: 5px;"
-                      th:data-id="${performance.id}"
-                      th:text="${likedPerformanceIds.contains(performance.id)} ? '♥' : '♡'">
-              </button>
-            </div>
-          </td>
-          <td th:text="${performance.title}"></td>
-          <td th:text="${performance.category}"></td>
-          <td th:text="${performance.place}"></td>
-          <td th:text="${#temporals.format(performance.startTime, 'yyyy-MM-dd HH:mm')}"></td>
-          <td th:text="${#temporals.format(performance.endTime, 'yyyy-MM-dd HH:mm')}"></td>
-          <td th:text="${#temporals.format(performance.reservationStartTime, 'yyyy-MM-dd HH:mm')}"></td>
-          <td th:text="${performance.performanceStatus} ? '예매 가능' : '예매 불가'"></td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
+            <button class="like-button btn btn-sm btn-danger"
+                    style="position: absolute; bottom: 5px; right: 5px;"
+                    th:data-id="${performance.id}"
+                    th:text="${likedPerformanceIds.contains(performance.id)} ? '♥' : '♡'">
+            </button>
+          </div>
+        </td>
+        <td th:text="${performance.title}"></td>
+        <td th:text="${performance.category}"></td>
+        <td th:text="${performance.place}"></td>
+        <td th:text="${#temporals.format(performance.startTime, 'yyyy-MM-dd HH:mm')}"></td>
+        <td th:text="${#temporals.format(performance.endTime, 'yyyy-MM-dd HH:mm')}"></td>
+        <td th:text="${#temporals.format(performance.reservationStartTime, 'yyyy-MM-dd HH:mm')}"></td>
+        <td th:text="${performance.performanceStatus} ? '예매 가능' : '예매 불가'"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <div class="pagination-container" th:if="${totalPage > 1}">
-      <div style="display: flex; gap: 6px; flex-wrap: wrap; min-height: 40px;">
-        <a th:href="@{|/performances${baseQuery}&page=0|}"
-           th:style="${currentPage > 0} ? 'visibility: visible;' : 'visibility: hidden;'"
-           class="custom-pagination">&laquo;</a>
+  <div class="pagination-container" th:if="${totalPage > 1}">
+    <div style="display: flex; gap: 6px; flex-wrap: wrap; min-height: 40px;">
+      <a th:href="@{|/performances${baseQuery}&page=0|}"
+         th:style="${currentPage > 0} ? 'visibility: visible;' : 'visibility: hidden;'"
+         class="custom-pagination">&laquo;</a>
 
-        <a th:href="@{|/performances${baseQuery}&page=${currentPage - 1}|}"
-           th:style="${currentPage > 0} ? 'visibility: visible;' : 'visibility: hidden;'"
-           class="custom-pagination">&lt;</a>
+      <a th:href="@{|/performances${baseQuery}&page=${currentPage - 1}|}"
+         th:style="${currentPage > 0} ? 'visibility: visible;' : 'visibility: hidden;'"
+         class="custom-pagination">&lt;</a>
 
-        <a th:each="i : ${#numbers.sequence(
+      <a th:each="i : ${#numbers.sequence(
             currentPage <= 2 ? 0 : (currentPage + 2 >= totalPage ? totalPage - 5 : currentPage - 2),
             currentPage <= 2 ? (totalPage < 5 ? totalPage - 1 : 4) : (currentPage + 2 >= totalPage ? totalPage - 1 : currentPage + 2))}"
-           th:href="@{|/performances${baseQuery}&page=${i}|}"
-           th:text="${i + 1}"
-           th:classappend="${i == currentPage} ? ' button' : ''"
-           class="custom-pagination"></a>
+         th:href="@{|/performances${baseQuery}&page=${i}|}"
+         th:text="${i + 1}"
+         th:classappend="${i == currentPage} ? ' button' : ''"
+         class="custom-pagination"></a>
 
-        <a th:href="@{|/performances${baseQuery}&page=${currentPage + 1}|}"
-           th:style="${currentPage < totalPage - 1} ? 'visibility: visible;' : 'visibility: hidden;'"
-           class="custom-pagination">&gt;</a>
+      <a th:href="@{|/performances${baseQuery}&page=${currentPage + 1}|}"
+         th:style="${currentPage < totalPage - 1} ? 'visibility: visible;' : 'visibility: hidden;'"
+         class="custom-pagination">&gt;</a>
 
-        <a th:href="@{|/performances${baseQuery}&page=${totalPage - 1}|}"
-           th:style="${currentPage < totalPage - 1} ? 'visibility: visible;' : 'visibility: hidden;'"
-           class="custom-pagination">&raquo;</a>
-      </div>
+      <a th:href="@{|/performances${baseQuery}&page=${totalPage - 1}|}"
+         th:style="${currentPage < totalPage - 1} ? 'visibility: visible;' : 'visibility: hidden;'"
+         class="custom-pagination">&raquo;</a>
     </div>
   </div>
+</div>
 </div>
 
 <div class="modal fade" id="customDateModal" tabindex="-1" role="dialog"
@@ -237,8 +237,6 @@
 <script>
   $("input[name='filter']").on("change", function () {
     const selected = $(this).val();
-    $("#categorySelect").hide();
-
     if (selected === "custom") {
       $('#customDateModal').modal('show');
     } else if (selected === "category") {
