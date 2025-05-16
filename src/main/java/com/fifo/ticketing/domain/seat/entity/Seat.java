@@ -13,7 +13,6 @@ import org.hibernate.annotations.BatchSize;
 @Getter
 @Table(name = "seats")
 @NoArgsConstructor
-@AllArgsConstructor
 @BatchSize(size = 100)
 public class Seat extends BaseDateEntity {
 
@@ -39,6 +38,8 @@ public class Seat extends BaseDateEntity {
     @Column(nullable = false)
     private SeatStatus seatStatus;
 
+    @Version
+    private Long version;
 
     public void book() {
         this.seatStatus = SeatStatus.BOOKED;
@@ -52,7 +53,19 @@ public class Seat extends BaseDateEntity {
         this.seatStatus = SeatStatus.OCCUPIED;
     }
 
+    // Version의 경우는 JPA가 Persist 시에 자동으로 생성하기 때문에 생성자에 추가하지 않아도 됩니다!
+    public Seat(Long id, Performance performance, String seatNumber, Integer price,
+            Grade grade, SeatStatus seatStatus) {
+        this.id = id;
+        this.performance = performance;
+        this.seatNumber = seatNumber;
+        this.price = price;
+        this.grade = grade;
+        this.seatStatus = seatStatus;
+    }
+
     public static Seat of(Performance performance, Grade grade, int number) {
-        return new Seat(null, performance, grade.getGrade() + number, grade.getDefaultPrice(), grade, SeatStatus.AVAILABLE);
+        return new Seat(null, performance, grade.getGrade() + number, grade.getDefaultPrice(),
+                grade, SeatStatus.AVAILABLE);
     }
 }

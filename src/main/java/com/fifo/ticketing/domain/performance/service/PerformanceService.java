@@ -1,11 +1,23 @@
 package com.fifo.ticketing.domain.performance.service;
 
+import static com.fifo.ticketing.global.exception.ErrorCode.FILE_UPLOAD_FAILED;
+import static com.fifo.ticketing.global.exception.ErrorCode.INVALID_DELETED_PERFORMANCE;
+import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_GRADE;
+import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
+import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PLACES;
+import static com.fifo.ticketing.global.exception.ErrorCode.SEAT_CREATE_FAILED;
+
 import com.fifo.ticketing.domain.book.entity.Book;
-import com.fifo.ticketing.domain.book.repository.BookRepository;
 import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.like.entity.LikeCount;
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
-import com.fifo.ticketing.domain.performance.dto.*;
+import com.fifo.ticketing.domain.performance.dto.AdminPerformanceDetailResponse;
+import com.fifo.ticketing.domain.performance.dto.AdminPerformanceResponseDto;
+import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
+import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
+import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
+import com.fifo.ticketing.domain.performance.dto.PerformanceSeatGradeDto;
+import com.fifo.ticketing.domain.performance.dto.PlaceResponseDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.performance.entity.Performance;
@@ -17,6 +29,7 @@ import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.performance.repository.PlaceRepository;
 import com.fifo.ticketing.domain.seat.entity.Seat;
 import com.fifo.ticketing.domain.seat.service.SeatService;
+import com.fifo.ticketing.global.event.PerformanceCanceledEvent;
 import com.fifo.ticketing.global.entity.File;
 import com.fifo.ticketing.global.exception.ErrorException;
 import com.fifo.ticketing.global.util.ImageFileService;
@@ -24,18 +37,14 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-
-import com.fifo.ticketing.global.util.ImageFileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import static com.fifo.ticketing.global.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +60,7 @@ public class PerformanceService {
     private final ImageFileService imageFileService;
     private final LikeCountRepository likeCountRepository;
     private final BookService bookService;
-    private final BookRepository bookRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
 
     @Transactional(readOnly = true)
@@ -64,13 +73,13 @@ public class PerformanceService {
             .map(PerformanceMapper::toSeatGradeDto)
             .toList();
 
-        return PerformanceMapper.toDetailResponseDto(performance, seatGrades);
+        return PerformanceMapper.toDetailResponseDto(performance, seatGrades, urlPrefix);
     }
 
     @Transactional(readOnly = true)
     public AdminPerformanceDetailResponse getPerformanceDetailForAdmin(Long performanceId) {
         Performance performance = performanceRepository.findById(performanceId)
-                .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
+            .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
         List<Grade> grades = gradeRepository.findAllByPlaceId(performance.getPlace().getId());
         List<PerformanceSeatGradeDto> seatGrades = grades.stream()
             .map(PerformanceMapper::toSeatGradeDto)
@@ -96,7 +105,7 @@ public class PerformanceService {
     public Page<AdminPerformanceResponseDto> getPerformancesSortedByLatestForAdmin(
         Pageable pageable) {
         Page<Performance> performances = performanceRepository
-                .findUpcomingPerformancesOrderByReservationStartTimeForAdmin(pageable);
+            .findUpcomingPerformancesOrderByReservationStartTimeForAdmin(pageable);
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
 
@@ -130,11 +139,19 @@ public class PerformanceService {
         Performance findPerformance = performanceRepository.findById(id).orElseThrow(
             () -> new ErrorException(NOT_FOUND_PERFORMANCE));
 
+        // 추가. 삭제된 공연에 대해서 예외처리
+        deletedPerformanceCheck(findPerformance);
+
         // 2. Place 조회
         Place newPlace = findPlace(dto.getPlaceId());
 
         // 3. 동일 장소인지 확인 후 수정 및 삭제
         if (!findPerformance.getPlace().getId().equals(dto.getPlaceId())) {
+            // 좌석이 삭제되기 때문에 예약을 먼저 전부 취소하고, 메일도 전송해야 합니다.
+            List<Book> books = bookService.cancelAllBook(findPerformance);
+            // 해당 이벤트 자체는 Transaction의 커밋 이후에 이루어집니다.
+            eventPublisher.publishEvent(new PerformanceCanceledEvent(books));
+
             // 기존 좌석 삭제 (soft or hard) -> 일단 soft라는 인식
             seatService.deleteSeatsByPerformanceId(id);
 
@@ -142,6 +159,7 @@ public class PerformanceService {
             List<Grade> newGrades = findGradesByPlace(newPlace.getId());
             List<Seat> newSeats = generateSeatsForGrades(newGrades, findPerformance);
             saveSeatsInBatch(newSeats);
+
         }
 
         // 4. 공연 정보 수정
@@ -165,8 +183,13 @@ public class PerformanceService {
     @Transactional
     public void deletePerformance(Long id) {
         // 1. 삭제를 위한 Performance 조회 (삭제되지 않은 파일만)
-        Performance findPerformance = performanceRepository.findByIdAndDeletedFlagFalse(id).orElseThrow(
+        Performance findPerformance = performanceRepository.findByIdAndDeletedFlagFalse(id)
+            .orElseThrow(
                 () -> new ErrorException(NOT_FOUND_PERFORMANCE));
+
+        // 추가. 삭제된 공연에 대해서 예외처리
+        deletedPerformanceCheck(findPerformance);
+
         // 2. 공연 삭제
         // 예약 삭제 / 좌석 삭제에서 영속성 컨텍스트가 초기화 되고, findPerformance가 flush 되지 않고 detach되는 문제 때문에 flush를 호출
         findPerformance.delete();
@@ -182,6 +205,13 @@ public class PerformanceService {
 
         // 후속 절차로 메일 전송을 EventListener로 보낼 예정입니다.
         // 사용 변수는 books 입니다.
+        eventPublisher.publishEvent(new PerformanceCanceledEvent(books));
+    }
+
+    private void deletedPerformanceCheck(Performance findPerformance) {
+        if (findPerformance.isDeletedFlag()) {
+            throw new ErrorException(INVALID_DELETED_PERFORMANCE);
+        }
     }
 
     private void saveLikeCount(Performance savedPerformance) {
@@ -292,8 +322,10 @@ public class PerformanceService {
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
 
-    public Page<AdminPerformanceResponseDto> getPerformancesSortedByDeletedForAdmin(Pageable pageable) {
-        Page<Performance> performances = performanceRepository.findUpComingPerformancesByDeletedFlagForAdmin(pageable);
+    public Page<AdminPerformanceResponseDto> getPerformancesSortedByDeletedForAdmin(
+        Pageable pageable) {
+        Page<Performance> performances = performanceRepository.findUpComingPerformancesByDeletedFlagForAdmin(
+            pageable);
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
 }

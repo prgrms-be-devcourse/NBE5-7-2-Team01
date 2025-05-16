@@ -8,7 +8,6 @@ import com.fifo.ticketing.domain.book.mapper.BookMapper;
 import com.fifo.ticketing.domain.book.repository.BookRepository;
 import com.fifo.ticketing.domain.book.repository.BookScheduleRepository;
 import com.fifo.ticketing.domain.book.repository.BookSeatRepository;
-import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.seat.entity.Seat;
 import com.fifo.ticketing.global.exception.ErrorCode;
 import com.fifo.ticketing.global.exception.ErrorException;
@@ -58,7 +57,7 @@ public class BookScheduleManager {
 
             log.info("{}번 예매 취소됨", bookId);
 
-            List<BookSeat> bookSeats = bookSeatRepository.findAllByBookId(book.getId());
+            List<BookSeat> bookSeats = bookSeatRepository.findAllByBookIdWithSeat(book.getId());
             for (BookSeat bookSeat : bookSeats) {
                 Seat seat = bookSeat.getSeat();
                 seat.available();

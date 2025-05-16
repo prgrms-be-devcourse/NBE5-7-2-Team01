@@ -1,13 +1,10 @@
 package com.fifo.ticketing.domain.like.service;
 
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCES;
-import static java.rmi.server.LogStream.log;
 
 import com.fifo.ticketing.domain.book.entity.BookStatus;
 import com.fifo.ticketing.domain.book.repository.BookRepository;
 import com.fifo.ticketing.domain.like.entity.Like;
-import com.fifo.ticketing.domain.like.entity.LikeCount;
-import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
 import com.fifo.ticketing.domain.like.repository.LikeRepository;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
@@ -21,9 +18,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 @Slf4j
 @Service
@@ -83,19 +78,19 @@ public class LikeMailNotificationService {
         List<Like> likes = likeRepository.findLikesByTargetTime(start , end);
 
         for (Like like : likes) {
-            if(like.isLiked()){
-
+            if (like.isLiked()){
                 User user = like.getUser();
                 Performance performance = like.getPerformance();
 
                 eventPublisher.publishEvent(new LikeMailEvent(user, performance, MailType.RESERVATION_NOTICE));
-                //likeMailService.performanceStart(user, performance);
             }
 
+            //likeMailService.performanceStart(user, performance);
 
         }
 
     }
+
     @Transactional
     public void sendNoPayedNotification() {
         LocalDateTime now = LocalDateTime.now();
@@ -105,26 +100,24 @@ public class LikeMailNotificationService {
         LocalDateTime start = reservationTime.minusMinutes(1);
         LocalDateTime end = reservationTime.plusMinutes(1);
 
-        List<Like> likes = likeRepository.findLikesByTargetTime(start , end);
+        List<Like> likes = likeRepository.findLikesByTargetTime(start, end);
 
         for (Like like : likes) {
 
-            if(like.isLiked()){
+            if (like.isLiked()) {
                 User user = like.getUser();
                 Performance performance = like.getPerformance();
 
-                boolean payed = bookRepository.existsByUserAndPerformanceAndBookStatus(user,performance, BookStatus.PAYED);
-                log.info("{}",payed);
-                if(!payed){
-                    eventPublisher.publishEvent(new LikeMailEvent(user, performance, MailType.NO_PAYED));
+                boolean payed = bookRepository.existsByUserAndPerformanceAndBookStatus(user, performance, BookStatus.PAYED);
+                log.info("{}", payed);
+                if (!payed) {
+                    eventPublisher.publishEvent(
+                        new LikeMailEvent(user, performance, MailType.NO_PAYED));
                 }
 
             }
 
-            //likeMailService.performanceStart(user, performance);
-
         }
-
     }
 
 }

@@ -2,7 +2,6 @@ package com.fifo.ticketing.domain.like.service;
 
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.seat.repository.SeatRepository;
-import com.fifo.ticketing.domain.seat.service.SeatService;
 import com.fifo.ticketing.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

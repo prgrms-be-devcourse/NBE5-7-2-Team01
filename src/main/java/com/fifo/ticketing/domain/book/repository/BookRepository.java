@@ -17,23 +17,16 @@ import org.springframework.data.repository.query.Param;
 public interface BookRepository extends JpaRepository<Book, Long> {
 
     Page<Book> findAllByUserId(Long userId, Pageable pageable);
-
     Optional<Book> findByUserIdAndId(Long userId, Long bookId);
-
-    List<Book> findAllByPerformanceAndBookStatus(Performance performance, BookStatus bookStatus);
 
     @Query("SELECT b FROM Book b "
             + "JOIN FETCH b.user "
             + "JOIN FETCH b.performance "
             + "WHERE b.performance = :performance AND b.bookStatus = :bookStatus")
-    List<Book> findAllWithUserAndPerformanceByPerformanceAndBookStatus(@Param("performance") Performance performance, @Param("bookStatus") BookStatus bookStatus);
+    List<Book> findAllWithUserAndPerformanceByPerformanceAndBookStatus(
+            @Param("performance") Performance performance,
+            @Param("bookStatus") BookStatus bookStatus);
 
-    @Modifying
-    @Query("UPDATE Book b SET b.bookStatus = :cancelStatus WHERE b.performance = :performance AND b.bookStatus = :currentStatus")
-    void cancelAllByPerformance(@Param("performance") Performance performance,
-            @Param("cancelStatus") BookStatus cancelStatus,
-            @Param("currentStatus") BookStatus currentStatus);
-  
     @Query("SELECT b FROM Book b " +
         "WHERE b.user.id = :userId " +
         "AND b.bookStatus = :bookStatus " +
@@ -43,7 +36,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
         @Param("bookStatus") BookStatus bookStatus,
         Pageable pageable
     );
-  
+
     @Query("SELECT b FROM Book b " +
         "WHERE b.user.id = :userId " +
         "AND b.performance.title LIKE %:performanceTitle% " +
@@ -66,5 +59,15 @@ public interface BookRepository extends JpaRepository<Book, Long> {
         Pageable pageable
     );
 
+    @Modifying
+    @Query("UPDATE Book b SET b.bookStatus = :cancelStatus WHERE b.performance = :performance AND b.bookStatus = :currentStatus")
+    void cancelAllByPerformance(@Param("performance") Performance performance,
+            @Param("cancelStatus") BookStatus cancelStatus,
+            @Param("currentStatus") BookStatus currentStatus);
+
+
+  
     boolean existsByUserAndPerformanceAndBookStatus(User user, Performance performance, BookStatus bookStatus);
+
 }
+

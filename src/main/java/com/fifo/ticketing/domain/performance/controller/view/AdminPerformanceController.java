@@ -109,7 +109,7 @@ public class AdminPerformanceController {
     }
 
     @GetMapping("/{performanceId}")
-    public String getPerformanceDetail(
+    public String getPerformanceDetailForAdmin(
         @PathVariable Long performanceId,
         HttpSession session,
         Model model
@@ -126,7 +126,7 @@ public class AdminPerformanceController {
         model.addAttribute("userId", loginUser.id());
         model.addAttribute("seats", seatViewDtos);
 
-        return "admin/performance_detail";
+        return "admin/performance_detail_admin";
     }
 
     private void preparedModelAdmin(HttpSession session, Model model,

@@ -1,13 +1,17 @@
 package com.fifo.ticketing.domain.book.service;
 
+import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_MEMBER;
+import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
+import static com.fifo.ticketing.global.exception.ErrorCode.SEAT_ALREADY_BOOKED;
+
 import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
 import com.fifo.ticketing.domain.book.dto.BookCreateRequest;
 import com.fifo.ticketing.domain.book.dto.BookMailSendDto;
 import com.fifo.ticketing.domain.book.dto.BookedView;
-import com.fifo.ticketing.domain.book.entity.BookStatus;
-import com.fifo.ticketing.domain.book.mapper.BookMapper;
 import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.entity.BookSeat;
+import com.fifo.ticketing.domain.book.entity.BookStatus;
+import com.fifo.ticketing.domain.book.mapper.BookMapper;
 import com.fifo.ticketing.domain.book.repository.BookRepository;
 import com.fifo.ticketing.domain.book.repository.BookSeatRepository;
 import com.fifo.ticketing.domain.performance.entity.Performance;
@@ -21,18 +25,15 @@ import com.fifo.ticketing.global.exception.AlertDetailException;
 import com.fifo.ticketing.global.exception.ErrorCode;
 import com.fifo.ticketing.global.exception.ErrorException;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-
-import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_MEMBER;
-import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
 
 @Slf4j
 @Service
@@ -57,14 +58,24 @@ public class BookService {
         Performance performance = performanceRepository.findById(performanceId)
             .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
 
-        List<Seat> selectedSeats = seatRepository.findAllById(request.getSeatIds());
+//        List<Seat> selectedSeats = seatRepository.findAllById(request.getSeatIds());
+        List<Seat> selectedSeats = seatRepository.findAllByIdInWithOptimisticLock(
+                request.getSeatIds());
 
         for (Seat seat : selectedSeats) {
             if (!seat.getSeatStatus().equals(SeatStatus.AVAILABLE)) {
                 throw new AlertDetailException(ErrorCode.SEAT_ALREADY_BOOKED,
                     String.format("%d번 좌석은 이미 예약되었습니다.", seat.getId()));
             }
+            seat.book();
         }
+
+        try {
+            seatRepository.flush();
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new ErrorException(SEAT_ALREADY_BOOKED);
+        }
+
         int totalPrice = selectedSeats.stream().mapToInt(Seat::getPrice).sum();
         int quantity = selectedSeats.size();
 
@@ -76,13 +87,9 @@ public class BookService {
 
         bookSeatRepository.saveAll(bookSeatList);
 
-        for (Seat seat : selectedSeats) {
-            seat.book();
-        }
-
         Long bookId = book.getId();
 
-        LocalDateTime runTime = LocalDateTime.now().plusMinutes(5);
+        LocalDateTime runTime = LocalDateTime.now().plusMinutes(10);
 
         bookScheduleManager.scheduleCancelTask(bookId, runTime);
 
@@ -135,20 +142,10 @@ public class BookService {
     public List<Book> cancelAllBook(Performance performance) {
         bookRepository.cancelAllByPerformance(performance, BookStatus.ADMIN_REFUNDED,
             BookStatus.PAYED);
-        return bookRepository.findAllByPerformanceAndBookStatus(performance,
+        return bookRepository.findAllWithUserAndPerformanceByPerformanceAndBookStatus(performance,
             BookStatus.ADMIN_REFUNDED);
     }
 
-    @Transactional
-    public BookedView getBookDetail(Long userId, Long bookId) {
-        Book book = bookRepository.findByUserIdAndId(userId, bookId)
-            .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
-
-        return BookMapper.toBookedViewDto(book, urlPrefix);
-    }
-
-
-    @Transactional
     public Page<BookedView> getBookedList(Long userId, String title, BookStatus status,
         Pageable pageable) {
         Page<Book> bookPage;
@@ -175,4 +172,13 @@ public class BookService {
 
         return BookMapper.getBookMailInfo(book, urlPrefix);
     }
+
+    @Transactional
+    public BookedView getBookDetail(Long userId, Long bookId) {
+        Book book = bookRepository.findByUserIdAndId(userId, bookId)
+            .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
+
+        return BookMapper.toBookedViewDto(book, urlPrefix);
+    }
 }
+

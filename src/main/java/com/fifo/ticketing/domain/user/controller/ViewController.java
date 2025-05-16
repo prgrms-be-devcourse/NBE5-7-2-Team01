@@ -9,7 +9,6 @@ import com.fifo.ticketing.domain.user.service.UserFormService;
 import com.fifo.ticketing.global.util.UserValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -43,7 +42,6 @@ public class ViewController {
     @GetMapping("/users/signup")
     public String signup(HttpServletRequest request) {
         UserValidator.validateSessionUser(request.getSession());
-
         return "user/sign_up";
     }
 
@@ -64,8 +62,10 @@ public class ViewController {
 
     @GetMapping("/users/signin")
     public String signin(HttpServletRequest request, Model model) {
-        UserValidator.validateSessionUser(request.getSession());
-
+        SessionUser loginUser = (SessionUser) request.getSession().getAttribute("loginUser");
+        if (loginUser != null) {
+            return "redirect:/";
+        }
         String errormessage = (String) request.getSession().getAttribute("errormessage");
         if (errormessage != null) {
             model.addAttribute("errorMessage", errormessage);
@@ -82,10 +82,8 @@ public class ViewController {
         @RequestParam(required = false) String performanceTitle,
         @RequestParam(required = false) BookStatus bookStatus,
         Model model
-        ) {
-
-        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
-
+    ) {
+        SessionUser loginUser = UserValidator.validateSessionUser(session);
         PageRequest pageable = PageRequest.of(page, size);
         Page<BookedView> bookedList = bookService.getBookedList(loginUser.id(), performanceTitle,
             bookStatus, pageable);

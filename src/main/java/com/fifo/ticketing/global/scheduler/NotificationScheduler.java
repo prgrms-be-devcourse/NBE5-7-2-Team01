@@ -15,15 +15,11 @@ public class NotificationScheduler {
     @Scheduled(cron = "0 30 * * * *") // 매 시 (30분)에 실행
     public void likeMailNotification(){
         likeMailNotificationService.sendTimeNotification();
-
     }
+
 
     @Scheduled(cron = "0 0 * * * *")
     public void NoPayedNotification(){
         likeMailNotificationService.sendNoPayedNotification();
-
     }
-
-
-
 }
