@@ -1,4 +1,4 @@
-package com.fifo.ticketing.global.Event;
+package com.fifo.ticketing.global.event;
 
 import com.fifo.ticketing.domain.like.service.LikeMailService;
 import lombok.RequiredArgsConstructor;

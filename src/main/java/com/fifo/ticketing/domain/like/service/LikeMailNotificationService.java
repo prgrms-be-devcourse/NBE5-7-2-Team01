@@ -1,6 +1,5 @@
 package com.fifo.ticketing.domain.like.service;
 
-import static com.fifo.ticketing.domain.book.entity.BookStatus.PAYED;
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCES;
 import static java.rmi.server.LogStream.log;
 
@@ -13,8 +12,8 @@ import com.fifo.ticketing.domain.like.repository.LikeRepository;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.user.entity.User;
-import com.fifo.ticketing.global.Event.LikeMailEvent;
-import com.fifo.ticketing.global.Event.MailType;
+import com.fifo.ticketing.global.event.LikeMailEvent;
+import com.fifo.ticketing.global.event.MailType;
 import com.fifo.ticketing.global.exception.ErrorException;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -22,7 +21,9 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Slf4j
 @Service
@@ -82,12 +83,12 @@ public class LikeMailNotificationService {
         List<Like> likes = likeRepository.findLikesByTargetTime(start , end);
 
         for (Like like : likes) {
-            //좋을 때만
-            if (like.isLiked()){
+            if(like.isLiked()){
+
                 User user = like.getUser();
                 Performance performance = like.getPerformance();
 
-                eventPublisher.publishEvent(new LikeMailEvent(user, performance , MailType.RESERVATION_NOTICE));
+                eventPublisher.publishEvent(new LikeMailEvent(user, performance, MailType.RESERVATION_NOTICE));
                 //likeMailService.performanceStart(user, performance);
             }
 
@@ -95,38 +96,32 @@ public class LikeMailNotificationService {
         }
 
     }
-
     @Transactional
     public void sendNoPayedNotification() {
         LocalDateTime now = LocalDateTime.now();
-
-        //현재시간이 한시간 전에 예약시간 인경우
         LocalDateTime reservationTime = now.minusMinutes(60);
 
         // 정각으로 하면 안보내는 문제가 있어 +- 1분의 시간을 주었습니다.
         LocalDateTime start = reservationTime.minusMinutes(1);
         LocalDateTime end = reservationTime.plusMinutes(1);
 
-        //reservationStartTime 이후 1시간 뒤
         List<Like> likes = likeRepository.findLikesByTargetTime(start , end);
 
-
         for (Like like : likes) {
-            //좋을 때만
-            if (like.isLiked()){
+
+            if(like.isLiked()){
                 User user = like.getUser();
                 Performance performance = like.getPerformance();
-                log.info("▶ 대상 유저: {}, performance: {}", user.getEmail(), performance.getTitle());
 
-                boolean payed = bookRepository.existsByUserAndPerformanceAndBookStatus(user, performance, PAYED);
-                if (!payed){
-
-                    log.info("▶ 결제 상태 (PAYED): {}", payed);
+                boolean payed = bookRepository.existsByUserAndPerformanceAndBookStatus(user,performance, BookStatus.PAYED);
+                log.info("{}",payed);
+                if(!payed){
                     eventPublisher.publishEvent(new LikeMailEvent(user, performance, MailType.NO_PAYED));
                 }
 
             }
 
+            //likeMailService.performanceStart(user, performance);
 
         }
 
