@@ -8,6 +8,7 @@ import com.fifo.ticketing.domain.book.mapper.BookMapper;
 import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.entity.BookSeat;
 import com.fifo.ticketing.domain.book.repository.BookRepository;
+import com.fifo.ticketing.domain.book.repository.BookScheduleRepository;
 import com.fifo.ticketing.domain.book.repository.BookSeatRepository;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
@@ -22,9 +23,6 @@ import com.fifo.ticketing.global.exception.ErrorException;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,9 +35,6 @@ import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANC
 @Service
 @RequiredArgsConstructor
 public class BookService {
-
-    @Value("${file.url-prefix}")
-    private String urlPrefix;
 
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
@@ -93,7 +88,7 @@ public class BookService {
         Book book = bookRepository.findById(bookId)
             .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
 
-        return BookMapper.toBookCompleteDto(book, urlPrefix);
+        return BookMapper.toBookCompleteDto(book);
     }
 
     @Transactional
@@ -132,10 +127,15 @@ public class BookService {
 
     @Transactional
     public List<Book> cancelAllBook(Performance performance) {
-        bookRepository.cancelAllByPerformance(performance, BookStatus.ADMIN_REFUNDED,
-            BookStatus.PAYED);
-        return bookRepository.findAllByPerformanceAndBookStatus(performance,
-            BookStatus.ADMIN_REFUNDED);
+        bookRepository.cancelAllByPerformance(performance, BookStatus.ADMIN_REFUNDED, BookStatus.PAYED);
+        return bookRepository.findAllByPerformanceAndBookStatus(performance, BookStatus.ADMIN_REFUNDED);
+    }
+
+    @Transactional
+    public List<BookedView> getBookedList(Long userId) {
+        List<Book> bookList = bookRepository.findAllByUserId(userId);
+
+        return BookMapper.toBookedViewDtoList(bookList);
     }
 
     @Transactional
@@ -143,27 +143,6 @@ public class BookService {
         Book book = bookRepository.findByUserIdAndId(userId, bookId)
             .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
 
-        return BookMapper.toBookedViewDto(book, urlPrefix);
-    }
-
-
-    @Transactional
-    public Page<BookedView> getBookedList(Long userId, String title, BookStatus status,
-        Pageable pageable) {
-        Page<Book> bookPage;
-        if (title != null && status != null) {
-            bookPage = bookRepository.findAllByUserIdAndTitleAndBookStatus(
-                userId, title, status, pageable);
-        } else if (title != null) {
-            bookPage = bookRepository.findAllByUserIdAndTitle(userId, title,
-                pageable);
-        } else if (status != null) {
-            bookPage = bookRepository.findAllByUserIdAndBookStatus(userId, status,
-                pageable);
-        } else {
-            bookPage = bookRepository.findAllByUserId(userId, pageable);
-        }
-
-        return BookMapper.toBookedViewDtoList(bookPage, urlPrefix);
+        return BookMapper.toBookedViewDto(book);
     }
 }
