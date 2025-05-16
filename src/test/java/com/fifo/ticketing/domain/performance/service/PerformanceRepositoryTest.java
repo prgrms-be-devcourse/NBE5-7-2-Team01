@@ -21,11 +21,6 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
 @ActiveProfiles("ci")
-//@TestPropertySource(properties = {
-//    "spring.jpa.hibernate.ddl-auto=none",
-//    "spring.sql.init.mode=never"
-//})
-@Sql(scripts = {"classpath:schema.sql", "classpath:data.sql"})
 @SpringBootTest
 @Transactional(readOnly = true)
 class PerformanceRepositoryTest {
