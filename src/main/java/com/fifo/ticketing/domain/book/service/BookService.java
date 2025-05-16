@@ -29,6 +29,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -143,11 +145,23 @@ public class BookService {
             BookStatus.ADMIN_REFUNDED);
     }
 
-    @Transactional
-    public List<BookedView> getBookedList(Long userId) {
-        List<Book> bookList = bookRepository.findAllByUserId(userId);
+    public Page<BookedView> getBookedList(Long userId, String title, BookStatus status,
+        Pageable pageable) {
+        Page<Book> bookPage;
+        if (title != null && status != null) {
+            bookPage = bookRepository.findAllByUserIdAndTitleAndBookStatus(
+                userId, title, status, pageable);
+        } else if (title != null) {
+            bookPage = bookRepository.findAllByUserIdAndTitle(userId, title,
+                pageable);
+        } else if (status != null) {
+            bookPage = bookRepository.findAllByUserIdAndBookStatus(userId, status,
+                pageable);
+        } else {
+            bookPage = bookRepository.findAllByUserId(userId, pageable);
+        }
 
-        return BookMapper.toBookedViewDtoList(bookList, urlPrefix);
+        return BookMapper.toBookedViewDtoList(bookPage, urlPrefix);
     }
 
     @Transactional

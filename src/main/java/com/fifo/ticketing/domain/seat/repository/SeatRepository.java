@@ -27,4 +27,9 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
     @Lock(LockModeType.OPTIMISTIC)
     @Query("SELECT s FROM Seat s WHERE s.id IN :seatIds")
     List<Seat> findAllByIdInWithOptimisticLock(@Param("seatIds") List<Long> seatIds);
+
+    //공연의 남은 좌석 수 계산
+    @Query("select count(*) From Seat s where s.performance.id = :performanceId AND s.seatStatus = 'AVAILABLE'")
+    int countAvailableSeatsByPerformanceId(@Param("performanceId") Long performanceId);
+
 }

@@ -1,6 +1,7 @@
 package com.fifo.ticketing.domain.user.controller;
 
 import com.fifo.ticketing.domain.book.dto.BookedView;
+import com.fifo.ticketing.domain.book.entity.BookStatus;
 import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.user.dto.SessionUser;
 import com.fifo.ticketing.domain.user.dto.form.SignUpForm;
@@ -8,15 +9,18 @@ import com.fifo.ticketing.domain.user.service.UserFormService;
 import com.fifo.ticketing.global.util.UserValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
@@ -76,9 +80,17 @@ public class ViewController {
     }
 
     @GetMapping("/users/books")
-    public String getBookList(HttpSession session, Model model) {
+    public String getBookList(HttpSession session,
+        @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+        @RequestParam(value = "size", defaultValue = "3", required = false) int size,
+        @RequestParam(required = false) String performanceTitle,
+        @RequestParam(required = false) BookStatus bookStatus,
+        Model model
+    ) {
         SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
-        List<BookedView> bookedList = bookService.getBookedList(loginUser.id());
+        PageRequest pageable = PageRequest.of(page, size);
+        Page<BookedView> bookedList = bookService.getBookedList(loginUser.id(), performanceTitle,
+            bookStatus, pageable);
 
         model.addAttribute("bookedList", bookedList);
         return "user/bookList";

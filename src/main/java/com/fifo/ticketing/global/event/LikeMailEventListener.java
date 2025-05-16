@@ -2,9 +2,9 @@ package com.fifo.ticketing.global.event;
 
 import com.fifo.ticketing.domain.like.service.LikeMailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 
 @Component
@@ -15,8 +15,14 @@ public class LikeMailEventListener {
 
 
     @Async("mailExecutor")
-    @TransactionalEventListener
-    public void HandleLikeMailEvent(LikeMailEvent event) {
-        likeMailService.performanceStart(event.getUser() , event.getPerformance());
+    @EventListener
+    public void handleLikeMailEvent(LikeMailEvent event) {
+        switch (event.getMailType()){
+            case NO_PAYED -> likeMailService.NoPayedPerformance(event.getUser() , event.getPerformance());
+            case RESERVATION_NOTICE -> likeMailService.performanceStart(event.getUser() , event.getPerformance());
+        }
+
     }
+
+
 }

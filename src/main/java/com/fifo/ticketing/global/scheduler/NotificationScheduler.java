@@ -18,4 +18,8 @@ public class NotificationScheduler {
     }
 
 
+    @Scheduled(cron = "0 0 * * * *")
+    public void NoPayedNotification(){
+        likeMailNotificationService.sendNoPayedNotification();
+    }
 }
