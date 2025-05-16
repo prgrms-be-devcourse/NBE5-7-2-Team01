@@ -1,6 +1,5 @@
 package com.fifo.ticketing.global.config;
 
-import com.fifo.ticketing.domain.user.service.handler.CustomAccessDeniedHandler;
 import com.fifo.ticketing.domain.user.service.handler.FormLoginFailureHandler;
 import com.fifo.ticketing.domain.user.service.handler.FormLoginSuccessHandler;
 import com.fifo.ticketing.domain.user.service.handler.OAuth2LoginFailureHandler;
@@ -23,7 +22,6 @@ public class SecurityConfig {
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final FormLoginFailureHandler formLoginFailureHandler;
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
-    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -54,11 +52,6 @@ public class SecurityConfig {
                     .successHandler(oAuth2LoginSuccessHandler)
                     .failureHandler(oAuth2LoginFailureHandler);
             })
-            .exceptionHandling(
-                exception -> {
-                    exception.accessDeniedHandler(customAccessDeniedHandler);
-                }
-            )
             .authorizeHttpRequests(auth -> {
                 auth.requestMatchers("/index", "/", "/api/**")
                     .permitAll()

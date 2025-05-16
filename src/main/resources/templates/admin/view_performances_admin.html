@@ -177,8 +177,7 @@
           <td th:text="${performance.performanceStatus} ? '예매 가능' : '예매 불가'"></td>
           <td>
             <a th:href="@{/admin/performances/update/{performanceId}(performanceId=${performance.id})}"
-               class="btn btn-warning"
-               th:if="${!(param.sort != null and param.sort[0] == 'deleted')}">수정</a>
+               class="btn btn-warning">수정</a>
           </td>
         </tr>
         </tbody>

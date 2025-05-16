@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.servlet.NoHandlerFoundException;
 
 @Slf4j
 @ControllerAdvice
@@ -52,12 +51,6 @@ public class ExceptionAdvice {
             model.addAttribute("url", "/");
             return "error/alert";
         }
-    }
-
-    @ExceptionHandler(NoHandlerFoundException.class)
-    public String handlePageNotFoundException(NoHandlerFoundException ex, Model model) {
-        model.addAttribute("message", "404 Page not found");
-        return "error/404";
     }
 
     private Object handleCommonException(

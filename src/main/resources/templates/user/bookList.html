@@ -18,6 +18,31 @@
       margin-bottom: 30px;
     }
 
+    form.search-form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    input[type="text"], select {
+      padding: 6px 10px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 6px 12px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
     .reservation-card {
       display: flex;
       width: 90%;
@@ -78,17 +103,58 @@
     .reservation-card:hover {
       background-color: #f0f8ff;
     }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin: 30px 0;
+      gap: 5px;
+    }
+
+    .pagination a {
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      background-color: white;
+      color: #333;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+
+    .pagination a.active {
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+      pointer-events: none;
+    }
+
+    .pagination a:hover {
+      background-color: #f0f0f0;
+    }
   </style>
 </head>
 <body>
 <h2>예매 목록</h2>
 
-<div th:each="book : ${bookedList}"
+<!-- 검색 폼 -->
+<form class="search-form" method="get" action="/users/books">
+  <input type="text" name="performanceTitle" placeholder="공연 제목"
+         th:value="${param.performanceTitle}">
+  <select name="bookStatus">
+    <option value="" th:selected="${param.bookStatus == null or param.bookStatus == ''}">전체 상태</option>
+    <option value="PAYED" th:selected="${param.bookStatus == 'PAYED'}">결제 완료</option>
+    <option value="CONFIRMED" th:selected="${param.bookStatus == 'CONFIRMED'}">예매 완료</option>
+    <option value="CANCELED" th:selected="${param.bookStatus == 'CANCELED'}">취소 완료</option>
+  </select>
+  <button type="submit">검색</button>
+</form>
+
+<!-- 예매 카드 리스트 -->
+<div th:each="book : ${bookedList.content}"
      class="reservation-card"
      th:onclick="|window.location.href='/users/books/${book.bookId}'|"
      style="cursor: pointer;">
 
-  <img th:src="@{{url}(url=${book.getUrl()})}" alt="공연 포스터"/>
+  <img th:src="@{/image/{fileName}(fileName=${book.encodedFileName})}" alt="공연 포스터"/>
 
   <div class="reservation-info">
     <table>
@@ -115,22 +181,35 @@
         <td th:text="${book.quantity}"></td>
         <td th:text="${#numbers.formatInteger(book.totalPrice, 3, 'COMMA')} + '원'"></td>
         <td>
-            <span th:switch="${book.bookStatus.name()}">
-              <span th:case="'CANCELED'" style="color: red;">취소 완료</span>
-              <span th:case="'CONFIRMED'" style="color: green;">예매 완료</span>
-              <span th:case="'PAYED'" style="color: blue;">결제 완료</span>
-              <span th:case="*">-</span>
-            </span>
+          <span th:switch="${book.bookStatus.name()}">
+            <span th:case="'CANCELED'" style="color: red;">취소 완료</span>
+            <span th:case="'CONFIRMED'" style="color: green;">예매 완료</span>
+            <span th:case="'PAYED'" style="color: blue;">결제 완료</span>
+            <span th:case="*">-</span>
+          </span>
         </td>
       </tr>
       </tbody>
     </table>
   </div>
 </div>
-</body>
+
+<!-- 페이지네이션 -->
+<div class="pagination" th:if="${bookedList.totalPages > 1}">
+  <a th:if="${bookedList.number > 0}"
+     th:href="@{/users/books(page=${bookedList.number - 1}, size=${bookedList.size}, performanceTitle=${param.performanceTitle}, bookStatus=${param.bookStatus})}">&laquo;</a>
+
+  <a th:each="i : ${#numbers.sequence(0, bookedList.totalPages - 1)}"
+     th:href="@{/users/books(page=${i}, size=${bookedList.size}, performanceTitle=${param.performanceTitle}, bookStatus=${param.bookStatus})}"
+     th:text="${i + 1}"
+     th:classappend="${i == bookedList.number} ? 'active'"></a>
+
+  <a th:if="${bookedList.number < bookedList.totalPages - 1}"
+     th:href="@{/users/books(page=${bookedList.number + 1}, size=${bookedList.size}, performanceTitle=${param.performanceTitle}, bookStatus=${param.bookStatus})}">&raquo;</a>
+</div>
 
 <script th:inline="javascript" th:if="${alertMessage != null}">
   alert([[${alertMessage}]]);
 </script>
-
+</body>
 </html>

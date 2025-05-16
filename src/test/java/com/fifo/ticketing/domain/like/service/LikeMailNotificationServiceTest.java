@@ -11,9 +11,9 @@ import com.fifo.ticketing.domain.like.repository.LikeRepository;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.user.entity.User;
-import com.fifo.ticketing.global.Event.LikeMailEvent;
-import com.fifo.ticketing.global.Event.LikeMailEventListener;
-import java.time.Duration;
+import com.fifo.ticketing.global.event.LikeMailEvent;
+import com.fifo.ticketing.global.event.LikeMailEventListener;
+import com.fifo.ticketing.global.event.MailType;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,10 +84,10 @@ class LikeMailNotificationServiceTest {
             .title("테스트 공연")
             .build();
 
-        LikeMailEvent event = new LikeMailEvent(user, performance);
+        LikeMailEvent event = new LikeMailEvent(user, performance, MailType.RESERVATION_NOTICE);
 
         // when: 이벤트 리스너 직접 호출
-        new LikeMailEventListener(likeMailService).HandleLikeMailEvent(event);
+        new LikeMailEventListener(likeMailService).handleLikeMailEvent(event);
 
         // then
         verify(likeMailService).performanceStart(user, performance);

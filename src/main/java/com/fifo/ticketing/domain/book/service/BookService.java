@@ -1,15 +1,12 @@
 package com.fifo.ticketing.domain.book.service;
 
-import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_MEMBER;
-import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
-
 import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
 import com.fifo.ticketing.domain.book.dto.BookCreateRequest;
 import com.fifo.ticketing.domain.book.dto.BookedView;
-import com.fifo.ticketing.domain.book.entity.Book;
-import com.fifo.ticketing.domain.book.entity.BookSeat;
 import com.fifo.ticketing.domain.book.entity.BookStatus;
 import com.fifo.ticketing.domain.book.mapper.BookMapper;
+import com.fifo.ticketing.domain.book.entity.Book;
+import com.fifo.ticketing.domain.book.entity.BookSeat;
 import com.fifo.ticketing.domain.book.repository.BookRepository;
 import com.fifo.ticketing.domain.book.repository.BookSeatRepository;
 import com.fifo.ticketing.domain.performance.entity.Performance;
@@ -23,12 +20,18 @@ import com.fifo.ticketing.global.exception.AlertDetailException;
 import com.fifo.ticketing.global.exception.ErrorCode;
 import com.fifo.ticketing.global.exception.ErrorException;
 import java.time.LocalDateTime;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_MEMBER;
+import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
 
 @Slf4j
 @Service
@@ -136,17 +139,31 @@ public class BookService {
     }
 
     @Transactional
-    public List<BookedView> getBookedList(Long userId) {
-        List<Book> bookList = bookRepository.findAllByUserId(userId);
-
-        return BookMapper.toBookedViewDtoList(bookList, urlPrefix);
-    }
-
-    @Transactional
     public BookedView getBookDetail(Long userId, Long bookId) {
         Book book = bookRepository.findByUserIdAndId(userId, bookId)
             .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
 
         return BookMapper.toBookedViewDto(book, urlPrefix);
+    }
+
+
+    @Transactional
+    public Page<BookedView> getBookedList(Long userId, String title, BookStatus status,
+        Pageable pageable) {
+        Page<Book> bookPage;
+        if (title != null && status != null) {
+            bookPage = bookRepository.findAllByUserIdAndTitleAndBookStatus(
+                userId, title, status, pageable);
+        } else if (title != null) {
+            bookPage = bookRepository.findAllByUserIdAndTitle(userId, title,
+                pageable);
+        } else if (status != null) {
+            bookPage = bookRepository.findAllByUserIdAndBookStatus(userId, status,
+                pageable);
+        } else {
+            bookPage = bookRepository.findAllByUserId(userId, pageable);
+        }
+
+        return BookMapper.toBookedViewDtoList(bookPage, urlPrefix);
     }
 }
