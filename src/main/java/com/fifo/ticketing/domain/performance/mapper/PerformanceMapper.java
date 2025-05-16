@@ -1,6 +1,12 @@
 package com.fifo.ticketing.domain.performance.mapper;
 
-import com.fifo.ticketing.domain.performance.dto.*;
+import com.fifo.ticketing.domain.performance.dto.AdminPerformanceDetailResponse;
+import com.fifo.ticketing.domain.performance.dto.AdminPerformanceResponseDto;
+import com.fifo.ticketing.domain.performance.dto.LikedPerformanceDto;
+import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
+import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
+import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
+import com.fifo.ticketing.domain.performance.dto.PerformanceSeatGradeDto;
 import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.entity.Place;
@@ -13,7 +19,7 @@ public class PerformanceMapper {
     }
 
     public static PerformanceDetailResponse toDetailResponseDto(Performance performance,
-        List<PerformanceSeatGradeDto> seatGrades) {
+        List<PerformanceSeatGradeDto> seatGrades, String urlPrefix) {
         return PerformanceDetailResponse.builder().performanceId(performance.getId())
             .title(performance.getTitle()).description(performance.getDescription())
             .category(performance.getCategory().name()).startTime(performance.getStartTime())
@@ -22,20 +28,26 @@ public class PerformanceMapper {
             .address(performance.getPlace().getAddress())
             .totalSeats(performance.getPlace().getTotalSeats())
             .seatGrades(seatGrades)
+            .urlPrefix(urlPrefix)
             .build();
     }
 
     public static AdminPerformanceDetailResponse toAdminDetailResponseDto(Performance performance,
         List<PerformanceSeatGradeDto> seatGrades) {
         return AdminPerformanceDetailResponse.builder().performanceId(performance.getId())
-                .title(performance.getTitle()).description(performance.getDescription())
-                .category(performance.getCategory().name()).startTime(performance.getStartTime())
-                .encodedFileName(performance.getFile().getEncodedFileName())
-                .endTime(performance.getEndTime()).placeName(performance.getPlace().getName())
-                .address(performance.getPlace().getAddress())
-                .totalSeats(performance.getPlace().getTotalSeats())
-                .seatGrades(seatGrades)
-                .build();
+            .title(performance.getTitle())
+            .description(performance.getDescription())
+            .category(performance.getCategory().name())
+            .startTime(performance.getStartTime())
+            .encodedFileName(performance.getFile().getEncodedFileName())
+            .endTime(performance.getEndTime())
+            .performanceStatus(performance.isPerformanceStatus())
+            .deletedFlag(performance.isDeletedFlag())
+            .placeName(performance.getPlace().getName())
+            .address(performance.getPlace().getAddress())
+            .totalSeats(performance.getPlace().getTotalSeats())
+            .seatGrades(seatGrades)
+            .build();
     }
 
     public static PerformanceSeatGradeDto toSeatGradeDto(Grade grade) {
@@ -96,7 +108,8 @@ public class PerformanceMapper {
             .build();
     }
 
-    public static LikedPerformanceDto toLikedPerformanceDto(Performance performance) {
+    public static LikedPerformanceDto toLikedPerformanceDto(Performance performance,
+        String prefix) {
         return LikedPerformanceDto.builder()
             .id(performance.getId())
             .title(performance.getTitle())
@@ -104,6 +117,7 @@ public class PerformanceMapper {
             .startTime(performance.getStartTime())
             .endTime(performance.getEndTime())
             .placeName(performance.getPlace().getName())
+            .urlPrefix(prefix)
             .build();
     }
 
@@ -114,9 +128,9 @@ public class PerformanceMapper {
     }
 
     public static Page<LikedPerformanceDto> toPageLikedPerformanceDto(
-        Page<Performance> performances) {
+        Page<Performance> performances, String urlPrefix) {
         return performances.map(
-            PerformanceMapper::toLikedPerformanceDto
+            performance -> PerformanceMapper.toLikedPerformanceDto(performance, urlPrefix)
         );
     }
 }

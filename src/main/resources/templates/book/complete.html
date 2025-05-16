@@ -35,7 +35,7 @@
       height: auto;
       border-radius: 12px;
       object-fit: cover;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     .info p {
@@ -89,7 +89,7 @@
   <!-- 왼쪽: 공연 이미지 -->
   <div class="left-panel">
     <div class="performance-image">
-      <img th:src="@{/image/{fileName}(fileName=${book.encodedFileName})}" alt="공연 포스터"/>
+      <img th:src="@{{url}(url=${book.getUrl()})}" alt="공연 포스터"/>
     </div>
   </div>
 
@@ -97,7 +97,10 @@
   <div class="center-panel">
     <div class="info">
       <p><strong>공연명:</strong> <span th:text="${book.performanceTitle}"></span></p>
-      <p><strong>공연일시:</strong> <span th:text="${#temporals.format(book.performanceStartTime, 'yyyy-MM-dd HH:mm')}"></span> ~ <span th:text="${#temporals.format(book.performanceEndTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+      <p><strong>공연일시:</strong> <span
+          th:text="${#temporals.format(book.performanceStartTime, 'yyyy-MM-dd HH:mm')}"></span> ~
+        <span th:text="${#temporals.format(book.performanceEndTime, 'yyyy-MM-dd HH:mm')}"></span>
+      </p>
     </div>
   </div>
 
@@ -122,7 +125,8 @@
         </tr>
         </tbody>
       </table>
-      <p class="total">총 결제 금액: <span th:text="${#numbers.formatInteger(book.totalPrice, 0, 'COMMA')} + '원'"></span></p>
+      <p class="total">총 결제 금액: <span
+          th:text="${#numbers.formatInteger(book.totalPrice, 0, 'COMMA')} + '원'"></span></p>
     </div>
 
     <div>
@@ -132,7 +136,8 @@
         <button type="submit" class="btn">결제하기</button>
       </form>
 
-      <button th:if="${book.paymentCompleted}" onclick="location.href='/'" class="btn">홈으로 돌아가기</button>
+      <button th:if="${book.paymentCompleted}" onclick="location.href='/'" class="btn">홈으로 돌아가기
+      </button>
     </div>
   </div>
 

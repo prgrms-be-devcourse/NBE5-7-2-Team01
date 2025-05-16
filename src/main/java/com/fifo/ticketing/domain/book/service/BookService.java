@@ -1,14 +1,16 @@
 package com.fifo.ticketing.domain.book.service;
 
+import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_MEMBER;
+import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
+
 import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
 import com.fifo.ticketing.domain.book.dto.BookCreateRequest;
 import com.fifo.ticketing.domain.book.dto.BookedView;
-import com.fifo.ticketing.domain.book.entity.BookStatus;
-import com.fifo.ticketing.domain.book.mapper.BookMapper;
 import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.entity.BookSeat;
+import com.fifo.ticketing.domain.book.entity.BookStatus;
+import com.fifo.ticketing.domain.book.mapper.BookMapper;
 import com.fifo.ticketing.domain.book.repository.BookRepository;
-import com.fifo.ticketing.domain.book.repository.BookScheduleRepository;
 import com.fifo.ticketing.domain.book.repository.BookSeatRepository;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
@@ -21,20 +23,20 @@ import com.fifo.ticketing.global.exception.AlertDetailException;
 import com.fifo.ticketing.global.exception.ErrorCode;
 import com.fifo.ticketing.global.exception.ErrorException;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-
-import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_MEMBER;
-import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookService {
+
+    @Value("${file.url-prefix}")
+    private String urlPrefix;
 
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
@@ -88,7 +90,7 @@ public class BookService {
         Book book = bookRepository.findById(bookId)
             .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
 
-        return BookMapper.toBookCompleteDto(book);
+        return BookMapper.toBookCompleteDto(book, urlPrefix);
     }
 
     @Transactional
@@ -127,15 +129,17 @@ public class BookService {
 
     @Transactional
     public List<Book> cancelAllBook(Performance performance) {
-        bookRepository.cancelAllByPerformance(performance, BookStatus.ADMIN_REFUNDED, BookStatus.PAYED);
-        return bookRepository.findAllByPerformanceAndBookStatus(performance, BookStatus.ADMIN_REFUNDED);
+        bookRepository.cancelAllByPerformance(performance, BookStatus.ADMIN_REFUNDED,
+            BookStatus.PAYED);
+        return bookRepository.findAllWithUserAndPerformanceByPerformanceAndBookStatus(performance,
+            BookStatus.ADMIN_REFUNDED);
     }
 
     @Transactional
     public List<BookedView> getBookedList(Long userId) {
         List<Book> bookList = bookRepository.findAllByUserId(userId);
 
-        return BookMapper.toBookedViewDtoList(bookList);
+        return BookMapper.toBookedViewDtoList(bookList, urlPrefix);
     }
 
     @Transactional
@@ -143,6 +147,6 @@ public class BookService {
         Book book = bookRepository.findByUserIdAndId(userId, bookId)
             .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
 
-        return BookMapper.toBookedViewDto(book);
+        return BookMapper.toBookedViewDto(book, urlPrefix);
     }
 }

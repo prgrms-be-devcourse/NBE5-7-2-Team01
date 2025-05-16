@@ -12,6 +12,5 @@ import lombok.Getter;
 public class LikeMailEvent {
     private final User user;
     private final Performance performance;
-    private final MailType mailType;
 
 }
