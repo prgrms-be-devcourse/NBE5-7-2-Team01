@@ -33,7 +33,10 @@ public class ViewController {
 
     @GetMapping("/")
     public String homePage(HttpSession session, Model model) {
-        SessionUser loginUser = UserValidator.validateSessionUser(session);
+        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
+        if (loginUser != null) {
+            model.addAttribute("username", loginUser.username());
+        }
 
         model.addAttribute("username", loginUser.username());
         return "index";
@@ -41,7 +44,10 @@ public class ViewController {
 
     @GetMapping("/users/signup")
     public String signup(HttpServletRequest request) {
-        UserValidator.validateSessionUser(request.getSession());
+        SessionUser loginUser = (SessionUser) request.getSession().getAttribute("loginUser");
+        if (loginUser != null) {
+            return "redirect:/";
+        }
         return "user/sign_up";
     }
 
