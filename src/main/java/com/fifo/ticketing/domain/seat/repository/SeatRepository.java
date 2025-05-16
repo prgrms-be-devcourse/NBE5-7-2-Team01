@@ -21,4 +21,8 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Seat s SET s.seatStatus = :status WHERE s.performance.id = :performanceId")
     void updateSeatStatusByPerformanceId(@Param("performanceId") Long performanceId, @Param("status") SeatStatus status);
+
+    //공연의 남은 좌석 수 계산
+    @Query("select count(*) From Seat s where s.performance.id = :performanceId AND s.seatStatus = 'AVAILABLE'")
+    int countAvailableSeatsByPerformanceId(@Param("performanceId") Long performanceId);
 }
