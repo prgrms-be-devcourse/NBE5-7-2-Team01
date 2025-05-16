@@ -75,10 +75,13 @@ public class LikeMailNotificationService {
         List<Like> likes = likeRepository.findLikesByTargetTime(start , end);
 
         for (Like like : likes) {
-            User user = like.getUser();
-            Performance performance = like.getPerformance();
+            if (like.isLiked()){
+                User user = like.getUser();
+                Performance performance = like.getPerformance();
 
-            eventPublisher.publishEvent(new LikeMailEvent(user, performance));
+                eventPublisher.publishEvent(new LikeMailEvent(user, performance));
+            }
+
             //likeMailService.performanceStart(user, performance);
 
         }
