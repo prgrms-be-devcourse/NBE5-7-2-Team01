@@ -18,6 +18,19 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
     @EntityGraph(attributePaths = {"file"})
     @Query(
         value = "SELECT p FROM Performance p " +
+            "WHERE p.startTime > :now " + " AND p.deletedFlag = false "
+            + "AND p.title LIKE CONCAT('%', :keyword, '%') " +
+            "ORDER BY p.reservationStartTime ASC, p.startTime ASC",
+        countQuery = "SELECT COUNT(p) FROM Performance p " +
+            "WHERE p.startTime > :now AND p.deletedFlag = false " +
+            "AND p.title LIKE CONCAT('%', :keyword, '%') "
+    )
+    Page<Performance> findUpcomingPerformancesByKeywordContaining(@Param("now") LocalDateTime now,
+        @Param("keyword") String keyword, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"file"})
+    @Query(
+        value = "SELECT p FROM Performance p " +
             "WHERE p.startTime > :now AND p.deletedFlag = false " +
             "ORDER BY p.reservationStartTime ASC, p.startTime ASC",
         countQuery = "SELECT COUNT(p) FROM Performance p WHERE p.startTime > :now"

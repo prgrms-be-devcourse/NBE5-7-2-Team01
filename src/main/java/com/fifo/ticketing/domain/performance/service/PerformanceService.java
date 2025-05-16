@@ -53,6 +53,17 @@ public class PerformanceService {
     }
 
     @Transactional(readOnly = true)
+    public Page<PerformanceResponseDto> searchPerformancesByKeyword(String keyword,
+        Pageable pageable) {
+        if (keyword == null || keyword.isEmpty()) {
+            getPerformancesSortedByLatest(pageable);
+        }
+        Page<Performance> performances = performanceRepository.findUpcomingPerformancesByKeywordContaining(
+            LocalDateTime.now(), keyword, pageable);
+        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
+    }
+
+    @Transactional(readOnly = true)
     public Page<PerformanceResponseDto> getPerformancesSortedByLikes(Pageable pageable) {
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByLikes(
             LocalDateTime.now(), pageable);
