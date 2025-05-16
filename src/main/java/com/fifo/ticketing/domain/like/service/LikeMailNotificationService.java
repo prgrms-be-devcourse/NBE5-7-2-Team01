@@ -22,9 +22,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 @Slf4j
 @Service
@@ -103,7 +101,7 @@ public class LikeMailNotificationService {
         LocalDateTime now = LocalDateTime.now();
 
         //현재시간이 한시간 전에 예약시간 인경우
-        LocalDateTime reservationTime = now.minusHours(1);
+        LocalDateTime reservationTime = now.minusMinutes(60);
 
         // 정각으로 하면 안보내는 문제가 있어 +- 1분의 시간을 주었습니다.
         LocalDateTime start = reservationTime.minusMinutes(1);
@@ -118,10 +116,12 @@ public class LikeMailNotificationService {
             if (like.isLiked()){
                 User user = like.getUser();
                 Performance performance = like.getPerformance();
+                log.info("▶ 대상 유저: {}, performance: {}", user.getEmail(), performance.getTitle());
 
-                boolean payed = bookRepository.existsByUserAndPerformanceAndBookStatus(user, performance,
-                    PAYED);
+                boolean payed = bookRepository.existsByUserAndPerformanceAndBookStatus(user, performance, PAYED);
                 if (!payed){
+
+                    log.info("▶ 결제 상태 (PAYED): {}", payed);
                     eventPublisher.publishEvent(new LikeMailEvent(user, performance, MailType.NO_PAYED));
                 }
 
