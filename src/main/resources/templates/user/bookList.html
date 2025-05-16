@@ -154,7 +154,7 @@
      th:onclick="|window.location.href='/users/books/${book.bookId}'|"
      style="cursor: pointer;">
 
-  <img th:src="@{/image/{fileName}(fileName=${book.encodedFileName})}" alt="공연 포스터"/>
+  <img th:src="@{{url}(url=${book.getUrl()})}" alt="공연 포스터"/>
 
   <div class="reservation-info">
     <table>

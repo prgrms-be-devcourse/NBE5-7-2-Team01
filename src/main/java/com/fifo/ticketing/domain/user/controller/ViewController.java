@@ -9,7 +9,6 @@ import com.fifo.ticketing.domain.user.service.UserFormService;
 import com.fifo.ticketing.global.util.UserValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -87,10 +86,8 @@ public class ViewController {
         @RequestParam(required = false) String performanceTitle,
         @RequestParam(required = false) BookStatus bookStatus,
         Model model
-        ) {
-
+    ) {
         SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
-
         PageRequest pageable = PageRequest.of(page, size);
         Page<BookedView> bookedList = bookService.getBookedList(loginUser.id(), performanceTitle,
             bookStatus, pageable);
