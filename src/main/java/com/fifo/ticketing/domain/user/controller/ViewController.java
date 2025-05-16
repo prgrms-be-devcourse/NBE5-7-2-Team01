@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -134,7 +133,7 @@ public class ViewController {
     @GetMapping("/admin/users")
     public String adminPage(HttpSession session, Model model) {
         UserValidator.validateSessionUser(session);
-        return "user/admin";
+        return "admin/manage_admin";
     }
 
 }
