@@ -1,6 +1,7 @@
 package com.fifo.ticketing.domain.book.repository;
 
 import com.fifo.ticketing.domain.book.entity.Book;
+import com.fifo.ticketing.domain.user.entity.User;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,13 +20,13 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     Optional<Book> findByUserIdAndId(Long userId, Long bookId);
 
+    List<Book> findAllByPerformanceAndBookStatus(Performance performance, BookStatus bookStatus);
+
     @Query("SELECT b FROM Book b "
             + "JOIN FETCH b.user "
             + "JOIN FETCH b.performance "
             + "WHERE b.performance = :performance AND b.bookStatus = :bookStatus")
-    List<Book> findAllWithUserAndPerformanceByPerformanceAndBookStatus(
-            @Param("performance") Performance performance,
-            @Param("bookStatus") BookStatus bookStatus);
+    List<Book> findAllWithUserAndPerformanceByPerformanceAndBookStatus(@Param("performance") Performance performance, @Param("bookStatus") BookStatus bookStatus);
 
     @Modifying
     @Query("UPDATE Book b SET b.bookStatus = :cancelStatus WHERE b.performance = :performance AND b.bookStatus = :currentStatus")
@@ -64,4 +65,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
         @Param("performanceTitle") String performanceTitle,
         Pageable pageable
     );
+
+    boolean existsByUserAndPerformanceAndBookStatus(User user, Performance performance, BookStatus bookStatus);
 }

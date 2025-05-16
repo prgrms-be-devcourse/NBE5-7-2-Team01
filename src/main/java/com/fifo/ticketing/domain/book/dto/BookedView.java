@@ -18,9 +18,4 @@ public class BookedView {
     private int totalPrice;
     private int quantity;
     private BookStatus bookStatus;
-    private String urlPrefix;
-
-    public String getUrl() {
-        return urlPrefix + encodedFileName;
-    }
 }

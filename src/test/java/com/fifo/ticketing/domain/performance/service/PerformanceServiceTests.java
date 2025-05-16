@@ -1,6 +1,5 @@
 package com.fifo.ticketing.domain.performance.service;
 
-import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.like.entity.LikeCount;
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
 import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
@@ -25,7 +24,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,12 +60,6 @@ class PerformanceServiceTests {
 
     @Mock
     private SeatService seatService;
-
-    @Mock
-    private BookService bookService;
-
-    @Mock
-    private ApplicationEventPublisher eventPublisher;
 
     @Mock
     private ImageFileService imageFileService;
@@ -245,8 +237,6 @@ class PerformanceServiceTests {
         given(placeRepository.findById(newPlaceId)).willReturn(Optional.of(newPlace));
         given(gradeRepository.findAllByPlaceId(newPlaceId)).willReturn(grades);
 
-        given(bookService.cancelAllBook(performance)).willReturn(List.of());
-
         // 기존 파일이 있는 경우 -> updateFile
         willDoNothing().given(imageFileService).updateFile(any(), any());
 
@@ -254,6 +244,7 @@ class PerformanceServiceTests {
         Performance updated = performanceService.updatePerformance(performanceId, requestDto, newFile);
 
         // Verify
+
         verify(seatService).deleteSeatsByPerformanceId(performanceId);
         verify(seatService).createSeats(anyList());
         verify(imageFileService).updateFile(any(), eq(newFile));
