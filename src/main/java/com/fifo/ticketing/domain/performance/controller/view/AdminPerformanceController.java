@@ -4,6 +4,7 @@ package com.fifo.ticketing.domain.performance.controller.view;
 import com.fifo.ticketing.domain.book.dto.BookSeatViewDto;
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceDetailResponse;
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceResponseDto;
+import com.fifo.ticketing.domain.performance.dto.AdminPerformanceStaticsDto;
 import com.fifo.ticketing.domain.performance.dto.PlaceResponseDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.service.AdminPerformanceService;
@@ -12,6 +13,8 @@ import com.fifo.ticketing.domain.user.dto.SessionUser;
 import com.fifo.ticketing.global.util.DateTimeValidator;
 import com.fifo.ticketing.global.util.UserValidator;
 import jakarta.servlet.http.HttpSession;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,9 +27,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin/performances")
@@ -37,13 +37,13 @@ public class AdminPerformanceController {
 
     @GetMapping
     public String viewPerformancesForAdmin(
-            HttpSession session,
-            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-            @RequestParam(value = "size", defaultValue = "10", required = false) int size,
-            Model model) {
+        HttpSession session,
+        @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+        @RequestParam(value = "size", defaultValue = "10", required = false) int size,
+        Model model) {
         Pageable pageable = PageRequest.of(page, size);
         Page<AdminPerformanceResponseDto> performances =
-                adminPerformanceService.getPerformancesSortedByLatestForAdmin(pageable);
+            adminPerformanceService.getPerformancesSortedByLatestForAdmin(pageable);
         String baseQuery = "?size=" + size;
 
         preparedModelAdmin(session, model, performances, page, baseQuery);
@@ -52,16 +52,17 @@ public class AdminPerformanceController {
 
     @GetMapping(params = {"sort"})
     public String viewPerformancesSortedByForAdmin(
-            HttpSession session,
-            @RequestParam(value = "sort", defaultValue = "latest", required = false) String sort,
-            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-            @RequestParam(value = "size", defaultValue = "10", required = false) int size,
-            Model model) {
+        HttpSession session,
+        @RequestParam(value = "sort", defaultValue = "latest", required = false) String sort,
+        @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+        @RequestParam(value = "size", defaultValue = "10", required = false) int size,
+        Model model) {
         Pageable pageable = PageRequest.of(page, size);
 
         Page<AdminPerformanceResponseDto> performances = switch (sort) {
             case "likes" -> adminPerformanceService.getPerformancesSortedByLikesForAdmin(pageable);
-            case "deleted" -> adminPerformanceService.getPerformancesSortedByDeletedForAdmin(pageable);
+            case "deleted" ->
+                adminPerformanceService.getPerformancesSortedByDeletedForAdmin(pageable);
             default -> adminPerformanceService.getPerformancesSortedByLatestForAdmin(pageable);
         };
         String baseQuery = "?sort=" + sort + "&size=" + size;
@@ -72,12 +73,12 @@ public class AdminPerformanceController {
 
     @GetMapping(params = {"startDate", "endDate"})
     public String viewPerformancesWithinPeriodForAdmin(
-            HttpSession session,
-            @RequestParam(value = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam(value = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size,
-            Model model
+        HttpSession session,
+        @RequestParam(value = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+        @RequestParam(value = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "size", defaultValue = "10") int size,
+        Model model
     ) {
         DateTimeValidator.periodValidator(startDate, endDate);
 
@@ -92,11 +93,11 @@ public class AdminPerformanceController {
 
     @GetMapping(params = "category")
     public String viewPerformancesByCategoryForAdmin(
-            HttpSession session,
-            @RequestParam(value = "category") Category category,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size,
-            Model model
+        HttpSession session,
+        @RequestParam(value = "category") Category category,
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "size", defaultValue = "10") int size,
+        Model model
     ) {
         Pageable pageable = PageRequest.of(page, size);
         Page<AdminPerformanceResponseDto> performances = adminPerformanceService.getPerformancesByCategoryForAdmin(
@@ -130,8 +131,8 @@ public class AdminPerformanceController {
     }
 
     private void preparedModelAdmin(HttpSession session, Model model,
-                               Page<AdminPerformanceResponseDto> performances, int page,
-                               String baseQuery) {
+        Page<AdminPerformanceResponseDto> performances, int page,
+        String baseQuery) {
         SessionUser loginUser = UserValidator.validateSessionUser(session);
 
         model.addAttribute("userId", loginUser.id());
@@ -151,11 +152,26 @@ public class AdminPerformanceController {
 
     @GetMapping("/update/{performanceId}")
     public String updatePerformance(@PathVariable("performanceId") Long id, Model model) {
-        AdminPerformanceResponseDto performance = adminPerformanceService.getPerformanceUpdateForAdmin(id);
+        AdminPerformanceResponseDto performance = adminPerformanceService.getPerformanceUpdateForAdmin(
+            id);
         List<PlaceResponseDto> places = adminPerformanceService.getAllPlaces();
         model.addAttribute("performance", performance);
         model.addAttribute("places", places);
         return "admin/update_performance";
+    }
+
+    @GetMapping("/chart")
+    public String adminChart(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "3") int size,
+        Model model) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<AdminPerformanceStaticsDto> statics = adminPerformanceService.getPerformanceStatics(
+            pageable);
+        model.addAttribute("stats", statics.getContent());
+        model.addAttribute("currentPage", statics.getNumber());
+        model.addAttribute("totalPages", statics.getTotalPages());
+        return "admin/chart_admin";
     }
 
 }
