@@ -29,8 +29,8 @@ import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.performance.repository.PlaceRepository;
 import com.fifo.ticketing.domain.seat.entity.Seat;
 import com.fifo.ticketing.domain.seat.service.SeatService;
-import com.fifo.ticketing.global.event.PerformanceCanceledEvent;
 import com.fifo.ticketing.global.entity.File;
+import com.fifo.ticketing.global.event.PerformanceCanceledEvent;
 import com.fifo.ticketing.global.exception.ErrorException;
 import com.fifo.ticketing.global.util.ImageFileService;
 import java.io.IOException;
@@ -263,6 +263,17 @@ public class PerformanceService {
         } catch (RuntimeException e) {
             throw new ErrorException(SEAT_CREATE_FAILED);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PerformanceResponseDto> searchPerformancesByKeyword(String keyword,
+        Pageable pageable) {
+        if (keyword == null || keyword.isEmpty()) {
+            getPerformancesSortedByLatest(pageable);
+        }
+        Page<Performance> performances = performanceRepository.findUpcomingPerformancesByKeywordContaining(
+            LocalDateTime.now(), keyword, pageable);
+        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
     }
 
     @Transactional(readOnly = true)

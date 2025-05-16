@@ -50,6 +50,22 @@ public class PerformanceController {
         return "/performance/view_performances";
     }
 
+    @GetMapping(params = {"search"})
+    public String searchPerformances(
+        HttpSession session,
+        @RequestParam(value = "search", defaultValue = "", required = false) String keyword,
+        @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+        @RequestParam(value = "size", defaultValue = "10", required = false) int size,
+        Model model) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PerformanceResponseDto> performances = performanceService.searchPerformancesByKeyword(
+            keyword, pageable);
+        String baseQuery = "?search=" + keyword + "&size=" + size;
+
+        preparedModel(session, model, performances, page, baseQuery);
+        return "/performance/view_performances";
+    }
+
     @GetMapping(params = {"sort"})
     public String viewPerformancesSortedBy(
         HttpSession session,
