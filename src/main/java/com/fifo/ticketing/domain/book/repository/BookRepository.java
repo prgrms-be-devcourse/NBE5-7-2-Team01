@@ -1,6 +1,7 @@
 package com.fifo.ticketing.domain.book.repository;
 
 import com.fifo.ticketing.domain.book.entity.Book;
+import com.fifo.ticketing.domain.user.entity.User;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,4 +31,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     void cancelAllByPerformance(@Param("performance") Performance performance,
             @Param("cancelStatus") BookStatus cancelStatus,
             @Param("currentStatus") BookStatus currentStatus);
+
+    boolean existsByUserAndPerformanceAndBookStatus(User user, Performance performance, BookStatus bookStatus);
 }
