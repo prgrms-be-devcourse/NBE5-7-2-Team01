@@ -2,6 +2,7 @@ package com.fifo.ticketing.domain.book.service;
 
 import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
 import com.fifo.ticketing.domain.book.dto.BookCreateRequest;
+import com.fifo.ticketing.domain.book.dto.BookMailSendDto;
 import com.fifo.ticketing.domain.book.dto.BookedView;
 import com.fifo.ticketing.domain.book.entity.BookStatus;
 import com.fifo.ticketing.domain.book.mapper.BookMapper;
@@ -165,5 +166,13 @@ public class BookService {
         }
 
         return BookMapper.toBookedViewDtoList(bookPage, urlPrefix);
+    }
+
+    @Transactional
+    public BookMailSendDto getBookMailInfo(Long bookId) {
+        Book book = bookRepository.findById(bookId)
+            .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
+
+        return BookMapper.getBookMailInfo(book, urlPrefix);
     }
 }
