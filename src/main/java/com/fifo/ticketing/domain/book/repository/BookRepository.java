@@ -18,6 +18,8 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     Optional<Book> findByUserIdAndId(Long userId, Long bookId);
 
+    List<Book> findAllByPerformanceAndBookStatus(Performance performance, BookStatus bookStatus);
+
     @Query("SELECT b FROM Book b "
             + "JOIN FETCH b.user "
             + "JOIN FETCH b.performance "
