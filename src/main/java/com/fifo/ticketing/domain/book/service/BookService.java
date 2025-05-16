@@ -2,6 +2,7 @@ package com.fifo.ticketing.domain.book.service;
 
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_MEMBER;
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
+import static com.fifo.ticketing.global.exception.ErrorCode.SEAT_ALREADY_BOOKED;
 
 import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
 import com.fifo.ticketing.domain.book.dto.BookCreateRequest;
@@ -27,6 +28,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,14 +55,24 @@ public class BookService {
         Performance performance = performanceRepository.findById(performanceId)
             .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
 
-        List<Seat> selectedSeats = seatRepository.findAllById(request.getSeatIds());
+//        List<Seat> selectedSeats = seatRepository.findAllById(request.getSeatIds());
+        List<Seat> selectedSeats = seatRepository.findAllByIdInWithOptimisticLock(
+                request.getSeatIds());
 
         for (Seat seat : selectedSeats) {
             if (!seat.getSeatStatus().equals(SeatStatus.AVAILABLE)) {
                 throw new AlertDetailException(ErrorCode.SEAT_ALREADY_BOOKED,
                     String.format("%d번 좌석은 이미 예약되었습니다.", seat.getId()));
             }
+            seat.book();
         }
+
+        try {
+            seatRepository.flush();
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new ErrorException(SEAT_ALREADY_BOOKED);
+        }
+
         int totalPrice = selectedSeats.stream().mapToInt(Seat::getPrice).sum();
         int quantity = selectedSeats.size();
 
@@ -72,13 +84,9 @@ public class BookService {
 
         bookSeatRepository.saveAll(bookSeatList);
 
-        for (Seat seat : selectedSeats) {
-            seat.book();
-        }
-
         Long bookId = book.getId();
 
-        LocalDateTime runTime = LocalDateTime.now().plusMinutes(5);
+        LocalDateTime runTime = LocalDateTime.now().plusMinutes(10);
 
         bookScheduleManager.scheduleCancelTask(bookId, runTime);
 

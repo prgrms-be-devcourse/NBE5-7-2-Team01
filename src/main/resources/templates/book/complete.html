@@ -131,7 +131,7 @@
 
     <div>
       <form th:if="${!book.paymentCompleted}"
-            th:action="@{'/performances/' + ${book.performanceId} + '/book/complete/' + ${bookId} + '/payment'}"
+            th:action="@{'/performances/' + ${book.performanceId} + '/book/complete/' + ${bookId} + '/paid'}"
             method="post">
         <button type="submit" class="btn">결제하기</button>
       </form>

@@ -9,4 +9,8 @@ import org.springframework.data.repository.query.Param;
 public interface BookSeatRepository extends JpaRepository<BookSeat, Long> {
 
     List<BookSeat> findAllByBookId(Long bookId);
+
+    @Query("SELECT bs FROM BookSeat bs JOIN FETCH bs.seat WHERE bs.book.id = :bookId")
+    List<BookSeat> findAllByBookIdWithSeat(@Param("bookId") Long bookId);
+
 }
