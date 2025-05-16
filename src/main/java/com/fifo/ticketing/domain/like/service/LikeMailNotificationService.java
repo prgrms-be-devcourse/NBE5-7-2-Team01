@@ -1,16 +1,13 @@
 package com.fifo.ticketing.domain.like.service;
 
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCES;
-import static java.rmi.server.LogStream.log;
 
 import com.fifo.ticketing.domain.like.entity.Like;
-import com.fifo.ticketing.domain.like.entity.LikeCount;
-import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
 import com.fifo.ticketing.domain.like.repository.LikeRepository;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.user.entity.User;
-import com.fifo.ticketing.global.Event.LikeMailEvent;
+import com.fifo.ticketing.global.event.LikeMailEvent;
 import com.fifo.ticketing.global.exception.ErrorException;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -18,9 +15,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 @Slf4j
 @Service

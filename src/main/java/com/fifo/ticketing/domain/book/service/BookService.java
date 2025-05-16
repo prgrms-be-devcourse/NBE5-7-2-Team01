@@ -133,7 +133,7 @@ public class BookService {
     public List<Book> cancelAllBook(Performance performance) {
         bookRepository.cancelAllByPerformance(performance, BookStatus.ADMIN_REFUNDED,
             BookStatus.PAYED);
-        return bookRepository.findAllByPerformanceAndBookStatus(performance,
+        return bookRepository.findAllWithUserAndPerformanceByPerformanceAndBookStatus(performance,
             BookStatus.ADMIN_REFUNDED);
     }
 
