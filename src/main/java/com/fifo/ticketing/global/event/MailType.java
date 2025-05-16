@@ -1,4 +1,4 @@
-package com.fifo.ticketing.global.Event;
+package com.fifo.ticketing.global.event;
 
 public enum MailType {
 
