@@ -6,7 +6,7 @@ import com.fifo.ticketing.domain.performance.dto.AdminPerformanceDetailResponse;
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceResponseDto;
 import com.fifo.ticketing.domain.performance.dto.PlaceResponseDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
-import com.fifo.ticketing.domain.performance.service.PerformanceService;
+import com.fifo.ticketing.domain.performance.service.AdminPerformanceService;
 import com.fifo.ticketing.domain.seat.service.SeatService;
 import com.fifo.ticketing.domain.user.dto.SessionUser;
 import com.fifo.ticketing.global.util.DateTimeValidator;
@@ -32,7 +32,7 @@ import java.util.List;
 @RequestMapping("/admin/performances")
 public class AdminPerformanceController {
 
-    private final PerformanceService performanceService;
+    private final AdminPerformanceService adminPerformanceService;
     private final SeatService seatService;
 
     @GetMapping
@@ -43,7 +43,7 @@ public class AdminPerformanceController {
             Model model) {
         Pageable pageable = PageRequest.of(page, size);
         Page<AdminPerformanceResponseDto> performances =
-                performanceService.getPerformancesSortedByLatestForAdmin(pageable);
+                adminPerformanceService.getPerformancesSortedByLatestForAdmin(pageable);
         String baseQuery = "?size=" + size;
 
         preparedModelAdmin(session, model, performances, page, baseQuery);
@@ -60,9 +60,9 @@ public class AdminPerformanceController {
         Pageable pageable = PageRequest.of(page, size);
 
         Page<AdminPerformanceResponseDto> performances = switch (sort) {
-            case "likes" -> performanceService.getPerformancesSortedByLikesForAdmin(pageable);
-            case "deleted" -> performanceService.getPerformancesSortedByDeletedForAdmin(pageable);
-            default -> performanceService.getPerformancesSortedByLatestForAdmin(pageable);
+            case "likes" -> adminPerformanceService.getPerformancesSortedByLikesForAdmin(pageable);
+            case "deleted" -> adminPerformanceService.getPerformancesSortedByDeletedForAdmin(pageable);
+            default -> adminPerformanceService.getPerformancesSortedByLatestForAdmin(pageable);
         };
         String baseQuery = "?sort=" + sort + "&size=" + size;
 
@@ -82,7 +82,7 @@ public class AdminPerformanceController {
         DateTimeValidator.periodValidator(startDate, endDate);
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<AdminPerformanceResponseDto> performances = performanceService.getPerformancesByReservationPeriodForAdmin(
+        Page<AdminPerformanceResponseDto> performances = adminPerformanceService.getPerformancesByReservationPeriodForAdmin(
             startDate, endDate, pageable);
         String baseQuery = "?startDate=" + startDate + "&endDate=" + endDate + "&size=" + size;
 
@@ -99,7 +99,7 @@ public class AdminPerformanceController {
             Model model
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<AdminPerformanceResponseDto> performances = performanceService.getPerformancesByCategoryForAdmin(
+        Page<AdminPerformanceResponseDto> performances = adminPerformanceService.getPerformancesByCategoryForAdmin(
             category,
             pageable);
         String baseQuery = "?category=" + category + "&size=" + size;
@@ -116,7 +116,7 @@ public class AdminPerformanceController {
     ) {
         SessionUser loginUser = UserValidator.validateSessionUser(session);
 
-        AdminPerformanceDetailResponse performanceDetail = performanceService.getPerformanceDetailForAdmin(
+        AdminPerformanceDetailResponse performanceDetail = adminPerformanceService.getPerformanceDetailForAdmin(
             performanceId);
 
         List<BookSeatViewDto> seatViewDtos = seatService.getSeatsForPerformance(performanceId);
@@ -144,15 +144,15 @@ public class AdminPerformanceController {
 
     @GetMapping("/create")
     public String createPerformance(Model model) {
-        List<PlaceResponseDto> places = performanceService.getAllPlaces();
+        List<PlaceResponseDto> places = adminPerformanceService.getAllPlaces();
         model.addAttribute("places", places);
         return "admin/create_performance";
     }
 
     @GetMapping("/update/{performanceId}")
     public String updatePerformance(@PathVariable("performanceId") Long id, Model model) {
-        AdminPerformanceResponseDto performance = performanceService.getPerformanceUpdateForAdmin(id);
-        List<PlaceResponseDto> places = performanceService.getAllPlaces();
+        AdminPerformanceResponseDto performance = adminPerformanceService.getPerformanceUpdateForAdmin(id);
+        List<PlaceResponseDto> places = adminPerformanceService.getAllPlaces();
         model.addAttribute("performance", performance);
         model.addAttribute("places", places);
         return "admin/update_performance";
