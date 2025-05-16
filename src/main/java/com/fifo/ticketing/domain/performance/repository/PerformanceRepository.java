@@ -1,5 +1,6 @@
 package com.fifo.ticketing.domain.performance.repository;
 
+import com.fifo.ticketing.domain.performance.dto.AdminPerformanceStaticsDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import java.time.LocalDateTime;
@@ -112,4 +113,13 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
         "WHERE p.deletedFlag = true " +
         "ORDER BY p.reservationStartTime ASC, p.startTime ASC")
     Page<Performance> findUpComingPerformancesByDeletedFlagForAdmin(Pageable pageable);
+
+    @Query("SELECT p.id AS performanceId, p.title AS title, pl.totalSeats AS totalSeats, "
+        + "SUM(CASE WHEN b.bookStatus IN ('CONFIRMED', 'PAYED') THEN b.quantity ELSE 0 END) AS reservationCount FROM Performance p "
+        + "JOIN Place pl ON p.place.id = pl.id "
+        + "LEFT JOIN Book b ON p.id = b.performance.id "
+        + "WHERE p.performanceStatus = true "
+        + "GROUP BY p.id, p.title, pl.totalSeats")
+    Page<AdminPerformanceStaticsDto> findPerformanceStatics(Pageable pageable);
+
 }

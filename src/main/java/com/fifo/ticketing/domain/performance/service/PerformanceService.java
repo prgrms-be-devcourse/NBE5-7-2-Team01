@@ -13,6 +13,7 @@ import com.fifo.ticketing.domain.like.entity.LikeCount;
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceDetailResponse;
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceResponseDto;
+import com.fifo.ticketing.domain.performance.dto.AdminPerformanceStaticsDto;
 import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
 import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
 import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
@@ -338,5 +339,16 @@ public class PerformanceService {
         Page<Performance> performances = performanceRepository.findUpComingPerformancesByDeletedFlagForAdmin(
             pageable);
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AdminPerformanceStaticsDto> getPerformanceStatics(Pageable pageable) {
+        Page<AdminPerformanceStaticsDto> performanceStatics = performanceRepository.findPerformanceStatics(
+            pageable);
+        if (performanceStatics.isEmpty()) {
+            throw new ErrorException(NOT_FOUND_PERFORMANCE);
+        } else {
+            return performanceStatics;
+        }
     }
 }
