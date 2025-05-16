@@ -2,8 +2,7 @@ package com.fifo.ticketing.domain.performance.controller.api;
 
 import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
 import com.fifo.ticketing.domain.performance.entity.Performance;
-import com.fifo.ticketing.domain.performance.service.PerformanceService;
-import com.fifo.ticketing.global.util.ImageFileService;
+import com.fifo.ticketing.domain.performance.service.AdminPerformanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +16,13 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class PerformanceApiController {
 
-    private final PerformanceService performanceService;
-    private final ImageFileService imageFileService;
+    private final AdminPerformanceService adminPerformanceService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createPerformance(
             @RequestPart("file") MultipartFile file,
             @RequestPart("request") PerformanceRequestDto request) throws IOException {
-        Performance performance = performanceService.createPerformance(request, file);
+        Performance performance = adminPerformanceService.createPerformance(request, file);
         return ResponseEntity.ok("공연이 등록되었습니다.");
     }
 
@@ -33,13 +31,13 @@ public class PerformanceApiController {
             @PathVariable Long id,
             @RequestPart(value = "file", required = false) MultipartFile file,
             @RequestPart("request") PerformanceRequestDto request) throws IOException {
-        performanceService.updatePerformance(id, request, file);
+        adminPerformanceService.updatePerformance(id, request, file);
         return ResponseEntity.ok("공연이 수정되었습니다.");
     }
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> deletePerformance(@PathVariable Long id) {
-        performanceService.deletePerformance(id);
+        adminPerformanceService.deletePerformance(id);
         return ResponseEntity.ok("공연이 삭제되었습니다.");
     }
 }
