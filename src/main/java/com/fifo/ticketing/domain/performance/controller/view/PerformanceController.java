@@ -112,7 +112,7 @@ public class PerformanceController {
         HttpSession session,
         Model model
     ) {
-        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
+        SessionUser loginUser = UserValidator.validateSessionUser(session);
 
         PerformanceDetailResponse performanceDetail = performanceService.getPerformanceDetail(
             performanceId);
@@ -130,9 +130,8 @@ public class PerformanceController {
     private void preparedModel(HttpSession session, Model model,
         Page<PerformanceResponseDto> performances, int page,
         String baseQuery) {
-        UserValidator.validateSessionUser(session);
+        SessionUser loginUser = UserValidator.validateSessionUser(session);
 
-        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
         Long userId = loginUser.id();
         List<Long> likedPerformancesIds = likeService.getLikedPerformancesIds(userId);
 

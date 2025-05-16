@@ -33,19 +33,15 @@ public class ViewController {
 
     @GetMapping("/")
     public String homePage(HttpSession session, Model model) {
-        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
-        if (loginUser != null) {
-            model.addAttribute("username", loginUser.username());
-        }
+        SessionUser loginUser = UserValidator.validateSessionUser(session);
+
+        model.addAttribute("username", loginUser.username());
         return "index";
     }
 
     @GetMapping("/users/signup")
     public String signup(HttpServletRequest request) {
-        SessionUser loginUser = (SessionUser) request.getSession().getAttribute("loginUser");
-        if (loginUser != null) {
-            return "redirect:/";
-        }
+        UserValidator.validateSessionUser(request.getSession());
         return "user/sign_up";
     }
 
@@ -87,7 +83,7 @@ public class ViewController {
         @RequestParam(required = false) BookStatus bookStatus,
         Model model
     ) {
-        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
+        SessionUser loginUser = UserValidator.validateSessionUser(session);
         PageRequest pageable = PageRequest.of(page, size);
         Page<BookedView> bookedList = bookService.getBookedList(loginUser.id(), performanceTitle,
             bookStatus, pageable);
@@ -100,7 +96,7 @@ public class ViewController {
     public String getBookDetail(HttpSession session,
         @PathVariable Long bookId,
         Model model) {
-        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
+        SessionUser loginUser = UserValidator.validateSessionUser(session);
         BookedView bookDetail = bookService.getBookDetail(loginUser.id(), bookId);
 
         model.addAttribute("bookDetail", bookDetail);
@@ -116,7 +112,7 @@ public class ViewController {
         @PathVariable Long bookId,
         RedirectAttributes redirectAttributes
     ) {
-        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
+        SessionUser loginUser = UserValidator.validateSessionUser(session);
 
         bookService.cancelBook(bookId, loginUser.id());
         redirectAttributes.addFlashAttribute("alertMessage", "예매가 성공적으로 취소되었습니다.");
@@ -125,10 +121,9 @@ public class ViewController {
 
     @GetMapping("/users")
     public String myPage(HttpSession session, Model model) {
-        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
-        if (loginUser != null) {
-            model.addAttribute("username", loginUser.username());
-        }
+        SessionUser loginUser = UserValidator.validateSessionUser(session);
+
+        model.addAttribute("username", loginUser.username());
         return "user/my_page";
     }
 
