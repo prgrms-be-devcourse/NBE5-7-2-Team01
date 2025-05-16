@@ -4,6 +4,7 @@ import com.fifo.ticketing.domain.book.dto.BookMailSendDto;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -17,16 +18,20 @@ public class BookMailService {
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
 
+    @Value("${spring.mail.username}")
+    private String fromAddress;
+
     public void sendBookCompleteMail(BookMailSendDto bookMailSendDto) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(bookMailSendDto.getEmailAddr());
+            helper.setFrom(fromAddress);
             helper.setSubject(bookMailSendDto.getTitle());
 
             Context context = new Context();
-            context.setVariable("book", bookMailSendDto);
+            context.setVariable("mailDto", bookMailSendDto);
 
             String htmlContent = templateEngine.process("book/complete_mail", context);
 

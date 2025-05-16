@@ -102,7 +102,6 @@ public class BookMapper {
             .totalPrice(book.getTotalPrice())
             .quantity(book.getQuantity())
             .bookStatus(book.getBookStatus())
-            .urlPrefix(urlPrefix)
             .build();
     }
 }

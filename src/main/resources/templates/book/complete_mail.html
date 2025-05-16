@@ -15,11 +15,6 @@
 
 <table width="100%" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
   <tr>
-    <!-- 공연 이미지 -->
-    <td width="33%" align="center" style="padding: 10px;">
-      <img th:src="@{{url}(url=${mailDto.getUrl()})}" alt="공연 포스터" style="width: 100%; max-width: 250px; border-radius: 10px;">
-    </td>
-
     <!-- 공연 정보 -->
     <td width="67%" style="padding: 10px; vertical-align: top;">
       <p><strong>🎭 공연명:</strong> <span th:text="${mailDto.performanceTitle}"></span></p>
@@ -56,10 +51,17 @@
     </tbody>
   </table>
 
-  <p style="margin-top: 15px; font-size: 16px; font-weight: bold;">
-    💰 총 결제 금액:
-    <span th:text="${#numbers.formatInteger(mailDto.totalPrice, 0, 'COMMA')} + '원'"></span>
-  </p>
+  <div th:switch="${mailDto.bookStatus.name()}" style="text-align: center; color: #222;">
+    <div th:case="'PAYED'" style="margin-top: 15px; font-size: 16px; font-weight: bold;">
+      💰 총 결제 금액:
+      <span th:text="${#numbers.formatInteger(mailDto.totalPrice, 0, 'COMMA')} + '원'"></span>
+    </div>
+    <div th:case="'CANCELED'" style="margin-top: 15px; font-size: 16px; font-weight: bold;">
+      💰 총 환불 금액:
+      <span th:text="${#numbers.formatInteger(mailDto.totalPrice, 0, 'COMMA')} + '원'"></span>
+    </div>
+  </div>
+
 
   <p style="font-size: 14px; color: #666;">
     ※ 본 메일은 예매 내역 확인용으로 발송되었으며, 실제 티켓은 마이페이지에서 확인 가능합니다.

@@ -16,7 +16,6 @@ public class BookMailSendDto {
 
     private Long performanceId;
     private String performanceTitle;
-    private String encodedFileName;
     private LocalDateTime performanceStartTime;
     private LocalDateTime performanceEndTime;
     private String placeName;
@@ -24,10 +23,5 @@ public class BookMailSendDto {
     private int totalPrice;
     private int quantity;
     private BookStatus bookStatus;
-    private String urlPrefix;
-
-    public String getUrl() {
-        return urlPrefix + encodedFileName;
-    }
 
 }
