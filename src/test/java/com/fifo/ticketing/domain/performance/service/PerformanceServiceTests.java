@@ -73,7 +73,7 @@ class PerformanceServiceTests {
     private ImageFileService imageFileService;
 
     @InjectMocks
-    private PerformanceService performanceService;
+    private AdminPerformanceService adminPerformanceService;
 
     @Mock
     private MultipartFile file;
@@ -118,7 +118,7 @@ class PerformanceServiceTests {
         when(likeCountRepository.save(likeCountCaptor.capture())).thenReturn(LikeCount.builder().id(1L).likeCount(0L).performance(performance).build());
 
         // When
-        Performance savePerformance = performanceService.createPerformance(performanceRequestDto, file);
+        Performance savePerformance = adminPerformanceService.createPerformance(performanceRequestDto, file);
 
         // Then
         assertThat(savePerformance).isNotNull();
@@ -146,7 +146,7 @@ class PerformanceServiceTests {
         when(placeRepository.findById(any(Long.class))).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> performanceService.createPerformance(performanceRequestDto, file))
+        assertThatThrownBy(() -> adminPerformanceService.createPerformance(performanceRequestDto, file))
                 .isInstanceOf(ErrorException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_FOUND_PLACES);
 
@@ -164,7 +164,7 @@ class PerformanceServiceTests {
         when(imageFileService.uploadFile(file)).thenThrow(new IOException("파일 업로드 실패"));
 
         // When & Then
-        assertThatThrownBy(() -> performanceService.createPerformance(performanceRequestDto, file))
+        assertThatThrownBy(() -> adminPerformanceService.createPerformance(performanceRequestDto, file))
                 .isInstanceOf(ErrorException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.FILE_UPLOAD_FAILED);
 
@@ -183,7 +183,7 @@ class PerformanceServiceTests {
         when(gradeRepository.findAllByPlaceId(any(Long.class))).thenReturn(Arrays.asList());
 
         // When & Then
-        assertThatThrownBy(() -> performanceService.createPerformance(performanceRequestDto, file))
+        assertThatThrownBy(() -> adminPerformanceService.createPerformance(performanceRequestDto, file))
                 .isInstanceOf(ErrorException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_FOUND_GRADE);
 
@@ -204,7 +204,7 @@ class PerformanceServiceTests {
         doThrow(new RuntimeException("Seat create failed")).when(seatService).createSeats(anyList());
 
         // When & Then
-        assertThatThrownBy(() -> performanceService.createPerformance(performanceRequestDto, file))
+        assertThatThrownBy(() -> adminPerformanceService.createPerformance(performanceRequestDto, file))
                 .isInstanceOf(ErrorException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.SEAT_CREATE_FAILED);
 
@@ -251,7 +251,7 @@ class PerformanceServiceTests {
         willDoNothing().given(imageFileService).updateFile(any(), any());
 
         // Then
-        Performance updated = performanceService.updatePerformance(performanceId, requestDto, newFile);
+        Performance updated = adminPerformanceService.updatePerformance(performanceId, requestDto, newFile);
 
         // Verify
         verify(seatService).deleteSeatsByPerformanceId(performanceId);
@@ -294,7 +294,7 @@ class PerformanceServiceTests {
         doNothing().when(imageFileService).updateFile(any(), eq(newFile));
 
         // When
-        Performance updated = performanceService.updatePerformance(performanceId, requestDto, newFile);
+        Performance updated = adminPerformanceService.updatePerformance(performanceId, requestDto, newFile);
 
         // Verify
         verify(imageFileService).updateFile(any(), eq(newFile));

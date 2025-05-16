@@ -41,8 +41,9 @@
   <label for="endTime">종료 시간</label>
   <input type="datetime-local" id="endTime" name="endTime" required>
 
-  <label for="reservationStartTime">예매 시작 시간</label>
-  <input type="datetime-local" id="reservationStartTime" name="reservationStartTime" required>
+  <label for="reservationDate">예매 시작 시간</label>
+  <input type="date" id="reservationDate" name="reservationDate" required>
+  <input type="hidden" name="reservationStartTime" id="reservationStartTime">
 
   <label for="category">카테고리</label>
   <select id="category" name="category" required>
@@ -155,6 +156,11 @@
             console.log(err);
             gradeContainer.innerHTML = "<p style='color:red;'>등급 정보를 불러오는 중 오류가 발생했습니다.</p>";
         }
+    });
+    document.getElementById("reservationDate").addEventListener("change", (e) => {
+      const date = e.target.value;
+      const time = "13:00";
+      document.getElementById("reservationStartTime").value = `${date}T${time}`;
     });
 </script>
 </body>

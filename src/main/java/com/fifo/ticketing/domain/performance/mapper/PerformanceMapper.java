@@ -10,6 +10,8 @@ import com.fifo.ticketing.domain.performance.dto.PerformanceSeatGradeDto;
 import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.entity.Place;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Page;
 
@@ -72,6 +74,8 @@ public class PerformanceMapper {
     }
 
     public static Performance toEntity(PerformanceRequestDto dto, Place place) {
+        LocalDate dateOnly = dto.getReservationStartTime().toLocalDate();
+        LocalDateTime fixedReservationStartTime = dateOnly.atTime(13, 0);
         return Performance.builder()
             .title(dto.getTitle())
             .description(dto.getDescription())
@@ -80,7 +84,7 @@ public class PerformanceMapper {
             .endTime(dto.getEndTime())
             .category(dto.getCategory())
             .performanceStatus(dto.isPerformanceStatus())
-            .reservationStartTime(dto.getReservationStartTime())
+            .reservationStartTime(fixedReservationStartTime)
             .build();
     }
 

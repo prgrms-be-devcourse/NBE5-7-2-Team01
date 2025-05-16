@@ -13,9 +13,8 @@ import com.fifo.ticketing.domain.like.entity.LikeCount;
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceDetailResponse;
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceResponseDto;
-import com.fifo.ticketing.domain.performance.dto.PerformanceDetailResponse;
+import com.fifo.ticketing.domain.performance.dto.AdminPerformanceStaticsDto;
 import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
-import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
 import com.fifo.ticketing.domain.performance.dto.PerformanceSeatGradeDto;
 import com.fifo.ticketing.domain.performance.dto.PlaceResponseDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
@@ -48,7 +47,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
-public class PerformanceService {
+public class AdminPerformanceService {
 
     @Value("${file.url-prefix}")
     private String urlPrefix;
@@ -61,20 +60,6 @@ public class PerformanceService {
     private final LikeCountRepository likeCountRepository;
     private final BookService bookService;
     private final ApplicationEventPublisher eventPublisher;
-
-
-    @Transactional(readOnly = true)
-    public PerformanceDetailResponse getPerformanceDetail(Long performanceId) {
-        Performance performance = performanceRepository.findById(performanceId)
-            .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
-
-        List<Grade> grades = gradeRepository.findAllByPlaceId(performance.getPlace().getId());
-        List<PerformanceSeatGradeDto> seatGrades = grades.stream()
-            .map(PerformanceMapper::toSeatGradeDto)
-            .toList();
-
-        return PerformanceMapper.toDetailResponseDto(performance, seatGrades, urlPrefix);
-    }
 
     @Transactional(readOnly = true)
     public AdminPerformanceDetailResponse getPerformanceDetailForAdmin(Long performanceId) {
@@ -92,13 +77,6 @@ public class PerformanceService {
         Performance performance = performanceRepository.findById(performanceId)
             .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
         return PerformanceMapper.toAdminPerformanceResponseDto(performance, urlPrefix);
-    }
-
-    @Transactional(readOnly = true)
-    public Page<PerformanceResponseDto> getPerformancesSortedByLatest(Pageable pageable) {
-        Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByStartTime(
-            LocalDateTime.now(), pageable);
-        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
     }
 
     @Transactional(readOnly = true)
@@ -266,40 +244,6 @@ public class PerformanceService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PerformanceResponseDto> searchPerformancesByKeyword(String keyword,
-        Pageable pageable) {
-        if (keyword == null || keyword.isEmpty()) {
-            getPerformancesSortedByLatest(pageable);
-        }
-        Page<Performance> performances = performanceRepository.findUpcomingPerformancesByKeywordContaining(
-            LocalDateTime.now(), keyword, pageable);
-        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
-    }
-
-    @Transactional(readOnly = true)
-    public Page<PerformanceResponseDto> getPerformancesSortedByLikes(Pageable pageable) {
-        Page<Performance> performances = performanceRepository.findUpcomingPerformancesOrderByLikes(
-            LocalDateTime.now(), pageable);
-        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
-    }
-
-    @Transactional(readOnly = true)
-    public Page<PerformanceResponseDto> getPerformancesByReservationPeriod(LocalDateTime start,
-        LocalDateTime end, Pageable pageable) {
-        Page<Performance> performances = performanceRepository.findUpcomingPerformancesByReservationPeriod(
-            start, end, pageable);
-        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
-    }
-
-    @Transactional(readOnly = true)
-    public Page<PerformanceResponseDto> getPerformancesByCategory(Category category,
-        Pageable pageable) {
-        Page<Performance> performances = performanceRepository.findUpcomingPerformancesByCategory(
-            LocalDateTime.now(), category, pageable);
-        return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
-    }
-
-    @Transactional(readOnly = true)
     public List<PlaceResponseDto> getAllPlaces() {
         List<Place> places = placeRepository.findAll();
         return places.stream()
@@ -338,5 +282,16 @@ public class PerformanceService {
         Page<Performance> performances = performanceRepository.findUpComingPerformancesByDeletedFlagForAdmin(
             pageable);
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AdminPerformanceStaticsDto> getPerformanceStatics(Pageable pageable) {
+        Page<AdminPerformanceStaticsDto> performanceStatics = performanceRepository.findPerformanceStatics(
+            pageable);
+        if (performanceStatics.isEmpty()) {
+            throw new ErrorException(NOT_FOUND_PERFORMANCE);
+        } else {
+            return performanceStatics;
+        }
     }
 }
