@@ -7,7 +7,6 @@ import com.fifo.ticketing.domain.user.dto.UserDto;
 import com.fifo.ticketing.domain.user.entity.Role;
 import com.fifo.ticketing.domain.user.service.AdminService;
 import com.fifo.ticketing.domain.user.service.MyPageService;
-import com.fifo.ticketing.global.util.UserValidator;
 import jakarta.servlet.http.HttpSession;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +34,7 @@ public class UserController {
         @RequestParam(value = "page", defaultValue = "0", required = false) int page,
         @RequestParam(value = "size", defaultValue = "5", required = false) int size) {
         Pageable pageable = PageRequest.of(page, size);
-        SessionUser loginUser = UserValidator.validateSessionUser(session);
+        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
         Long userId = loginUser.id();
         return myPageService.getUserLikedPerformance(
             userId, pageable

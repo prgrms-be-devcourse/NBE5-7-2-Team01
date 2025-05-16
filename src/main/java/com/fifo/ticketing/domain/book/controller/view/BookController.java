@@ -6,7 +6,6 @@ import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.seat.repository.SeatRepository;
 import com.fifo.ticketing.domain.user.dto.SessionUser;
-import com.fifo.ticketing.global.util.UserValidator;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -29,7 +28,7 @@ public class BookController {
         HttpSession session,
         @RequestParam List<Long> seatIds
     ) {
-        SessionUser loginUser = UserValidator.validateSessionUser(session);
+        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
         BookCreateRequest request = new BookCreateRequest(seatIds);
         Long bookId = bookService.createBook(performanceId, loginUser.id(), request);
         return "redirect:/performances/" + performanceId + "/book/complete/" + bookId;

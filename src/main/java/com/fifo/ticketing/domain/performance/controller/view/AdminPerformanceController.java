@@ -10,7 +10,6 @@ import com.fifo.ticketing.domain.performance.service.PerformanceService;
 import com.fifo.ticketing.domain.seat.service.SeatService;
 import com.fifo.ticketing.domain.user.dto.SessionUser;
 import com.fifo.ticketing.global.util.DateTimeValidator;
-import com.fifo.ticketing.global.util.UserValidator;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -114,7 +113,7 @@ public class AdminPerformanceController {
         HttpSession session,
         Model model
     ) {
-        SessionUser loginUser = UserValidator.validateSessionUser(session);
+        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
 
         AdminPerformanceDetailResponse performanceDetail = performanceService.getPerformanceDetailForAdmin(
             performanceId);
@@ -132,7 +131,7 @@ public class AdminPerformanceController {
     private void preparedModelAdmin(HttpSession session, Model model,
                                Page<AdminPerformanceResponseDto> performances, int page,
                                String baseQuery) {
-        SessionUser loginUser = UserValidator.validateSessionUser(session);
+        SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
 
         model.addAttribute("userId", loginUser.id());
         model.addAttribute("performances", performances.getContent());
