@@ -37,8 +37,6 @@ public class ViewController {
         if (loginUser != null) {
             model.addAttribute("username", loginUser.username());
         }
-
-        model.addAttribute("username", loginUser.username());
         return "index";
     }
 
