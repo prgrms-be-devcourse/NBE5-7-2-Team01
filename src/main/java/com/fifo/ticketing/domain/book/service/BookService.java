@@ -170,7 +170,7 @@ public class BookService {
         Book book = bookRepository.findById(bookId)
             .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
 
-        return BookMapper.getBookMailInfo(book, urlPrefix);
+        return BookMapper.getBookMailInfo(book);
     }
 
     @Transactional

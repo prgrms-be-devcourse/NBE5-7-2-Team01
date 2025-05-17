@@ -20,6 +20,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class BookMapper {
 
+    private static final String MAIL_TITLE_PAYED = " 예매가 확정되었습니다";
+    private static final String MAIL_TITLE_CANCELED = " 예매가 취소되었습니다";
+    private static final String MAIL_TITLE_DEFAULT = " 예매 상태 안내";
+
     public static Book toBookEntity(User user, Performance performance, int totalPrice,
         int quantity) {
         return Book.create(user, performance, totalPrice, quantity);
@@ -76,16 +80,16 @@ public class BookMapper {
         return BookScheduledTask.create(bookId, runtime);
     }
 
-    public static BookMailSendDto getBookMailInfo(Book book, String urlPrefix) {
+    public static BookMailSendDto getBookMailInfo(Book book) {
         Performance performance = book.getPerformance();
         User user = book.getUser();
 
         BookStatus status = book.getBookStatus();
 
         String mailTitle = switch (status) {
-            case PAYED -> performance.getTitle() + " 예매가 확정되었습니다";
-            case CANCELED -> performance.getTitle() + " 예매가 취소되었습니다";
-            default -> "예매 상태 안내";
+            case PAYED -> performance.getTitle() + MAIL_TITLE_PAYED;
+            case CANCELED -> performance.getTitle() + MAIL_TITLE_CANCELED;
+            default -> MAIL_TITLE_DEFAULT;
         };
 
         return BookMailSendDto.builder()
