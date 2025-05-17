@@ -90,10 +90,7 @@ public class BookService {
         List<Seat> selectedSeats = seatRepository.findAllByIdInWithOptimisticLock(seatIds);
 
         for (Seat seat : selectedSeats) {
-            if (!seat.getSeatStatus().equals(SeatStatus.AVAILABLE)) {
-                throw new AlertDetailException(ErrorCode.SEAT_ALREADY_BOOKED,
-                    String.format("%d번 좌석은 이미 예약되었습니다.", seat.getId()));
-            }
+            seat.validateAvailable();
             seat.book();
         }
 
@@ -104,6 +101,8 @@ public class BookService {
         }
         return selectedSeats;
     }
+
+
 
     @Transactional
     public BookCompleteDto getBookCompleteInfo(Long bookId) {
