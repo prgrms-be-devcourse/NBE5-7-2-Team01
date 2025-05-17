@@ -28,9 +28,9 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,9 +57,37 @@ public class BookService {
         Performance performance = performanceRepository.findById(performanceId)
             .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
 
-//        List<Seat> selectedSeats = seatRepository.findAllById(request.getSeatIds());
-        List<Seat> selectedSeats = seatRepository.findAllByIdInWithOptimisticLock(
-                request.getSeatIds());
+        List<Seat> selectedSeats = validateBookSeats(request.getSeatIds());
+
+        int totalPrice = selectedSeats.stream().mapToInt(Seat::getPrice).sum();
+        int quantity = selectedSeats.size();
+
+        Book book = saveBookAndBookSeats(user, performance, totalPrice, quantity, selectedSeats);
+
+        scheduleCancel(book.getId());
+
+        return book.getId();
+    }
+
+    private void scheduleCancel(Long bookId) {
+        LocalDateTime runTime = LocalDateTime.now().plusMinutes(10);
+        bookScheduleManager.scheduleCancelTask(bookId, runTime);
+    }
+
+    private Book saveBookAndBookSeats(User user, Performance performance, int totalPrice, int quantity,
+        List<Seat> selectedSeats) {
+        Book book = BookMapper.toBookEntity(user, performance, totalPrice, quantity);
+        bookRepository.save(book);
+        bookRepository.flush();
+
+        List<BookSeat> bookSeatList = BookMapper.toBookSeatEntities(book, selectedSeats);
+
+        bookSeatRepository.saveAll(bookSeatList);
+        return book;
+    }
+
+    private List<Seat> validateBookSeats(List<Long> seatIds) {
+        List<Seat> selectedSeats = seatRepository.findAllByIdInWithOptimisticLock(seatIds);
 
         for (Seat seat : selectedSeats) {
             if (!seat.getSeatStatus().equals(SeatStatus.AVAILABLE)) {
@@ -74,25 +102,7 @@ public class BookService {
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new ErrorException(SEAT_ALREADY_BOOKED);
         }
-
-        int totalPrice = selectedSeats.stream().mapToInt(Seat::getPrice).sum();
-        int quantity = selectedSeats.size();
-
-        Book book = BookMapper.toBookEntity(user, performance, totalPrice, quantity);
-        bookRepository.save(book);
-        bookRepository.flush();
-
-        List<BookSeat> bookSeatList = BookMapper.toBookSeatEntities(book, selectedSeats);
-
-        bookSeatRepository.saveAll(bookSeatList);
-
-        Long bookId = book.getId();
-
-        LocalDateTime runTime = LocalDateTime.now().plusMinutes(10);
-
-        bookScheduleManager.scheduleCancelTask(bookId, runTime);
-
-        return bookId;
+        return selectedSeats;
     }
 
     @Transactional
