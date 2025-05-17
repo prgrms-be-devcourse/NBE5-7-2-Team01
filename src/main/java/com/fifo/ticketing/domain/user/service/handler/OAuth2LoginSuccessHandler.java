@@ -11,6 +11,8 @@ import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Component;
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserRepository userRepository;
+    private final HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -29,7 +32,12 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         request.getSession()
             .setAttribute("loginUser", new SessionUser(user.getId(), user.getUsername()));
 
-        response.sendRedirect("/");
-
+        SavedRequest savedRequest = requestCache.getRequest(request, response);
+        if (savedRequest != null) {
+            String targetUrl = savedRequest.getRedirectUrl();
+            response.sendRedirect(targetUrl);
+        } else {
+            response.sendRedirect("/");
+        }
     }
 }
