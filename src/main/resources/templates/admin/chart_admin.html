@@ -1,0 +1,74 @@
+<div class="container" style="width: 80%; margin: 40px auto;">
+  <h2 style="text-align: center;">공연별 예매 통계 </h2>
+
+  <div id="chartsContainer"
+       style="display: flex; flex-wrap: wrap; justify-content: center; gap: 30px;">
+    <div th:each="stat, iterStat : ${stats}" style="width: 300px; text-align: center;">
+      <h4 th:text="${stat.title}"></h4>
+      <canvas th:attr="id='chart-' + ${iterStat.index}"></canvas>
+      <p style="margin-top: 10px;">
+        예매율:
+        <span
+            th:text="${#numbers.formatDecimal((stat.reservationCount * 100.0) / stat.totalSeats, 1, 1)} + '%'"></span>
+
+      </p>
+    </div>
+  </div>
+
+  <div th:if="${totalPages > 1}" style="text-align: center; margin-top: 40px;">
+    <a th:href="@{|/admin/performances/chart?page=${currentPage - 1}|}"
+       th:if="${currentPage > 0}">이전</a>
+    <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+      <a th:href="@{|/admin/performances/chart?page=${i}|}"
+         th:text="${i + 1}"
+         th:classappend="${i == currentPage} ? 'active' : ''"
+         style="margin: 0 5px;"></a>
+    </span>
+    <a th:href="@{|/admin/performances/chart?page=${currentPage + 1}|}"
+       th:if="${currentPage < totalPages - 1}">다음</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  const stats = /*[[${stats}]]*/ [];
+
+  window.onload = function () {
+    stats.forEach((stat, index) => {
+      const ctx = document.getElementById(`chart-${index}`).getContext('2d');
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['예매 수', '남은 좌석'],
+          datasets: [{
+            data: [stat.reservationCount, stat.totalSeats - stat.reservationCount],
+            backgroundColor: [
+              'rgba(54, 162, 235, 0.7)',
+              'rgba(200, 200, 200, 0.3)'
+            ],
+            borderColor: '#fff',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {position: 'bottom'},
+            tooltip: {
+              callbacks: {
+                label: function (tooltipItem) {
+                  const label = tooltipItem.label;
+                  const value = tooltipItem.raw;
+                  return `${label}: ${value}`;
+                }
+              }
+            }
+          }
+        }
+      });
+    });
+  };
+  /*]]>*/
+</script>
+
