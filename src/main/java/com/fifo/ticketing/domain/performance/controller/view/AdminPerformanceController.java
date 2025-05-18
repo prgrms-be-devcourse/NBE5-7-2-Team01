@@ -39,7 +39,7 @@ public class AdminPerformanceController {
     public String viewPerformancesForAdmin(
         HttpSession session,
         @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-        @RequestParam(value = "size", defaultValue = "10", required = false) int size,
+        @RequestParam(value = "size", defaultValue = "5", required = false) int size,
         Model model) {
         Pageable pageable = PageRequest.of(page, size);
         Page<AdminPerformanceResponseDto> performances =
@@ -55,7 +55,7 @@ public class AdminPerformanceController {
         HttpSession session,
         @RequestParam(value = "sort", defaultValue = "latest", required = false) String sort,
         @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-        @RequestParam(value = "size", defaultValue = "10", required = false) int size,
+        @RequestParam(value = "size", defaultValue = "5", required = false) int size,
         Model model) {
         Pageable pageable = PageRequest.of(page, size);
 
@@ -77,7 +77,7 @@ public class AdminPerformanceController {
         @RequestParam(value = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
         @RequestParam(value = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
         @RequestParam(value = "page", defaultValue = "0") int page,
-        @RequestParam(value = "size", defaultValue = "10") int size,
+        @RequestParam(value = "size", defaultValue = "5") int size,
         Model model
     ) {
         DateTimeValidator.periodValidator(startDate, endDate);
@@ -96,7 +96,7 @@ public class AdminPerformanceController {
         HttpSession session,
         @RequestParam(value = "category") Category category,
         @RequestParam(value = "page", defaultValue = "0") int page,
-        @RequestParam(value = "size", defaultValue = "10") int size,
+        @RequestParam(value = "size", defaultValue = "5") int size,
         Model model
     ) {
         Pageable pageable = PageRequest.of(page, size);
