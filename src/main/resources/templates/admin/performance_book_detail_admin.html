@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>공연 예매 상세</title>
+  <!-- Bootstrap CSS -->
+  <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+  >
+</head>
+<style>
+  tr:hover {
+    background-color: #f1f1f1;
+  }
+</style>
+<body>
+<div class="container my-5">
+  <h2 class="text-center mb-4" th:text="${performanceBookDetail.title}">공연 제목</h2>
+
+  <div class="text-center mb-4">
+    <img th:src="@{${performanceBookDetail.url}}" alt="공연 이미지" class="img-fluid rounded"
+         style="max-width: 300px;">
+  </div>
+
+  <div class="text-center mb-4">
+    <p><strong>총 예매 금액:</strong> <span th:text="${performanceBookDetail.totalPrice}">0</span>원</p>
+    <p><strong>총 예매 수량:</strong> <span th:text="${performanceBookDetail.totalQuantity}">0</span>매
+    </p>
+  </div>
+
+  <div class="book-list">
+    <h4 class="mb-3">예매 목록</h4>
+    <table class="table table-bordered table-hover text-center">
+      <thead class="table-light">
+      <tr>
+        <th>예매 ID</th>
+        <th>사용자</th>
+        <th>총 금액</th>
+        <th>총 예매 수량</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="book : ${bookAdminListPage.content}"
+          th:onclick="|window.location.href='/admin/performances/book/${performanceBookDetail.id}/${book.id}'|"
+          style="cursor: pointer;">
+        <td th:text="${book.id}">1</td>
+        <td th:text="${book.username}">사용자</td>
+        <td th:text="${book.totalPrice}">0</td>
+        <td th:text="${book.quantity}">0</td>
+      </tr>
+      <tr th:if="${#lists.isEmpty(bookAdminListPage.content)}">
+        <td colspan="4">예매 정보가 없습니다.</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <nav th:if="${bookAdminListPage.totalPages > 1}">
+    <ul class="pagination justify-content-center mt-4">
+      <li class="page-item" th:classappend="${bookAdminListPage.number == 0} ? 'disabled'">
+        <a class="page-link"
+           th:href="@{|/admin/performances/book/${performanceBookDetail.id}?page=${bookAdminListPage.number - 1}&size=5|}">
+          이전
+        </a>
+      </li>
+
+      <li class="page-item"
+          th:each="i : ${#numbers.sequence(0, bookAdminListPage.totalPages - 1)}"
+          th:classappend="${i == bookAdminListPage.number} ? 'active'">
+        <a class="page-link"
+           th:href="@{|/admin/performances/book/${performanceBookDetail.id}?page=${i}&size=5|}"
+           th:text="${i + 1}">1</a>
+      </li>
+
+      <li class="page-item"
+          th:classappend="${bookAdminListPage.number >= bookAdminListPage.totalPages - 1} ? 'disabled'">
+        <a class="page-link"
+           th:href="@{|/admin/performances/book/${performanceBookDetail.id}?page=${bookAdminListPage.number + 1}&size=5|}">
+          다음
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+<!-- Bootstrap JS (optional) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
