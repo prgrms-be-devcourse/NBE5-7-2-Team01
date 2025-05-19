@@ -23,7 +23,8 @@
 <div class="max-w-7xl mx-auto bg-white shadow-xl rounded-xl p-10">
   <h1 class="text-3xl font-bold text-center text-tickethub mb-8">공연 목록 조회 (관리자)</h1>
 
-  <form id="filterForm" action="/admin/performances" class="flex flex-wrap gap-4 items-center justify-end mb-8">
+  <form id="filterForm" action="/admin/performances"
+        class="flex flex-wrap gap-4 items-center justify-end mb-8">
     <label class="flex items-center gap-1">
       <input type="radio" name="filter" id="latest" value="latest"
              th:checked="${((param.sort == null or param.sort[0] == 'latest') and param.startDate == null and param.category == null)}">
@@ -54,8 +55,11 @@
       <input type="radio" name="filter" id="custom" value="custom">
       <span class="text-sm">Custom</span>
     </label>
-    <button type="submit" class="px-4 py-2 bg-tickethub text-white rounded hover:bg-tickethub-dark text-sm">조회</button>
-    <a href="/admin/performances/create" class="px-4 py-2 bg-tickethub text-white rounded hover:bg-tickethub-dark text-sm">등록</a>
+    <button type="submit"
+            class="px-4 py-2 bg-tickethub text-white rounded hover:bg-tickethub-dark text-sm">조회
+    </button>
+    <a href="/admin/performances/create"
+       class="px-4 py-2 bg-tickethub text-white rounded hover:bg-tickethub-dark text-sm">등록</a>
   </form>
 
   <div class="overflow-x-auto">
@@ -70,27 +74,39 @@
         <th class="px-3 py-2 border">End Time</th>
         <th class="px-3 py-2 border">Reservation Time</th>
         <th class="px-3 py-2 border">Reservation Status</th>
-        <th class="px-3 py-2 border"></th>
+        <th class="px-3 py-2 border">수정</th>
+        <th class="px-3 py-2 border">예매 내역</th>
       </tr>
       </thead>
       <tbody>
       <tr th:each="performance : ${performances}" class="text-center">
         <td class="px-2 py-2 border">
-          <img th:src="@{{url}(url=${performance.getUrl()})}" alt="no image" class="w-24 h-auto mx-auto"/>
+          <img th:src="@{{url}(url=${performance.getUrl()})}" alt="no image"
+               class="w-24 h-auto mx-auto"/>
         </td>
         <td class="px-2 py-2 border">
-          <a th:href="@{/admin/performances/{performanceId}(performanceId=${performance.id})}" th:text="${performance.title}" class="text-blue-600 hover:underline"></a>
+          <a th:href="@{/admin/performances/{performanceId}(performanceId=${performance.id})}"
+             th:text="${performance.title}" class="text-blue-600 hover:underline"></a>
         </td>
         <td th:text="${performance.category}" class="px-2 py-2 border"></td>
         <td th:text="${performance.place}" class="px-2 py-2 border"></td>
-        <td th:text="${#temporals.format(performance.startTime, 'yyyy-MM-dd HH:mm')}" class="px-2 py-2 border"></td>
-        <td th:text="${#temporals.format(performance.endTime, 'yyyy-MM-dd HH:mm')}" class="px-2 py-2 border"></td>
-        <td th:text="${#temporals.format(performance.reservationStartTime, 'yyyy-MM-dd HH:mm')}" class="px-2 py-2 border"></td>
-        <td th:text="${performance.performanceStatus} ? '예매 가능' : '예매 불가'" class="px-2 py-2 border"></td>
+        <td th:text="${#temporals.format(performance.startTime, 'yyyy-MM-dd HH:mm')}"
+            class="px-2 py-2 border"></td>
+        <td th:text="${#temporals.format(performance.endTime, 'yyyy-MM-dd HH:mm')}"
+            class="px-2 py-2 border"></td>
+        <td th:text="${#temporals.format(performance.reservationStartTime, 'yyyy-MM-dd HH:mm')}"
+            class="px-2 py-2 border"></td>
+        <td th:text="${performance.performanceStatus} ? '예매 가능' : '예매 불가'"
+            class="px-2 py-2 border"></td>
         <td class="px-2 py-2 border">
           <a th:href="@{/admin/performances/update/{performanceId}(performanceId=${performance.id})}"
              class="bg-tickethub px-2 py-1 rounded text-sm text-white hover:bg-tickethub-dark"
              th:if="${!(param.sort != null and param.sort[0] == 'deleted')}">수정</a>
+        </td>
+        <td class="px-2 py-2 border">
+          <a th:href="@{/admin/performances/book/{performanceId}(performanceId=${performance.id})}"
+             class="bg-tickethub px-2 py-1 rounded text-sm text-white hover:bg-tickethub-dark"
+             th:if="${!(param.sort != null and param.sort[0] == 'deleted')}">예매 내역 조회</a>
         </td>
       </tr>
       </tbody>
@@ -98,15 +114,23 @@
   </div>
 
   <div class="mt-6 flex justify-center gap-2" th:if="${totalPage > 1}">
-    <a th:href="@{|/admin/performances${baseQuery}&page=0|}" th:style="${currentPage > 0} ? '' : 'display:none;'" class="px-3 py-1 border rounded">&laquo;</a>
-    <a th:href="@{|/admin/performances${baseQuery}&page=${currentPage - 1}|}" th:style="${currentPage > 0} ? '' : 'display:none;'" class="px-3 py-1 border rounded">&lt;</a>
+    <a th:href="@{|/admin/performances${baseQuery}&page=0|}"
+       th:style="${currentPage > 0} ? '' : 'display:none;'"
+       class="px-3 py-1 border rounded">&laquo;</a>
+    <a th:href="@{|/admin/performances${baseQuery}&page=${currentPage - 1}|}"
+       th:style="${currentPage > 0} ? '' : 'display:none;'"
+       class="px-3 py-1 border rounded">&lt;</a>
     <a th:each="i : ${#numbers.sequence(currentPage <= 2 ? 0 : (currentPage + 2 >= totalPage ? totalPage - 5 : currentPage - 2), currentPage <= 2 ? (totalPage < 5 ? totalPage - 1 : 4) : (currentPage + 2 >= totalPage ? totalPage - 1 : currentPage + 2))}"
        th:href="@{|/admin/performances${baseQuery}&page=${i}|}"
        th:text="${i + 1}"
        th:classappend="${i == currentPage} ? ' bg-tickethub text-white' : ''"
        class="px-3 py-1 border rounded"></a>
-    <a th:href="@{|/admin/performances${baseQuery}&page=${currentPage + 1}|}" th:style="${currentPage < totalPage - 1} ? '' : 'display:none;'" class="px-3 py-1 border rounded">&gt;</a>
-    <a th:href="@{|/admin/performances${baseQuery}&page=${totalPage - 1}|}" th:style="${currentPage < totalPage - 1} ? '' : 'display:none;'" class="px-3 py-1 border rounded">&raquo;</a>
+    <a th:href="@{|/admin/performances${baseQuery}&page=${currentPage + 1}|}"
+       th:style="${currentPage < totalPage - 1} ? '' : 'display:none;'"
+       class="px-3 py-1 border rounded">&gt;</a>
+    <a th:href="@{|/admin/performances${baseQuery}&page=${totalPage - 1}|}"
+       th:style="${currentPage < totalPage - 1} ? '' : 'display:none;'"
+       class="px-3 py-1 border rounded">&raquo;</a>
   </div>
 </div>
 
@@ -114,7 +138,8 @@
   document.querySelectorAll("input[name='filter']").forEach(input => {
     input.addEventListener("change", () => {
       const selected = input.value;
-      document.getElementById("categorySelect").style.display = (selected === "category") ? "inline-block" : "none";
+      document.getElementById("categorySelect").style.display = (selected === "category")
+          ? "inline-block" : "none";
     });
   });
 

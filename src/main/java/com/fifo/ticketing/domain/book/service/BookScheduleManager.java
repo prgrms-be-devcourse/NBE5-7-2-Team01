@@ -49,7 +49,7 @@ public class BookScheduleManager {
     @Transactional
     public void cancelIfUnpaid(Long bookId) {
         Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
+            .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
 
         if (book.getBookStatus() == BookStatus.CONFIRMED) {
 
