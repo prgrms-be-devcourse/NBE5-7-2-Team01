@@ -193,16 +193,30 @@ class BookServiceTest {
     void getBookedList_null_success() {
         // given
         Page<Book> bookPage = new PageImpl<>(List.of(mockBook));
-        given(bookRepository.findAllByUserId(mockUser.getId(), pageable))
+        given(bookRepository.findAllByUserIdOrderByCreatedAtDesc(mockUser.getId(), pageable))
             .willReturn(bookPage);
 
         // when & then
         Page<BookedView> result = bookService.getBookedList(mockUser.getId(), null, null, pageable);
 
         assertEquals(1, result.getContent().size());
-        verify(bookRepository).findAllByUserId(mockUser.getId(), pageable);
+        verify(bookRepository).findAllByUserIdOrderByCreatedAtDesc(mockUser.getId(), pageable);
     }
 
+    @Test
+    @DisplayName("getBookedList_실패")
+    void getBookedList_fail() {
+        // given
+        given(bookRepository.findAllByUserIdOrderByCreatedAtDesc(mockUser.getId(), pageable))
+            .willThrow(new RuntimeException("DB error"));
+
+        // when & then
+        assertThrows(RuntimeException.class, () -> {
+            bookService.getBookedList(mockUser.getId(), null, null, pageable);
+        });
+
+        verify(bookRepository).findAllByUserIdOrderByCreatedAtDesc(mockUser.getId(), pageable);
+    }
 
 
     @Test
