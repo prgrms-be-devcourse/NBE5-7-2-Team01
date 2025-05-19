@@ -4,9 +4,11 @@ import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_MEMBER;
 import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANCE;
 import static com.fifo.ticketing.global.exception.ErrorCode.SEAT_ALREADY_BOOKED;
 
+import com.fifo.ticketing.domain.book.dto.BookAdminDetailDto;
 import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
 import com.fifo.ticketing.domain.book.dto.BookCreateRequest;
 import com.fifo.ticketing.domain.book.dto.BookMailSendDto;
+import com.fifo.ticketing.domain.book.dto.BookUserDetailDto;
 import com.fifo.ticketing.domain.book.dto.BookedView;
 import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.entity.BookSeat;
@@ -26,12 +28,13 @@ import com.fifo.ticketing.global.exception.ErrorCode;
 import com.fifo.ticketing.global.exception.ErrorException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,7 +63,7 @@ public class BookService {
 
 //        List<Seat> selectedSeats = seatRepository.findAllById(request.getSeatIds());
         List<Seat> selectedSeats = seatRepository.findAllByIdInWithOptimisticLock(
-                request.getSeatIds());
+            request.getSeatIds());
 
         for (Seat seat : selectedSeats) {
             if (!seat.getSeatStatus().equals(SeatStatus.AVAILABLE)) {
@@ -180,5 +183,40 @@ public class BookService {
 
         return BookMapper.toBookedViewDto(book, urlPrefix);
     }
+
+    @Transactional(readOnly = true)
+    public Page<BookAdminDetailDto> getBookAdminList(Long performanceId, Pageable pageable) {
+        Page<BookAdminDetailDto> allBookDetailsAdmin = bookRepository.findAllBookDetailsAdmin(
+            performanceId, pageable);
+        return Objects.requireNonNullElseGet(allBookDetailsAdmin, Page::empty);
+    }
+
+    @Transactional(readOnly = true)
+    public BookUserDetailDto getBookUserDetail(Long bookId, Long performanceId) {
+        BookUserDetailDto bookDetailByBookId = bookRepository.findBookDetailByBookId(bookId,
+            performanceId);
+        if (bookDetailByBookId == null) {
+            throw new ErrorException(ErrorCode.NOT_FOUND_BOOK);
+        } else {
+            bookDetailByBookId.setUrlPrefix(urlPrefix);
+            return bookDetailByBookId;
+        }
+    }
+
+    @Transactional
+    public void cancelBookByAdmin(Long bookId) {
+        Book findBook = bookRepository.findById(bookId).orElseThrow(() -> new ErrorException(
+            ErrorCode.NOT_FOUND_BOOK)
+        );
+        findBook.canceled();
+
+        List<BookSeat> bookSeats = bookSeatRepository.findAllByBookId(bookId);
+
+        for (BookSeat bookSeat : bookSeats) {
+            Seat seat = bookSeat.getSeat();
+            seat.available();
+        }
+    }
+
 }
 
