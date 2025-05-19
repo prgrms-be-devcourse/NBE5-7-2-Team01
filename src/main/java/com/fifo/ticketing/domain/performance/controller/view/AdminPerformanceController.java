@@ -48,7 +48,8 @@ public class AdminPerformanceController {
             @RequestParam(value = "size", defaultValue = "5", required = false) int size,
             Model model) {
         Pageable pageable = PageRequest.of(page, size);
-        return renderPerformanceList(session,
+        return renderPerformanceList(
+                session,
                 model,
                 adminPerformanceService.getPerformancesSortedByLatestForAdmin(pageable),
                 page,
@@ -56,14 +57,40 @@ public class AdminPerformanceController {
         );
     }
 
+    @GetMapping(params = {"search"})
+    public String searchPerformances(
+            HttpSession session,
+            @RequestParam(value = "search", defaultValue = "", required = false) String keyword,
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "size", defaultValue = "5", required = false) int size,
+            Model model
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        if (keyword == null || keyword.isEmpty()) {
+            viewPerformancesForAdmin(session, page, size, model);
+        }
+
+        return renderPerformanceList(
+                session,
+                model,
+                adminPerformanceService.searchPerformancesByKeyword(keyword, pageable),
+                page,
+                "?search=" + keyword + "&size=" + size
+        );
+    }
+
+
     @GetMapping(params = {"sort"})
     public String viewPerformancesSortedByForAdmin(
             HttpSession session,
             @RequestParam(value = "sort", defaultValue = "latest", required = false) String sort,
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "size", defaultValue = "5", required = false) int size,
-            Model model) {
+            Model model
+    ) {
         Pageable pageable = PageRequest.of(page, size);
+
         return renderPerformanceList(
                 session,
                 model,

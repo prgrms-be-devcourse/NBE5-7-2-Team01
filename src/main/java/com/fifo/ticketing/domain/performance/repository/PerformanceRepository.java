@@ -133,4 +133,16 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
     AdminPerformanceBookDetailDto findPerformanceBookDetails(
         @Param("performanceId") Long performanceId);
 
+    @EntityGraph(attributePaths = {"file"})
+    @Query(
+            value = "SELECT p FROM Performance p " +
+                    "WHERE p.startTime > :now "
+                    + "AND p.title LIKE CONCAT('%', :keyword, '%') " +
+                    "ORDER BY p.reservationStartTime ASC, p.startTime ASC",
+            countQuery = "SELECT COUNT(p) FROM Performance p " +
+                    "WHERE p.startTime > :now " +
+                    "AND p.title LIKE CONCAT('%', :keyword, '%') "
+    )
+    Page<Performance> findUpcomingPerformancesByKeywordContainingForAdmin(@Param("now") LocalDateTime now,
+            @Param("keyword") String keyword, Pageable pageable);
 }

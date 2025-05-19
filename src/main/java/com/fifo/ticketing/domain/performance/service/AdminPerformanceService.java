@@ -17,6 +17,7 @@ import com.fifo.ticketing.domain.performance.dto.AdminPerformanceDetailResponse;
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceResponseDto;
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceStaticsDto;
 import com.fifo.ticketing.domain.performance.dto.PerformanceRequestDto;
+import com.fifo.ticketing.domain.performance.dto.PerformanceResponseDto;
 import com.fifo.ticketing.domain.performance.dto.PerformanceSeatGradeDto;
 import com.fifo.ticketing.domain.performance.dto.PlaceResponseDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
@@ -86,6 +87,17 @@ public class AdminPerformanceService {
         Pageable pageable) {
         Page<Performance> performances = performanceRepository
             .findUpcomingPerformancesOrderByReservationStartTimeForAdmin(pageable);
+        return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AdminPerformanceResponseDto> searchPerformancesByKeyword(String keyword,
+            Pageable pageable) {
+        if (keyword == null || keyword.isEmpty()) {
+            getPerformancesSortedByLatestForAdmin(pageable);
+        }
+        Page<Performance> performances = performanceRepository.findUpcomingPerformancesByKeywordContainingForAdmin(
+                LocalDateTime.now(), keyword, pageable);
         return PerformanceMapper.toPageAdminPerformanceResponseDto(performances, urlPrefix);
     }
 
