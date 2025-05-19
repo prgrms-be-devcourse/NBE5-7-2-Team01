@@ -3,6 +3,8 @@ package com.fifo.ticketing.domain.book.service;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
+import com.fifo.ticketing.domain.book.dto.BookMailSendDto;
+import com.fifo.ticketing.domain.book.dto.BookUserDetailDto;
 import com.fifo.ticketing.domain.book.dto.BookedView;
 import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.entity.BookSeat;
@@ -75,9 +77,12 @@ class BookServiceTest {
 
     private Pageable pageable;
 
+    private String urlPrefix;
+
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(bookService, "urlPrefix", "https://picsum.photos/200");
+        urlPrefix = "https://picsum.photos/200";
+        ReflectionTestUtils.setField(bookService, "urlPrefix", urlPrefix);
 
         mockUser = User.builder()
             .id(1L)
@@ -136,6 +141,137 @@ class BookServiceTest {
     }
 
     @Test
+    @DisplayName("cancelBookByAdmin_성공")
+    void cancelBookByAdmin_success() {
+        // given
+        Long bookId = mockBook.getId();
+        given(bookRepository.findById(bookId)).willReturn(Optional.of(mockBook));
+        given(bookSeatRepository.findAllByBookId(bookId)).willReturn(List.of(mockBookSeat));
+
+        // when
+        bookService.cancelBookByAdmin(bookId);
+
+        // then
+        assertEquals(BookStatus.CANCELED, mockBook.getBookStatus());
+        verify(bookRepository).findById(bookId);
+        verify(bookSeatRepository).findAllByBookId(bookId);
+    }
+
+    @Test
+    @DisplayName("cancelBookByAdmin_실패")
+    void cancelBookByAdmin_fail() {
+        // given
+        Long bookId = 10L;
+        given(bookRepository.findById(bookId)).willReturn(Optional.empty());
+
+        // when & then
+        assertThrows(ErrorException.class, () -> bookService.cancelBookByAdmin(bookId));
+    }
+
+    @Test
+    @DisplayName("getBookUserDetail_성공")
+    void getBookUserDetail_success() {
+        // given
+        BookUserDetailDto mockDto = new BookUserDetailDto(
+            1L,
+            1L,
+            "라따뚜이",
+            20000,
+            2,
+            "홍길동",
+            "poster.jpg",
+            BookStatus.CONFIRMED
+        );
+        mockDto.setUrlPrefix("https://picsum.photos/200");
+
+        given(bookRepository.findBookDetailByBookId(mockBook.getId(), mockPerformance.getId()))
+            .willReturn(mockDto);
+
+        // when
+        BookUserDetailDto result = bookService.getBookUserDetail(mockBook.getId(),
+            mockPerformance.getId());
+
+        // then
+        assertNotNull(result);
+        assertEquals("https://picsum.photos/200", result.getUrlPrefix());
+        assertEquals(2, result.getQuantity());
+    }
+
+    @Test
+    @DisplayName("getBookUserDetail_실패")
+    void getBookUserDetail_fail() {
+        // given
+        Long bookId = 10L;
+        Long performanceId = 10L;
+
+        given(bookRepository.findBookDetailByBookId(bookId, performanceId))
+            .willReturn(null);
+
+        // when & then
+        ErrorException exception = assertThrows(ErrorException.class, () -> {
+            bookService.getBookUserDetail(bookId, performanceId);
+        });
+
+        assertEquals(ErrorCode.NOT_FOUND_BOOK, exception.getErrorCode());
+        verify(bookRepository).findBookDetailByBookId(bookId, performanceId);
+    }
+
+
+    @Test
+    @DisplayName("getBookDetail_성공")
+    void getBookDetail_success() {
+        // given
+        given(bookRepository.findByUserIdAndId(mockUser.getId(), mockBook.getId()))
+            .willReturn(Optional.of(mockBook));
+
+        // when
+        BookedView result = bookService.getBookDetail(mockUser.getId(), mockBook.getId());
+
+        // then
+        assertNotNull(result);
+        verify(bookRepository).findByUserIdAndId(mockUser.getId(), mockBook.getId());
+    }
+
+    @Test
+    @DisplayName("getBookDetail_실패_존재하지않는Book")
+    void getBookDetail_fail_notFound() {
+        // given
+        given(bookRepository.findByUserIdAndId(mockUser.getId(), 999L))
+            .willReturn(Optional.empty());
+
+        // when & then
+        assertThrows(ErrorException.class, () -> bookService.getBookDetail(mockUser.getId(), 999L));
+    }
+
+
+    @Test
+    @DisplayName("getBookMailInfo_성공")
+    void getBookMailInfo_success() {
+        // given
+        Long bookId = 1L;
+        given(bookRepository.findById(bookId)).willReturn(Optional.of(mockBook));
+
+        // when
+        BookMailSendDto result = bookService.getBookMailInfo(bookId);
+
+        // then
+        assertNotNull(result);
+        verify(bookRepository).findById(bookId);
+    }
+
+    @Test
+    @DisplayName("getBookMailInfo_실패")
+    void getBookMailInfo_fail() {
+        // given
+        Long bookId = 10L;
+        given(bookRepository.findById(bookId)).willReturn(Optional.empty());
+
+        // when & then
+        assertThrows(ErrorException.class, () -> bookService.getBookMailInfo(bookId));
+        verify(bookRepository).findById(bookId);
+    }
+
+    @Test
     @DisplayName("getBookedList_titleAndStatus_성공")
     void getBookedList_titleAndStatus_success() {
         // given
@@ -143,14 +279,17 @@ class BookServiceTest {
         BookStatus status = BookStatus.CONFIRMED;
 
         Page<Book> bookPage = new PageImpl<>(List.of(mockBook));
-        given(bookRepository.findAllByUserIdAndTitleAndBookStatus(mockUser.getId(), title, status, pageable))
+        given(bookRepository.findAllByUserIdAndTitleAndBookStatus(mockUser.getId(), title, status,
+            pageable))
             .willReturn(bookPage);
 
         // when & then
-        Page<BookedView> result = bookService.getBookedList(mockUser.getId(), title, status, pageable);
+        Page<BookedView> result = bookService.getBookedList(mockUser.getId(), title, status,
+            pageable);
 
         assertEquals(1, result.getContent().size());
-        verify(bookRepository).findAllByUserIdAndTitleAndBookStatus(mockUser.getId(), title, status, pageable);
+        verify(bookRepository).findAllByUserIdAndTitleAndBookStatus(mockUser.getId(), title, status,
+            pageable);
     }
 
 
@@ -165,7 +304,8 @@ class BookServiceTest {
             .willReturn(bookPage);
 
         // when & then
-        Page<BookedView> result = bookService.getBookedList(mockUser.getId(), title, null, pageable);
+        Page<BookedView> result = bookService.getBookedList(mockUser.getId(), title, null,
+            pageable);
 
         assertEquals(1, result.getContent().size());
         verify(bookRepository).findAllByUserIdAndTitle(mockUser.getId(), title, pageable);
@@ -182,7 +322,8 @@ class BookServiceTest {
             .willReturn(bookPage);
 
         // when & then
-        Page<BookedView> result = bookService.getBookedList(mockUser.getId(), null, status, pageable);
+        Page<BookedView> result = bookService.getBookedList(mockUser.getId(), null, status,
+            pageable);
 
         assertEquals(1, result.getContent().size());
         verify(bookRepository).findAllByUserIdAndBookStatus(mockUser.getId(), status, pageable);
@@ -240,7 +381,8 @@ class BookServiceTest {
         assertEquals(1, result.size());
         assertEquals(mockBook, result.get(0));
 
-        verify(bookRepository).cancelAllByPerformance(performance, BookStatus.ADMIN_REFUNDED, BookStatus.PAYED);
+        verify(bookRepository).cancelAllByPerformance(performance, BookStatus.ADMIN_REFUNDED,
+            BookStatus.PAYED);
         verify(bookRepository).findAllWithUserAndPerformanceByPerformanceAndBookStatus(
             performance,
             BookStatus.ADMIN_REFUNDED
@@ -264,9 +406,12 @@ class BookServiceTest {
 
         assertEquals("DB update 실패", exception.getMessage());
 
-        verify(bookRepository).cancelAllByPerformance(performance, BookStatus.ADMIN_REFUNDED, BookStatus.PAYED);
-        verify(bookRepository, never()).findAllWithUserAndPerformanceByPerformanceAndBookStatus(any(), any());
+        verify(bookRepository).cancelAllByPerformance(performance, BookStatus.ADMIN_REFUNDED,
+            BookStatus.PAYED);
+        verify(bookRepository, never()).findAllWithUserAndPerformanceByPerformanceAndBookStatus(
+            any(), any());
     }
+
     @Test
     @DisplayName("cancelAllBook_조회_실패")
     void cancelAllBook_fail_find() {
@@ -276,7 +421,8 @@ class BookServiceTest {
         doNothing().when(bookRepository).cancelAllByPerformance(
             performance, BookStatus.ADMIN_REFUNDED, BookStatus.PAYED);
 
-        given(bookRepository.findAllWithUserAndPerformanceByPerformanceAndBookStatus(performance, BookStatus.ADMIN_REFUNDED))
+        given(bookRepository.findAllWithUserAndPerformanceByPerformanceAndBookStatus(performance,
+            BookStatus.ADMIN_REFUNDED))
             .willThrow(new RuntimeException("조회 실패"));
 
         // when & then
@@ -286,8 +432,10 @@ class BookServiceTest {
 
         assertEquals("조회 실패", exception.getMessage());
 
-        verify(bookRepository).cancelAllByPerformance(performance, BookStatus.ADMIN_REFUNDED, BookStatus.PAYED);
-        verify(bookRepository).findAllWithUserAndPerformanceByPerformanceAndBookStatus(performance, BookStatus.ADMIN_REFUNDED);
+        verify(bookRepository).cancelAllByPerformance(performance, BookStatus.ADMIN_REFUNDED,
+            BookStatus.PAYED);
+        verify(bookRepository).findAllWithUserAndPerformanceByPerformanceAndBookStatus(performance,
+            BookStatus.ADMIN_REFUNDED);
     }
 
     @Test

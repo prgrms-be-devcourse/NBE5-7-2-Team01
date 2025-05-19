@@ -9,7 +9,7 @@ import lombok.Setter;
 @RequiredArgsConstructor
 public class BookUserDetailDto {
 
-    private final Long bookId; //bookId
+    private final Long bookId;
     private final Long performanceId;
     private final String title;
     private final Integer totalPrice;
