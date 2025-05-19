@@ -112,11 +112,7 @@ public class PerformanceController {
         Model model
     ) {
         DateTimeValidator.periodValidator(startDate, endDate);
-
         Pageable pageable = PageRequest.of(page, size);
-        Page<PerformanceResponseDto> performances = performanceService.getPerformancesByReservationPeriod(
-            startDate, endDate, pageable);
-        String baseQuery = "?startDate=" + startDate + "&endDate=" + endDate + "&size=" + size;
 
         return renderPerformanceList(
             session,
