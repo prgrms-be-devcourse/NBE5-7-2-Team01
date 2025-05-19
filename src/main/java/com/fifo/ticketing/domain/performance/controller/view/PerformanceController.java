@@ -39,7 +39,7 @@ public class PerformanceController {
     public String viewPerformances(
         HttpSession session,
         @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-        @RequestParam(value = "size", defaultValue = "10", required = false) int size,
+        @RequestParam(value = "size", defaultValue = "5", required = false) int size,
         Model model) {
         Pageable pageable = PageRequest.of(page, size);
         Page<PerformanceResponseDto> performances = performanceService.getPerformancesSortedByLatest(
@@ -55,7 +55,7 @@ public class PerformanceController {
         HttpSession session,
         @RequestParam(value = "search", defaultValue = "", required = false) String keyword,
         @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-        @RequestParam(value = "size", defaultValue = "10", required = false) int size,
+        @RequestParam(value = "size", defaultValue = "5", required = false) int size,
         Model model) {
         Pageable pageable = PageRequest.of(page, size);
         Page<PerformanceResponseDto> performances = performanceService.searchPerformancesByKeyword(
@@ -71,7 +71,7 @@ public class PerformanceController {
         HttpSession session,
         @RequestParam(value = "sort", defaultValue = "latest", required = false) String sort,
         @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-        @RequestParam(value = "size", defaultValue = "10", required = false) int size,
+        @RequestParam(value = "size", defaultValue = "5", required = false) int size,
         Model model) {
         Pageable pageable = PageRequest.of(page, size);
 
@@ -91,7 +91,7 @@ public class PerformanceController {
         @RequestParam(value = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
         @RequestParam(value = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
         @RequestParam(value = "page", defaultValue = "0") int page,
-        @RequestParam(value = "size", defaultValue = "10") int size,
+        @RequestParam(value = "size", defaultValue = "5") int size,
         Model model
     ) {
         DateTimeValidator.periodValidator(startDate, endDate);
@@ -109,7 +109,7 @@ public class PerformanceController {
     public String viewPerformancesByCategory(HttpSession session,
         @RequestParam(value = "category") Category category,
         @RequestParam(value = "page", defaultValue = "0") int page,
-        @RequestParam(value = "size", defaultValue = "10") int size,
+        @RequestParam(value = "size", defaultValue = "5") int size,
         Model model
     ) {
         Pageable pageable = PageRequest.of(page, size);

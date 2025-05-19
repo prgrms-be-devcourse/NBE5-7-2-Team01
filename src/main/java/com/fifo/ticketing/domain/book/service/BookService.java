@@ -58,7 +58,6 @@ public class BookService {
         Performance performance = performanceRepository.findById(performanceId)
             .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
 
-//        List<Seat> selectedSeats = seatRepository.findAllById(request.getSeatIds());
         List<Seat> selectedSeats = seatRepository.findAllByIdInWithOptimisticLock(
                 request.getSeatIds());
 
