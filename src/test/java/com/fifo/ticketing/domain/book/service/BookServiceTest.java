@@ -127,6 +127,114 @@ class BookServiceTest {
     }
 
     @Test
+    @DisplayName("cancelAllBook_성공")
+    void cancelAllBook_success() {
+        // given
+        Performance performance = mockPerformance;
+        List<Book> books = List.of(mockBook);
+
+        doNothing().when(bookRepository).cancelAllByPerformance(
+            performance, BookStatus.ADMIN_REFUNDED, BookStatus.PAYED);
+
+        given(bookRepository.findAllWithUserAndPerformanceByPerformanceAndBookStatus(
+            performance, BookStatus.ADMIN_REFUNDED
+        )).willReturn(books);
+
+        // when
+        List<Book> result = bookService.cancelAllBook(performance);
+
+        // then
+        assertEquals(1, result.size());
+        assertEquals(mockBook, result.get(0));
+
+        verify(bookRepository).cancelAllByPerformance(performance, BookStatus.ADMIN_REFUNDED, BookStatus.PAYED);
+        verify(bookRepository).findAllWithUserAndPerformanceByPerformanceAndBookStatus(
+            performance,
+            BookStatus.ADMIN_REFUNDED
+        );
+    }
+
+    @Test
+    @DisplayName("cancelAllBook_update_실패")
+    void cancelAllBook_fail_update() {
+        // given
+        Performance performance = mockPerformance;
+
+        doThrow(new RuntimeException("DB update 실패"))
+            .when(bookRepository)
+            .cancelAllByPerformance(performance, BookStatus.ADMIN_REFUNDED, BookStatus.PAYED);
+
+        // when & then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            bookService.cancelAllBook(performance);
+        });
+
+        assertEquals("DB update 실패", exception.getMessage());
+
+        verify(bookRepository).cancelAllByPerformance(performance, BookStatus.ADMIN_REFUNDED, BookStatus.PAYED);
+        verify(bookRepository, never()).findAllWithUserAndPerformanceByPerformanceAndBookStatus(any(), any());
+    }
+    @Test
+    @DisplayName("cancelAllBook_조회_실패")
+    void cancelAllBook_fail_find() {
+        // given
+        Performance performance = mockPerformance;
+
+        doNothing().when(bookRepository).cancelAllByPerformance(
+            performance, BookStatus.ADMIN_REFUNDED, BookStatus.PAYED);
+
+        given(bookRepository.findAllWithUserAndPerformanceByPerformanceAndBookStatus(performance, BookStatus.ADMIN_REFUNDED))
+            .willThrow(new RuntimeException("조회 실패"));
+
+        // when & then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            bookService.cancelAllBook(performance);
+        });
+
+        assertEquals("조회 실패", exception.getMessage());
+
+        verify(bookRepository).cancelAllByPerformance(performance, BookStatus.ADMIN_REFUNDED, BookStatus.PAYED);
+        verify(bookRepository).findAllWithUserAndPerformanceByPerformanceAndBookStatus(performance, BookStatus.ADMIN_REFUNDED);
+    }
+
+    @Test
+    @DisplayName("cancelBook_성공")
+    void cancelBook_success() throws Exception {
+        // given
+        Long bookId = 1L;
+        Long userId = 1L;
+
+        given(bookRepository.findByUserIdAndId(userId, bookId)).willReturn(Optional.of(mockBook));
+        given(bookSeatRepository.findAllByBookId(bookId)).willReturn(List.of(mockBookSeat));
+
+        // when
+        Long result = bookService.cancelBook(bookId, userId);
+
+        // then
+        assertEquals(bookId, result);
+        assertEquals(BookStatus.CANCELED, mockBook.getBookStatus());
+
+        verify(bookRepository).findByUserIdAndId(userId, bookId);
+        verify(bookSeatRepository).findAllByBookId(bookId);
+
+        assertEquals(SeatStatus.AVAILABLE, mockSeat.getSeatStatus());
+    }
+
+    @Test
+    @DisplayName("cancelBook_실패")
+    void cancelBook_fail() throws Exception {
+        // given
+        Long bookId = 10L;
+        Long userId = 1L;
+        given(bookRepository.findByUserIdAndId(userId, bookId)).willReturn(Optional.empty());
+
+        // when & then
+        assertThrows(ErrorException.class, () -> bookService.cancelBook(bookId, userId));
+        verify(bookRepository).findByUserIdAndId(userId, bookId);
+        verify(bookSeatRepository, never()).findAllByBookId(any());
+    }
+
+    @Test
     @DisplayName("completePayment_성공")
     void completePayment_success() throws Exception {
         // given
