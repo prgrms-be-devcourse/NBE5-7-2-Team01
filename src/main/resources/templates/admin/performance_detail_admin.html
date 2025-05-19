@@ -1,124 +1,70 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
   <title th:text="${performanceDetail.title}">공연 상세</title>
-  <link rel="stylesheet"
-        href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-  <style>
-    .layout {
-      display: flex;
-      gap: 30px;
-      padding: 30px;
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            tickethub: {
+              DEFAULT: '#FF6F3C',
+              dark: '#e65b25'
+            }
+          }
+        }
+      }
     }
-
-    .left-panel {
-      flex: 1;
-      text-align: center;
-    }
-
-    .center-panel {
-      flex: 1;
-    }
-
-    .right-panel {
-      flex: 1.5;
-      min-width: 520px;
-    }
-
-    button:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
-
-    .seat {
-      width: 40px;
-      height: 40px;
-      margin: 5px;
-      border: 1px solid #999;
-      display: inline-flex; /* flex로 중앙 정렬 쉽게 */
-      align-items: center;
-      justify-content: center;
-      font-size: 14px; /* 글자 크기 고정 */
-      text-align: center;
-      cursor: pointer;
-      box-sizing: border-box; /* border 포함한 크기 계산 */
-      overflow: hidden; /* 넘치는 글자 숨기기 */
-      white-space: nowrap; /* 줄바꿈 방지 */
-    }
-
-    .seat.available {
-      background-color: #b19cd9;
-    }
-
-    .seat.selected {
-      background-color: #4CAF50;
-      color: white;
-    }
-
-    .seat.unavailable {
-      background-color: darkgray;
-      cursor: not-allowed;
-    }
-
-    .seat-container {
-      display: flex;
-      flex-direction: column;
-      max-width: 520px;
-    }
-
-    .row {
-      display: flex;
-      justify-content: flex-start;
-    }
-
-    .modal-right-panel {
-      margin-left: 40px;
-    }
-  </style>
+  </script>
 </head>
-<body>
-<a href="/admin/performances"
-   style="text-decoration: none; color: #333; font-size: 16px; margin-bottom: 20px; display: inline-flex; align-items: center;">
-  &#8592; 공연 목록으로
-</a>
-<div class="layout">
-  <div class="left-panel">
-    <div class="performance-image">
-      <img th:src="@{'/uploads/' + ${performanceDetail.encodedFileName}}" alt="공연 포스터"/>
+<body class="bg-gray-100 min-h-screen py-10 px-6">
+<a href="/admin/performances" class="text-sm text-gray-700 hover:underline flex items-center mb-6">&larr; 공연 목록으로</a>
+<div class="max-w-6xl mx-auto">
+  <div class="bg-white rounded-2xl shadow-xl p-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
+    <!-- 공연 포스터 -->
+    <div class="col-span-1 text-center">
+      <img th:src="@{'/uploads/' + ${performanceDetail.encodedFileName}}" alt="공연 포스터" class="mx-auto max-h-96 rounded-md shadow-md" />
     </div>
-  </div>
 
-  <div class="center-panel">
-    <h2 th:text="${performanceDetail.title}">공연 제목</h2>
-    <p th:text="${performanceDetail.description}">공연 설명</p>
-    <p>장소: <span th:text="${performanceDetail.placeName}"></span></p>
-    <p>예매 상태: <span th:text="${performanceDetail.performanceStatus} ? '예매 가능' : '예매 불가'"></span></p>
-    <p>시작: <span
-        th:text="${#temporals.format(performanceDetail.startTime, 'yyyy-MM-dd HH:mm')}"></span></p>
-    <p>종료: <span
-        th:text="${#temporals.format(performanceDetail.endTime, 'yyyy-MM-dd HH:mm')}"></span></p>
-    <h4>좌석 등급 및 가격</h4>
-    <ul>
-      <li th:each="grade : ${performanceDetail.seatGrades}">
-        <span th:text="${grade.grade}"></span>석 -
-        <span th:text="${#numbers.formatInteger(grade.defaultPrice, 3, 'COMMA')}"></span>원
-        (<span th:text="${grade.seatCount}"></span>석)
-      </li>
-    </ul>
-    <a th:href="@{/admin/performances/update/{performanceId}(performanceId=${performanceId})}"
-       class="btn btn-warning"
-       th:if="${!(performanceDetail.deletedFlag)}">수정</a>
-    <button class="btn btn-danger" id="deleteBtn" th:if="${!(performanceDetail.deletedFlag)}"
-            th:attr="data-id=${performanceId}">삭제
-    </button>
-  </div>
+    <!-- 공연 정보 -->
+    <div class="col-span-1 lg:col-span-1">
+      <h2 class="text-4xl font-bold text-tickethub mb-4" th:text="${performanceDetail.title}">공연 제목</h2>
+      <p class="mb-2 text-gray-700" th:text="${performanceDetail.description}">공연 설명</p>
+      <p class="mb-1"> 장소: <span class="font-semibold" th:text="${performanceDetail.placeName}"></span></p>
+      <p class="mb-1"> 예매 상태: <span class="font-semibold" th:text="${performanceDetail.performanceStatus} ? '예매 가능' : '예매 불가'"></span></p>
+      <p class="mb-1"> 시작: <span class="text-sm" th:text="${#temporals.format(performanceDetail.startTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+      <p class="mb-4"> 종료: <span class="text-sm" th:text="${#temporals.format(performanceDetail.endTime, 'yyyy-MM-dd HH:mm')}"></span></p>
 
-  <!-- 오른쪽 좌석 선택/예매 -->
-  <div class="right-panel">
-    <h3>좌석 상태</h3>
-    <div class="seat-container" id="seat-container"></div>
+      <div class="mb-4">
+        <h4 class="font-bold mb-2">좌석 등급 및 가격</h4>
+        <ul class="list-disc pl-5 text-sm text-gray-800">
+          <li th:each="grade : ${performanceDetail.seatGrades}">
+            <span th:text="${grade.grade}"></span>석 -
+            <span th:text="${#numbers.formatInteger(grade.defaultPrice, 3, 'COMMA')}"></span>원
+            (<span th:text="${grade.seatCount}"></span>석)
+          </li>
+        </ul>
+      </div>
+
+      <div class="flex gap-4">
+        <a th:href="@{/admin/performances/update/{performanceId}(performanceId=${performanceId})}"
+           th:if="${!(performanceDetail.deletedFlag)}"
+           class="bg-tickethub hover:bg-tickethub-dark text-white px-4 py-2 rounded">수정</a>
+
+        <button id="deleteBtn"
+                th:if="${!(performanceDetail.deletedFlag)}"
+                th:attr="data-id=${performanceId}"
+                class="bg-tickethub hover:bg-tickethub-dark text-white px-4 py-2 rounded">삭제</button>
+      </div>
+    </div>
+
+    <!-- 좌석 상태 -->
+    <div class="col-span-1">
+      <h3 class="text-xl font-semibold mb-4">🎟️ 좌석 상태</h3>
+      <div class="flex flex-col gap-1" id="seat-container"></div>
+    </div>
   </div>
 </div>
 
@@ -127,70 +73,43 @@
   const seatContainer = document.getElementById("seat-container");
   const seatsPerRow = 10;
 
-  // 좌석 렌더링 함수
   function renderSeats() {
     seatContainer.innerHTML = '';
     for (let i = 0; i < seats.length; i += seatsPerRow) {
       const rowDiv = document.createElement("div");
-      rowDiv.classList.add("row");
+      rowDiv.className = "flex gap-1 mb-1";
 
       for (let j = 0; j < seatsPerRow && i + j < seats.length; j++) {
         const seat = seats[i + j];
         const seatBtn = document.createElement("button");
-        seatBtn.classList.add("seat");
-        seatBtn.dataset.id = seat.seatId;
-        seatBtn.dataset.grade = seat.grade;
-        seatBtn.dataset.price = seat.price;
+        seatBtn.className = `w-10 h-10 text-sm border rounded ${seat.seatStatus === 'AVAILABLE' ? 'bg-purple-300' : 'bg-gray-400'} text-white`;
         seatBtn.innerText = seat.seatNumber;
-
-        if (seat.seatStatus === 'AVAILABLE') {
-          seatBtn.classList.add("available");
-        } else if (seat.seatStatus === 'UNAVAILABLE') {
-          seatBtn.classList.add("unavailable");
-        }
-        // 좌석 선택 기능은 제거했습니다.
         seatBtn.disabled = true;
-
         rowDiv.appendChild(seatBtn);
       }
       seatContainer.appendChild(rowDiv);
     }
   }
 
-  // 페이지 로드 시 즉시 렌더링
   document.addEventListener("DOMContentLoaded", () => {
     renderSeats();
-  });
 
-  document.addEventListener("DOMContentLoaded", () => {
     const deleteBtn = document.getElementById("deleteBtn");
     if (deleteBtn) {
       deleteBtn.addEventListener("click", () => {
         const performanceId = deleteBtn.dataset.id;
-        if (!confirm("정말 이 공연을 삭제하시겠습니까?")) {
-          return;
-        }
+        if (!confirm("정말 이 공연을 삭제하시겠습니까?")) return;
 
-        fetch(`/api/performances/${performanceId}`, {
-          method: 'DELETE'
-        })
+        fetch(`/api/performances/${performanceId}`, { method: 'DELETE' })
         .then(response => {
-          if (!response.ok) {
-            return response.text().then(text => {
-              throw new Error(text);
-            });
-          }
+          if (!response.ok) return response.text().then(text => { throw new Error(text); });
           alert("공연이 삭제되었습니다.");
           window.location.href = "/admin/performances";
         })
-        .catch(error => {
-          alert("삭제 중 오류가 발생했습니다: " + error.message);
-        });
+        .catch(error => alert("삭제 중 오류가 발생했습니다: " + error.message));
       });
     }
   });
 </script>
-
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

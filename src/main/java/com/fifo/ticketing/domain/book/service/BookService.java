@@ -6,6 +6,7 @@ import static com.fifo.ticketing.global.exception.ErrorCode.SEAT_ALREADY_BOOKED;
 
 import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
 import com.fifo.ticketing.domain.book.dto.BookCreateRequest;
+import com.fifo.ticketing.domain.book.dto.BookMailSendDto;
 import com.fifo.ticketing.domain.book.dto.BookedView;
 import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.entity.BookSeat;
@@ -174,6 +175,14 @@ public class BookService {
     }
 
     @Transactional
+    public BookMailSendDto getBookMailInfo(Long bookId) {
+        Book book = bookRepository.findById(bookId)
+            .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
+
+        return BookMapper.getBookMailInfo(book);
+    }
+
+    @Transactional
     public BookedView getBookDetail(Long userId, Long bookId) {
         Book book = bookRepository.findByUserIdAndId(userId, bookId)
             .orElseThrow(() -> new ErrorException(ErrorCode.NOT_FOUND_BOOK));
@@ -181,3 +190,4 @@ public class BookService {
         return BookMapper.toBookedViewDto(book, urlPrefix);
     }
 }
+

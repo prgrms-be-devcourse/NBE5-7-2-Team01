@@ -1,299 +1,136 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <title>공연 목록 조회 (관리자)</title>
-  <link rel="stylesheet"
-        href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-  <style>
-    .content-box {
-      border: 1px solid #ccc;
-      border-radius: 12px;
-      padding: 20px;
-      position: relative;
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            tickethub: {
+              DEFAULT: '#FF6F3C',
+              dark: '#e65b25'
+            }
+          }
+        }
+      }
     }
-
-    .filter-form-container {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-    }
-
-    .performance-table {
-      margin-top: 80px;
-    }
-
-    .pagination-container {
-      margin-top: 30px;
-      display: flex;
-      justify-content: center;
-    }
-
-    .custom-button {
-      background-color: #444;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    .custom-button:hover {
-      background-color: #333;
-    }
-
-    /* 등록 버튼: 초록색 */
-    .green-button {
-      text-align: center;
-      display: inline-block;
-      text-decoration: none;
-      color: white;
-      background-color: #28a745;
-    }
-
-    .green-button:hover {
-      text-align: center;
-      display: inline-block;
-      text-decoration: none;
-      color: white;
-      background-color: #218838;
-    }
-
-    .pagination-container a {
-      text-decoration: none;
-      color: #444;
-      padding: 6px 12px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      background-color: #fff;
-      min-width: 30px;
-      text-align: center;
-      display: inline-block;
-      transition: background-color 0.2s;
-    }
-
-    .pagination-container a:hover {
-      background-color: #e9e9e9;
-    }
-
-    .pagination-container a.button {
-      background-color: #444;
-      color: white;
-      pointer-events: none;
-    }
-  </style>
+  </script>
 </head>
-<body>
-<div class="container mt-4">
-  <h1 class="text-center mb-4">공연 목록 조회 (관리자)</h1>
-  <div class="content-box">
-    <div class="filter-form-container">
-      <form id="filterForm" class="mb-4" action="/admin/performances">
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="filter" id="latest" value="latest"
-                 th:checked="${((param.sort == null or param.sort[0] == 'latest')
-                 and param.startDate == null
-                 and param.category == null)}">
-          <label class="form-check-label" for="latest">최신순</label>
-        </div>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="filter" id="likes" value="likes"
-                 th:checked="${param.sort != null && param.sort[0] == 'likes'}">
-          <label class="form-check-label" for="likes">좋아요순</label>
-        </div>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="filter" id="deleted" value="deleted"
-                 th:checked="${param.sort != null && param.sort[0] == 'deleted'}">
-          <label class="form-check-label" for="deleted">삭제된 공연</label>
-        </div>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="filter" id="category" value="category"
-                 th:checked="${param.category != null}">
-          <label class="form-check-label" for="category">카테고리</label>
-          <select id="categorySelect" class="ml-2"
-                  th:style="${param.category != null} ? 'display: inline-block' : 'display: none'">
-            <option th:each="category : ${categories}" th:value="${category}" th:text="${category}"
-                    th:selected="${param.category != null && param.category[0] == #strings.toString(category)}">
-              선택
-            </option>
-          </select>
-        </div>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="filter" id="custom" value="custom"
-                 data-toggle="modal" data-target="#customDateModal">
-          <label class="form-check-label" for="custom">사용자 지정</label>
-        </div>
+<body class="bg-gray-100 min-h-screen py-10 px-4">
+<div class="max-w-7xl mx-auto bg-white shadow-xl rounded-xl p-10">
+  <h1 class="text-3xl font-bold text-center text-tickethub mb-8">공연 목록 조회 (관리자)</h1>
 
-        <div id="customDateFields" class="mt-2" style="display: none;">
-          <label>시작 시간:
-            <input type="datetime-local" id="startDate" name="startDate"
-                   class="form-control d-inline-block w-auto ml-1">
-          </label>
-          <label class="ml-3">종료 시간:
-            <input type="datetime-local" id="endDate" name="endDate"
-                   class="form-control d-inline-block w-auto ml-1">
-          </label>
-        </div>
-        <button type="submit" class="custom-button mt-3">조회</button>
-        <a href="/admin/performances/create" class="custom-button green-button mt-3 ml-2">등록</a>
-      </form>
-    </div>
+  <form id="filterForm" action="/admin/performances" class="flex flex-wrap gap-4 items-center justify-end mb-8">
+    <label class="flex items-center gap-1">
+      <input type="radio" name="filter" id="latest" value="latest"
+             th:checked="${((param.sort == null or param.sort[0] == 'latest') and param.startDate == null and param.category == null)}">
+      <span class="text-sm">Latest</span>
+    </label>
+    <label class="flex items-center gap-1">
+      <input type="radio" name="filter" id="likes" value="likes"
+             th:checked="${param.sort != null && param.sort[0] == 'likes'}">
+      <span class="text-sm">Likes</span>
+    </label>
+    <label class="flex items-center gap-1">
+      <input type="radio" name="filter" id="deleted" value="deleted"
+             th:checked="${param.sort != null && param.sort[0] == 'deleted'}">
+      <span class="text-sm">Deleted</span>
+    </label>
+    <label class="flex items-center gap-1">
+      <input type="radio" name="filter" id="category" value="category"
+             th:checked="${param.category != null}">
+      <span class="text-sm">Category</span>
+      <select id="categorySelect" class="ml-1 text-sm px-2 py-1 border rounded"
+              th:style="${param.category != null} ? 'display: inline-block' : 'display: none'">
+        <option th:each="category : ${categories}" th:value="${category}" th:text="${category}"
+                th:selected="${param.category != null && param.category[0] == #strings.toString(category)}">
+        </option>
+      </select>
+    </label>
+    <label class="flex items-center gap-1">
+      <input type="radio" name="filter" id="custom" value="custom">
+      <span class="text-sm">Custom</span>
+    </label>
+    <button type="submit" class="px-4 py-2 bg-tickethub text-white rounded hover:bg-tickethub-dark text-sm">조회</button>
+    <a href="/admin/performances/create" class="px-4 py-2 bg-tickethub text-white rounded hover:bg-tickethub-dark text-sm">등록</a>
+  </form>
 
-    <div class="performance-table">
-      <table class="table table-striped">
-        <thead>
-        <tr>
-          <th>Image</th>
-          <th>Title</th>
-          <th>Category</th>
-          <th>Place</th>
-          <th>Start Time</th>
-          <th>End Time</th>
-          <th>Reservation Time</th>
-          <th>Reservation Status</th>
-          <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="performance : ${performances}">
-          <td>
-            <div class="image-wrapper" style="position: relative; width: 100px;">
-              <img th:src="@{{url}(url=${performance.getUrl()})}"
-                   alt="no image"
-                   style="width: 100px; height: auto; object-fit: cover;"/>
-            </div>
-          </td>
-          <td>
-            <a th:href="@{/admin/performances/{performanceId}(performanceId=${performance.id})}"
-               th:text="${performance.title}"></a>
-          </td>
-          <td th:text="${performance.category}"></td>
-          <td th:text="${performance.place}"></td>
-          <td th:text="${#temporals.format(performance.startTime, 'yyyy-MM-dd HH:mm')}"></td>
-          <td th:text="${#temporals.format(performance.endTime, 'yyyy-MM-dd HH:mm')}"></td>
-          <td th:text="${#temporals.format(performance.reservationStartTime, 'yyyy-MM-dd HH:mm')}"></td>
-          <td th:text="${performance.performanceStatus} ? '예매 가능' : '예매 불가'"></td>
-          <td>
-            <a th:href="@{/admin/performances/update/{performanceId}(performanceId=${performance.id})}"
-               class="btn btn-warning"
-               th:if="${!(param.sort != null and param.sort[0] == 'deleted')}">수정</a>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="pagination-container" th:if="${totalPage > 1}">
-      <div style="display: flex; gap: 6px; flex-wrap: wrap; min-height: 40px;">
-        <a th:href="@{|/admin/performances${baseQuery}&page=0|}"
-           th:style="${currentPage > 0} ? 'visibility: visible;' : 'visibility: hidden;'"
-           class="custom-pagination">&laquo;</a>
-
-        <a th:href="@{|/admin/performances/${baseQuery}&page=${currentPage - 1}|}"
-           th:style="${currentPage > 0} ? 'visibility: visible;' : 'visibility: hidden;'"
-           class="custom-pagination">&lt;</a>
-
-        <a th:each="i : ${#numbers.sequence(
-                currentPage <= 2 ? 0 : (currentPage + 2 >= totalPage ? totalPage - 5 : currentPage - 2),
-                currentPage <= 2 ? (totalPage < 5 ? totalPage - 1 : 4) : (currentPage + 2 >= totalPage ? totalPage - 1 : currentPage + 2))}"
-           th:href="@{|/admin/performances${baseQuery}&page=${i}|}"
-           th:text="${i + 1}"
-           th:classappend="${i == currentPage} ? ' button' : ''"
-           class="custom-pagination"></a>
-
-        <a th:href="@{|/admin/performances${baseQuery}&page=${currentPage + 1}|}"
-           th:style="${currentPage < totalPage - 1} ? 'visibility: visible;' : 'visibility: hidden;'"
-           class="custom-pagination">&gt;</a>
-
-        <a th:href="@{|/admin/performances${baseQuery}&page=${totalPage - 1}|}"
-           th:style="${currentPage < totalPage - 1} ? 'visibility: visible;' : 'visibility: hidden;'"
-           class="custom-pagination">&raquo;</a>
-      </div>
-    </div>
+  <div class="overflow-x-auto">
+    <table class="min-w-full table-auto border text-sm">
+      <thead class="bg-gray-100">
+      <tr>
+        <th class="px-3 py-2 border">Image</th>
+        <th class="px-3 py-2 border">Title</th>
+        <th class="px-3 py-2 border">Category</th>
+        <th class="px-3 py-2 border">Place</th>
+        <th class="px-3 py-2 border">Start Time</th>
+        <th class="px-3 py-2 border">End Time</th>
+        <th class="px-3 py-2 border">Reservation Time</th>
+        <th class="px-3 py-2 border">Reservation Status</th>
+        <th class="px-3 py-2 border"></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="performance : ${performances}" class="text-center">
+        <td class="px-2 py-2 border">
+          <img th:src="@{{url}(url=${performance.getUrl()})}" alt="no image" class="w-24 h-auto mx-auto"/>
+        </td>
+        <td class="px-2 py-2 border">
+          <a th:href="@{/admin/performances/{performanceId}(performanceId=${performance.id})}" th:text="${performance.title}" class="text-blue-600 hover:underline"></a>
+        </td>
+        <td th:text="${performance.category}" class="px-2 py-2 border"></td>
+        <td th:text="${performance.place}" class="px-2 py-2 border"></td>
+        <td th:text="${#temporals.format(performance.startTime, 'yyyy-MM-dd HH:mm')}" class="px-2 py-2 border"></td>
+        <td th:text="${#temporals.format(performance.endTime, 'yyyy-MM-dd HH:mm')}" class="px-2 py-2 border"></td>
+        <td th:text="${#temporals.format(performance.reservationStartTime, 'yyyy-MM-dd HH:mm')}" class="px-2 py-2 border"></td>
+        <td th:text="${performance.performanceStatus} ? '예매 가능' : '예매 불가'" class="px-2 py-2 border"></td>
+        <td class="px-2 py-2 border">
+          <a th:href="@{/admin/performances/update/{performanceId}(performanceId=${performance.id})}"
+             class="bg-tickethub px-2 py-1 rounded text-sm text-white hover:bg-tickethub-dark"
+             th:if="${!(param.sort != null and param.sort[0] == 'deleted')}">수정</a>
+        </td>
+      </tr>
+      </tbody>
+    </table>
   </div>
-</div>
 
-<div class="modal fade" id="customDateModal" tabindex="-1" role="dialog"
-     aria-labelledby="customDateModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content rounded-lg">
-      <div class="modal-header">
-        <h5 class="modal-title" id="customDateModalLabel">사용자 지정 날짜 선택</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="닫기">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-
-      <div class="modal-body">
-        <div class="form-group">
-          <label for="modalStartDate">시작 시간</label>
-          <input type="datetime-local" class="form-control" id="modalStartDate">
-        </div>
-        <div class="form-group">
-          <label for="modalEndDate">종료 시간</label>
-          <input type="datetime-local" class="form-control" id="modalEndDate">
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
-        <button type="button" class="btn btn-primary" id="customDateApply">조회</button>
-      </div>
-    </div>
+  <div class="mt-6 flex justify-center gap-2" th:if="${totalPage > 1}">
+    <a th:href="@{|/admin/performances${baseQuery}&page=0|}" th:style="${currentPage > 0} ? '' : 'display:none;'" class="px-3 py-1 border rounded">&laquo;</a>
+    <a th:href="@{|/admin/performances${baseQuery}&page=${currentPage - 1}|}" th:style="${currentPage > 0} ? '' : 'display:none;'" class="px-3 py-1 border rounded">&lt;</a>
+    <a th:each="i : ${#numbers.sequence(currentPage <= 2 ? 0 : (currentPage + 2 >= totalPage ? totalPage - 5 : currentPage - 2), currentPage <= 2 ? (totalPage < 5 ? totalPage - 1 : 4) : (currentPage + 2 >= totalPage ? totalPage - 1 : currentPage + 2))}"
+       th:href="@{|/admin/performances${baseQuery}&page=${i}|}"
+       th:text="${i + 1}"
+       th:classappend="${i == currentPage} ? ' bg-tickethub text-white' : ''"
+       class="px-3 py-1 border rounded"></a>
+    <a th:href="@{|/admin/performances${baseQuery}&page=${currentPage + 1}|}" th:style="${currentPage < totalPage - 1} ? '' : 'display:none;'" class="px-3 py-1 border rounded">&gt;</a>
+    <a th:href="@{|/admin/performances${baseQuery}&page=${totalPage - 1}|}" th:style="${currentPage < totalPage - 1} ? '' : 'display:none;'" class="px-3 py-1 border rounded">&raquo;</a>
   </div>
 </div>
 
 <script>
-  $("input[name='filter']").on("change", function () {
-    const selected = $(this).val();
-    $("#categorySelect").hide();
-
-    if (selected === "custom") {
-      $('#customDateModal').modal('show');
-    } else if (selected === "category") {
-      $("#categorySelect").show();
-    }
+  document.querySelectorAll("input[name='filter']").forEach(input => {
+    input.addEventListener("change", () => {
+      const selected = input.value;
+      document.getElementById("categorySelect").style.display = (selected === "category") ? "inline-block" : "none";
+    });
   });
 
-  $("#filterForm").on("submit", function (e) {
+  document.getElementById("filterForm").addEventListener("submit", function (e) {
     e.preventDefault();
-
-    const selected = $("input[name='filter']:checked").val();
+    const selected = document.querySelector("input[name='filter']:checked").value;
     let url = "/admin/performances?";
 
-    if (selected === "latest" || selected === "likes" || selected === "deleted") {
+    if (["latest", "likes", "deleted"].includes(selected)) {
       url += `sort=${selected}`;
-      location.href = url;
     } else if (selected === "category") {
-      const category = $("#categorySelect").val();
+      const category = document.getElementById("categorySelect").value;
       url += `category=${category}`;
-      location.href = url;
     }
+    window.location.href = url;
   });
-
-  $("#customDateApply").on("click", function () {
-    const startDate = $("#modalStartDate").val();
-    const endDate = $("#modalEndDate").val();
-
-    if (!startDate || !endDate) {
-      alert("시작 시간과 종료 시간을 모두 입력하세요.");
-      return;
-    }
-
-    if (endDate <= startDate) {
-      alert("종료 시간은 시작 시간보다 이후여야 합니다.");
-      return;
-    }
-
-    const url = `/admin/performances?startDate=${encodeURIComponent(
-        startDate)}&endDate=${encodeURIComponent(endDate)}`;
-    location.href = url;
-  });
-
 </script>
-
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

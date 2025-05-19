@@ -2,6 +2,9 @@ package com.fifo.ticketing.domain.book.controller.view;
 
 import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
 import com.fifo.ticketing.domain.book.dto.BookCreateRequest;
+import com.fifo.ticketing.domain.book.dto.BookMailSendDto;
+import com.fifo.ticketing.domain.book.mapper.BookMapper;
+import com.fifo.ticketing.domain.book.service.BookMailService;
 import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.seat.repository.SeatRepository;
@@ -22,6 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class BookController {
 
     private final BookService bookService;
+    private final BookMailService bookMailService;
 
     @PostMapping
     public String createBook(
@@ -40,6 +44,9 @@ public class BookController {
     public String completePayment(@PathVariable Long performanceId, @PathVariable Long bookId,
         RedirectAttributes redirectAttributes) {
         bookService.completePayment(bookId);
+
+        BookMailSendDto bookMailInfo = bookService.getBookMailInfo(bookId);
+        bookMailService.sendBookCompleteMail(bookMailInfo);
 
         redirectAttributes.addAttribute("paid", true);
         return "redirect:/performances/" + performanceId + "/book/complete/" + bookId;

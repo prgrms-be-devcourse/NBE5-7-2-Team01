@@ -1,174 +1,122 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <title>공연 수정</title>
-  <style>
-      body {
-          font-family: Arial, sans-serif;
-          margin: 40px;
-      }
-
-      form {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          max-width: 400px;
-      }
-
-      label {
-          font-weight: bold;
-      }
-
-      input, select, textarea, button {
-          padding: 8px;
-          font-size: 14px;
-      }
-
-      .image-preview {
-          max-width: 200px;
-          height: auto;
-          margin-bottom: 10px;
-          border: 1px solid #ccc;
-      }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<a href="/admin/performances" style="text-decoration: none; color: #333; font-size: 16px; margin-bottom: 20px; display: inline-flex; align-items: center;">
-  &#8592; 공연 목록으로
-</a>
-<h1>공연 수정</h1>
-<form id="performance-form" action="#" enctype="multipart/form-data">
-  <div th:if="${performance.encodedFileName}">
-    <label>현재 포스터 이미지</label>
-    <img th:src="@{{url}(url=${performance.url})}" alt="현재 포스터" class="image-preview"/>
-  </div>
+<body class="bg-gray-100 min-h-screen py-10 px-6">
+<a href="/admin/performances" class="text-sm text-gray-700 hover:underline flex items-center mb-6">&larr; 공연 목록으로</a>
+<div class="max-w-3xl mx-auto bg-white shadow-md rounded-xl p-10">
+  <h1 class="text-3xl font-bold text-center text-orange-500 mb-8">공연 수정</h1>
+  <form id="performance-form" enctype="multipart/form-data" class="space-y-5">
+    <div th:if="${performance.encodedFileName}">
+      <label class="font-semibold block mb-1">현재 포스터 이미지</label>
+      <img th:src="@{{url}(url=${performance.url})}" alt="현재 포스터" class="rounded shadow w-48 mb-4"/>
+    </div>
 
-  <label for="title">제목</label>
-  <input type="text" id="title" name="title" th:value="${performance.title}" required>
+    <div>
+      <label for="title" class="block font-semibold mb-1">제목</label>
+      <input type="text" id="title" name="title" th:value="${performance.title}" required class="w-full px-4 py-2 border rounded"/>
+    </div>
 
-  <label for="description">설명</label>
-  <textarea id="description" name="description" required th:text="${performance.description}"></textarea>
+    <div>
+      <label for="description" class="block font-semibold mb-1">설명</label>
+      <textarea id="description" name="description" required class="w-full px-4 py-2 border rounded" th:text="${performance.description}"></textarea>
+    </div>
 
-  <label for="startTime">시작 시간</label>
-  <input type="datetime-local" id="startTime" name="startTime" th:value="${#temporals.format(performance.startTime, 'yyyy-MM-dd''T''HH:mm')}" required>
-  <label for="endTime">종료 시간</label>
-  <input type="datetime-local" id="endTime" name="endTime" th:value="${#temporals.format(performance.endTime, 'yyyy-MM-dd''T''HH:mm')}" required>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label for="startTime" class="block font-semibold mb-1">시작 시간</label>
+        <input type="datetime-local" id="startTime" name="startTime" th:value="${#temporals.format(performance.startTime, 'yyyy-MM-dd''T''HH:mm')}" required class="w-full px-4 py-2 border rounded"/>
+      </div>
+      <div>
+        <label for="endTime" class="block font-semibold mb-1">종료 시간</label>
+        <input type="datetime-local" id="endTime" name="endTime" th:value="${#temporals.format(performance.endTime, 'yyyy-MM-dd''T''HH:mm')}" required class="w-full px-4 py-2 border rounded"/>
+      </div>
+    </div>
 
-  <label for="reservationStartTime">예매 시작 시간</label>
-  <input type="datetime-local" id="reservationStartTime" name="reservationStartTime" th:value="${#temporals.format(performance.reservationStartTime, 'yyyy-MM-dd''T''HH:mm')}" required>
+    <div>
+      <label for="reservationStartTime" class="block font-semibold mb-1">예매 시작 시간</label>
+      <input type="datetime-local" id="reservationStartTime" name="reservationStartTime" th:value="${#temporals.format(performance.reservationStartTime, 'yyyy-MM-dd''T''HH:mm')}" required class="w-full px-4 py-2 border rounded"/>
+    </div>
 
-  <label for="category">카테고리</label>
-  <select id="category" name="category" required>
-    <option value="CONCERT" th:selected="${performance.category == 'CONCERT'}">콘서트</option>
-    <option value="MOVIE" th:selected="${performance.category == 'MOVIE'}">영화</option>
-    <option value="SPORTS" th:selected="${performance.category == 'SPORTS'}">스포츠</option>
-  </select>
+    <div>
+      <label for="category" class="block font-semibold mb-1">카테고리</label>
+      <select id="category" name="category" required class="w-full px-4 py-2 border rounded">
+        <option value="CONCERT" th:selected="${performance.category == 'CONCERT'}">콘서트</option>
+        <option value="MOVIE" th:selected="${performance.category == 'MOVIE'}">영화</option>
+        <option value="SPORTS" th:selected="${performance.category == 'SPORTS'}">스포츠</option>
+      </select>
+    </div>
 
-  <label for="performanceStatus">예매 가능 여부</label>
-  <select id="performanceStatus" name="performanceStatus">
-    <option value="true" th:selected="${performance.performanceStatus}">예매 가능</option>
-    <option value="false" th:selected="${!performance.performanceStatus}">예매 불가</option>
-  </select>
+    <div>
+      <label for="performanceStatus" class="block font-semibold mb-1">예매 가능 여부</label>
+      <select id="performanceStatus" name="performanceStatus" class="w-full px-4 py-2 border rounded">
+        <option value="true" th:selected="${performance.performanceStatus}">예매 가능</option>
+        <option value="false" th:selected="${!performance.performanceStatus}">예매 불가</option>
+      </select>
+    </div>
 
-  <label for="placeId">장소 ID</label>
-  <select id="placeId" name="placeId" required>
-    <option value="" disabled selected>장소를 선택해주세요.</option>
-    <th:block th:each="place : ${places}">
-      <option th:value="${place.id}" th:text="${place.name}" th:selected="${performance.place == place.name}"></option>
-    </th:block>
-  </select>
+    <div>
+      <label for="placeId" class="block font-semibold mb-1">장소</label>
+      <select id="placeId" name="placeId" required class="w-full px-4 py-2 border rounded">
+        <option value="" disabled selected>장소를 선택해주세요.</option>
+        <th:block th:each="place : ${places}">
+          <option th:value="${place.id}" th:text="${place.name}" th:selected="${performance.place == place.name}"></option>
+        </th:block>
+      </select>
+    </div>
 
-  <label for="file">포스터 이미지 변경</label>
-  <input type="file" id="file" name="file" accept="image/*">
+    <div>
+      <label for="file" class="block font-semibold mb-1">포스터 이미지 변경</label>
+      <input type="file" id="file" name="file" accept="image/*" class="w-full"/>
+    </div>
 
-  <button type="submit">수정</button>
-</form>
+    <button type="submit" class="w-full bg-orange-500 text-white font-bold py-2 rounded hover:bg-orange-600 transition">수정</button>
+  </form>
+</div>
 
 <script>
-    document.getElementById("performance-form").addEventListener("submit", async function (e) {
-        e.preventDefault();
+  document.getElementById("performance-form").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const form = e.target;
+    const pathSegments = window.location.pathname.split('/');
+    const perfId = pathSegments[pathSegments.length - 1];
 
-        const form = e.target;
-        const pathSegments = window.location.pathname.split('/');
-        const perfId = pathSegments[pathSegments.length - 1];
+    const dto = {
+      title: form.title.value,
+      description: form.description.value,
+      startTime: form.startTime.value,
+      endTime: form.endTime.value,
+      reservationStartTime: form.reservationStartTime.value,
+      category: form.category.value,
+      performanceStatus: form.performanceStatus.value === "true",
+      placeId: Number(form.placeId.value),
+    };
 
-        const dto = {
-            title: form.title.value,
-            description: form.description.value,
-            startTime: form.startTime.value,
-            endTime: form.endTime.value,
-            reservationStartTime: form.reservationStartTime.value,
-            category: form.category.value,
-            performanceStatus: form.performanceStatus.value === "true",
-            placeId: Number(form.placeId.value),
-        };
+    const file = form.file.files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("request", new Blob([JSON.stringify(dto)], { type: "application/json" }));
 
-        const file = form.file.files[0];
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("request", new Blob([JSON.stringify(dto)], { type: "application/json" }));
-
-        try {
-            const res = await fetch(`/api/performances/${perfId}`, { // 변경된 변수명 사용
-                method: "PUT",
-                body: formData
-            });
-
-            const text = await res.text();
-            if (res.ok) {
-                alert("공연 정보 수정 성공: " + text);
-                window.location.href = '/admin/performances';
-            } else {
-                alert("수정 실패: " + text);
-            }
-        } catch (err) {
-            console.error("에러:", err);
-            alert("서버와 통신 중 오류가 발생했습니다.");
-        }
-    });
-
-    document.getElementById("placeId").addEventListener("change", async function () {
-        const placeId = this.value;
-        const gradeContainer = document.getElementById("grade-container");
-        gradeContainer.innerHTML = "";
-
-        try {
-            const response = await fetch(`/api/grades/places/${placeId}`);
-            if (!response.ok) throw new Error("Grade 정보의 로드가 실패했습니다.");
-            const grades = await response.json();
-
-            if (grades.length === 0) {
-                gradeContainer.innerText = "<p>해당 장소에 등록된 좌석 등급이 없습니다.</p>"
-                return;
-            }
-
-            const table = document.createElement("table");
-            table.innerHTML =
-                `
-                <thead>
-                  <tr>
-                    <th>등급</th>
-                    <th>좌석 수</th>
-                    <th>기본 가격</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${grades.map(grade => `
-                    <tr>
-                      <td>${grade.grade}</td>
-                      <td>${grade.seatCount}</td>
-                      <td>${grade.defaultPrice.toLocaleString()}원</td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-                `;
-            gradeContainer.appendChild(table);
-        } catch (err) {
-            console.log(err);
-            gradeContainer.innerHTML = "<p style='color:red;'>등급 정보를 불러오는 중 오류가 발생했습니다.</p>";
-        }
-    });
+    try {
+      const res = await fetch(`/api/performances/${perfId}`, {
+        method: "PUT",
+        body: formData
+      });
+      const text = await res.text();
+      if (res.ok) {
+        alert("공연 정보 수정 성공: " + text);
+        window.location.href = '/admin/performances';
+      } else {
+        alert("수정 실패: " + text);
+      }
+    } catch (err) {
+      console.error("에러:", err);
+      alert("서버와 통신 중 오류가 발생했습니다.");
+    }
+  });
 </script>
 </body>
 </html>
