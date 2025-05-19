@@ -1,9 +1,9 @@
 ﻿
-<!-- ✅ CSS/JS 공통 헤더 -->
-<th:block th:fragment="commonHeader">
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-</th:block>
+<!--&lt;!&ndash; ✅ CSS/JS 공통 헤더 &ndash;&gt;-->
+<!--<th:block th:fragment="commonHeader">-->
+<!--  <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />-->
+<!--  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>-->
+<!--</th:block>-->
 
 <!-- 상단바 -->
 <th:block th:fragment="top_bar">
@@ -22,15 +22,15 @@
       <ul class="menu menu-horizontal px-1">
 
         <!-- 로그인 안 된 상태: 로그인/회원가입 -->
-        <li th:if="${username == null}">
+        <li th:if="${userId == null}">
           <a class="btn btn-primary btn-sm mx-1" href="/users/signin">로그인/회원가입</a>
         </li>
 
         <!-- ✅ 로그인 된 상태: 마이페이지, 로그아웃 -->
-        <li th:if="${username}">
+        <li th:if="${userId}">
           <a class="btn btn-ghost btn-sm mx-1" href="/users">마이페이지</a>
         </li>
-        <li th:if="${username}">
+        <li th:if="${userId}">
           <a class="btn btn-error btn-sm mx-1" href="/signout">로그아웃</a>
         </li>
 
