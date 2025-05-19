@@ -122,10 +122,7 @@ public class BookService {
 
         book.payed();
 
-        for (BookSeat bookSeat : bookSeats) {
-            Seat seat = bookSeat.getSeat();
-            seat.occupy();
-        }
+        changeSeatStatus(bookSeats, SeatStatus.OCCUPIED);
 
     }
 
@@ -138,12 +135,21 @@ public class BookService {
 
         book.canceled();
 
-        for (BookSeat bookSeat : bookSeats) {
-            Seat seat = bookSeat.getSeat();
-            seat.available();
-        }
+        changeSeatStatus(bookSeats, SeatStatus.AVAILABLE);
 
         return bookId;
+    }
+
+    private static void changeSeatStatus(List<BookSeat> bookSeats, SeatStatus newStatus) {
+        for (BookSeat bookSeat : bookSeats) {
+            Seat seat = bookSeat.getSeat();
+            switch (newStatus) {
+                case OCCUPIED -> seat.occupy();
+                case AVAILABLE -> seat.available();
+                default -> throw new ErrorException(ErrorCode.NOT_FOUND_SEAT_STATUS);
+            }
+            seat.available();
+        }
     }
 
 
