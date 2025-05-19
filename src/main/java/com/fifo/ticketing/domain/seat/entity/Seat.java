@@ -3,6 +3,8 @@ package com.fifo.ticketing.domain.seat.entity;
 import com.fifo.ticketing.domain.performance.entity.Grade;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.global.entity.BaseDateEntity;
+import com.fifo.ticketing.global.exception.AlertDetailException;
+import com.fifo.ticketing.global.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -67,5 +69,12 @@ public class Seat extends BaseDateEntity {
     public static Seat of(Performance performance, Grade grade, int number) {
         return new Seat(null, performance, grade.getGrade() + number, grade.getDefaultPrice(),
                 grade, SeatStatus.AVAILABLE);
+    }
+
+    public void validateAvailable() {
+        if (!this.getSeatStatus().equals(SeatStatus.AVAILABLE)) {
+            throw new AlertDetailException(ErrorCode.SEAT_ALREADY_BOOKED,
+                String.format("%d번 좌석은 이미 예약되었습니다.", this.id));
+        }
     }
 }
