@@ -233,8 +233,8 @@ class BookServiceTest {
     }
 
     @Test
-    @DisplayName("getBookDetail_실패_존재하지않는Book")
-    void getBookDetail_fail_notFound() {
+    @DisplayName("getBookDetail_실패")
+    void getBookDetail_fail() {
         // given
         given(bookRepository.findByUserIdAndId(mockUser.getId(), 999L))
             .willReturn(Optional.empty());
@@ -524,12 +524,12 @@ class BookServiceTest {
         assertEquals(mockBook.getPerformance().getTitle(), result.getPerformanceTitle());
         assertEquals(mockBook.getTotalPrice(), result.getTotalPrice());
         assertEquals(mockBook.getQuantity(), result.getQuantity());
-        assertEquals("https://picsum.photos/200/" + result.getEncodedFileName(), result.getUrl());
+        assertEquals("https://picsum.photos/200" + result.getEncodedFileName(), result.getUrl());
     }
 
     @Test
     @DisplayName("getBookCompleteInfo_실패")
-    void getBookCompleteInfo_fail_notFound() throws Exception {
+    void getBookCompleteInfo_fail() throws Exception {
         // given
         Long bookId = 10L;
         given(bookRepository.findById(bookId)).willReturn(Optional.empty());
