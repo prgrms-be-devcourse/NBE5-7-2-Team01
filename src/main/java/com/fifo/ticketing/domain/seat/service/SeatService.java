@@ -57,7 +57,7 @@ public class SeatService {
     }
 
     public List<BookSeatViewDto> getSeatsForPerformance(Long performanceId) {
-        return seatRepository.findAllByPerformanceId(performanceId)
+        return seatRepository.findValidSeatsByPerformanceId(performanceId)
             .stream()
             .map(SeatMapper::toBookSeatViewDto)
             .collect(Collectors.toList());

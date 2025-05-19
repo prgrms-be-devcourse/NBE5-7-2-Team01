@@ -17,8 +17,9 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface SeatRepository extends JpaRepository<Seat, Long> {
 
-    @EntityGraph(attributePaths = "grade")
-    List<Seat> findAllByPerformanceId(Long performanceId);
+    @Query("SELECT s FROM Seat s JOIN FETCH s.grade WHERE s.performance.id = :performanceId AND s.seatStatus <> 'DELETED'")
+    List<Seat> findValidSeatsByPerformanceId(@Param("performanceId") Long performanceId);
+
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Seat s SET s.seatStatus = :status WHERE s.performance.id = :performanceId")
