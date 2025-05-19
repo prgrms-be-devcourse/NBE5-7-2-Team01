@@ -33,17 +33,20 @@
       <label class="flex items-center gap-2">
         <input type="radio" name="filter" value="category">
         카테고리
-        <select id="categorySelect" class="ml-2 hidden border rounded px-2 py-1">
+        <select id="categorySelect" class="ml-2 border rounded px-2 py-1">
           <option disabled selected>선택</option>
-          <option th:each="category : ${categories}" th:value="${category}" th:text="${category}"></option>
+          <option th:each="category : ${categories}" th:value="${category}"
+                  th:text="${category}"></option>
         </select>
       </label>
       <label class="flex items-center gap-2">
-        <input type="radio" name="filter" value="custom" data-toggle="modal" data-target="#customDateModal">
+        <input type="radio" name="filter" value="custom" data-toggle="modal"
+               data-target="#customDateModal">
         사용자 지정
       </label>
 
-      <button type="submit" class="ml-auto bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800">
+      <button type="submit"
+              class="ml-auto bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800">
         조회
       </button>
     </form>
@@ -54,14 +57,14 @@
       <table class="table-auto w-full border-collapse">
         <thead>
         <tr class="bg-gray-200">
-          <th class="p-2">Image</th>
-          <th class="p-2">Title</th>
-          <th class="p-2">Category</th>
-          <th class="p-2">Place</th>
-          <th class="p-2">Start Time</th>
-          <th class="p-2">End Time</th>
-          <th class="p-2">Reservation Time</th>
-          <th class="p-2">Reservation Status</th>
+          <th class="p-2">이미지</th>
+          <th class="p-2">제목</th>
+          <th class="p-2">카테고리</th>
+          <th class="p-2">장소</th>
+          <th class="p-2">시작 시간</th>
+          <th class="p-2">종료 시간</th>
+          <th class="p-2">예매 시작 시간</th>
+          <th class="p-2">예매 가능 여부</th>
         </tr>
         </thead>
         <tbody>
@@ -80,9 +83,12 @@
           <td class="p-2" th:text="${performance.title}"></td>
           <td class="p-2" th:text="${performance.category}"></td>
           <td class="p-2" th:text="${performance.place}"></td>
-          <td class="p-2" th:text="${#temporals.format(performance.startTime, 'yyyy-MM-dd HH:mm')}"></td>
-          <td class="p-2" th:text="${#temporals.format(performance.endTime, 'yyyy-MM-dd HH:mm')}"></td>
-          <td class="p-2" th:text="${#temporals.format(performance.reservationStartTime, 'yyyy-MM-dd HH:mm')}"></td>
+          <td class="p-2"
+              th:text="${#temporals.format(performance.startTime, 'yyyy-MM-dd HH:mm')}"></td>
+          <td class="p-2"
+              th:text="${#temporals.format(performance.endTime, 'yyyy-MM-dd HH:mm')}"></td>
+          <td class="p-2"
+              th:text="${#temporals.format(performance.reservationStartTime, 'yyyy-MM-dd HH:mm')}"></td>
           <td class="p-2" th:text="${performance.performanceStatus} ? '예매 가능' : '예매 불가'"></td>
         </tr>
         </tbody>
@@ -110,17 +116,41 @@
     </div>
   </div>
 </div>
-
+<!-- 사용자 지정 날짜 선택 모달 -->
+<div id="customDateModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 hidden">
+  <div class="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
+    <h2 class="text-xl font-semibold mb-4 text-center text-gray-800">날짜 선택</h2>
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700 mb-1">시작 시간</label>
+      <input type="datetime-local" id="modalStartDate" class="w-full border rounded px-3 py-2"/>
+    </div>
+    <div class="mb-6">
+      <label class="block text-sm font-medium text-gray-700 mb-1">종료 시간</label>
+      <input type="datetime-local" id="modalEndDate" class="w-full border rounded px-3 py-2"/>
+    </div>
+    <div class="flex justify-end gap-2">
+      <button type="button" id="customDateCancel" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">취소</button>
+      <button type="button" id="customDateApply" class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">적용</button>
+    </div>
+  </div>
+</div>
+</body>
 <script>
   $("input[name='filter']").on("change", function () {
     const selected = $(this).val();
     if (selected === "custom") {
-      $('#customDateModal').modal('show');
-    } else if (selected === "category") {
-      $("#categorySelect").show();
+      $("#customDateModal").removeClass("hidden");  // 모달 보이기
     } else {
-      $("#categorySelect").hide();
+      $("#customDateModal").addClass("hidden");     // 모달 숨기기
     }
+
+    if (selected === "category") {
+      $("#categorySelect").show();
+    }
+  });
+
+  $("#customDateCancel").on("click", function () {
+    $("#customDateModal").addClass("hidden");
   });
 
   $("#filterForm").on("submit", function (e) {
@@ -136,6 +166,25 @@
     location.href = url;
   });
 
+  $("#customDateApply").on("click", function () {
+    const startDate = $("#modalStartDate").val();
+    const endDate = $("#modalEndDate").val();
+
+    if (!startDate || !endDate) {
+      alert("시작 시간과 종료 시간을 모두 입력하세요.");
+      return;
+    }
+
+    if (endDate <= startDate) {
+      alert("종료 시간은 시작 시간보다 이후여야 합니다.");
+      return;
+    }
+
+    const url = `/performances?startDate=${encodeURIComponent(
+        startDate)}&endDate=${encodeURIComponent(endDate)}`;
+    location.href = url;
+  });
+
   $(document).on("click", ".like-button", function () {
     const $btn = $(this);
     const performanceId = $btn.data("id");
@@ -143,7 +192,7 @@
       type: "POST",
       url: "/user/like",
       contentType: "application/json",
-      data: JSON.stringify({ performanceId }),
+      data: JSON.stringify({performanceId}),
       success: function () {
         $btn.text($btn.text().trim() === "♡" ? "♥" : "♡");
       },
@@ -153,5 +202,5 @@
     });
   });
 </script>
-</body>
+
 </html>
