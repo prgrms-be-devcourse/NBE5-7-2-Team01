@@ -77,7 +77,10 @@
               </button>
             </div>
           </td>
-          <td class="p-2" th:text="${performance.title}"></td>
+          <td>
+            <a th:href="@{/performances/{performanceId}(performanceId=${performance.id})}"
+               th:text="${performance.title}" class="text-blue-600 hover:underline"></a>
+          </td>
           <td class="p-2" th:text="${performance.category}"></td>
           <td class="p-2" th:text="${performance.place}"></td>
           <td class="p-2" th:text="${#temporals.format(performance.startTime, 'yyyy-MM-dd HH:mm')}"></td>

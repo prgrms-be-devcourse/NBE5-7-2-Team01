@@ -33,7 +33,7 @@ public class PerformanceMailService {
 
             helper.setTo(bookMailSendDto.getEmailAddr());
             helper.setFrom(fromAddress);
-            helper.setSubject(bookMailSendDto.getTitle() + "의 공연이 취소되었습니다.");
+            helper.setSubject(bookMailSendDto.getPerformanceTitle() + "의 공연이 취소되었습니다.");
 
             Context context = new Context();
             context.setVariable("mailDto", bookMailSendDto);
