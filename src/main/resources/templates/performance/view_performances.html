@@ -200,7 +200,8 @@
       <div class="inline-flex items-center">
         <span class="text-sm text-gray-600 mr-2">표시 개수:</span>
         <select id="pageSizeSelect" class="border rounded px-2 py-1 text-sm">
-          <option value="5" th:selected="${param.size == null || param.size == '5'}">5개</option>
+          <option value="" th:selected="${param.size == null}">선택</option>
+          <option value="5" th:selected="${param.size == '5'}">5개</option>
           <option value="10" th:selected="${param.size == '10'}">10개</option>
           <option value="20" th:selected="${param.size == '20'}">20개</option>
           <option value="50" th:selected="${param.size == '50'}">50개</option>
