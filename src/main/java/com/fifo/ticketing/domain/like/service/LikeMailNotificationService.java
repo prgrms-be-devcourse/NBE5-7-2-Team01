@@ -50,7 +50,7 @@ public class LikeMailNotificationService {
                 email != null) {
 
                 try {
-                    likeMailService.performanceStart(user, performance);
+                    likeMailService.reservationStart(user, performance);
                     sendCnt++;
                 } catch (Exception e) {
 

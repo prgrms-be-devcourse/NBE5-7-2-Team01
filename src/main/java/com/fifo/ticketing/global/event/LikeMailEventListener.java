@@ -19,7 +19,7 @@ public class LikeMailEventListener {
     public void handleLikeMailEvent(LikeMailEvent event) {
         switch (event.getMailType()){
             case NO_PAYED -> likeMailService.NoPayedPerformance(event.getUser() , event.getPerformance());
-            case RESERVATION_NOTICE -> likeMailService.performanceStart(event.getUser() , event.getPerformance());
+            case RESERVATION_NOTICE -> likeMailService.reservationStart(event.getUser() , event.getPerformance());
         }
 
     }
