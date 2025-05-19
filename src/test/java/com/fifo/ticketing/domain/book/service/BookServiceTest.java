@@ -3,6 +3,7 @@ package com.fifo.ticketing.domain.book.service;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.fifo.ticketing.domain.book.dto.BookCompleteDto;
+import com.fifo.ticketing.domain.book.dto.BookedView;
 import com.fifo.ticketing.domain.book.entity.Book;
 import com.fifo.ticketing.domain.book.entity.BookSeat;
 import com.fifo.ticketing.domain.book.entity.BookStatus;
@@ -34,6 +35,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 import com.fifo.ticketing.domain.user.entity.User;
@@ -67,6 +72,8 @@ class BookServiceTest {
     private Seat mockSeat;
     private Grade modckGrade;
     private BookSeat mockBookSeat;
+
+    private Pageable pageable;
 
     @BeforeEach
     void setUp() {
@@ -124,7 +131,79 @@ class BookServiceTest {
             .book(mockBook)
             .seat(mockSeat)
             .build();
+
+        pageable = PageRequest.of(0, 5);
     }
+
+    @Test
+    @DisplayName("getBookedList_titleAndStatus_성공")
+    void getBookedList_titleAndStatus_success() {
+        // given
+        String title = "라따뚜이";
+        BookStatus status = BookStatus.CONFIRMED;
+
+        Page<Book> bookPage = new PageImpl<>(List.of(mockBook));
+        given(bookRepository.findAllByUserIdAndTitleAndBookStatus(mockUser.getId(), title, status, pageable))
+            .willReturn(bookPage);
+
+        // when & then
+        Page<BookedView> result = bookService.getBookedList(mockUser.getId(), title, status, pageable);
+
+        assertEquals(1, result.getContent().size());
+        verify(bookRepository).findAllByUserIdAndTitleAndBookStatus(mockUser.getId(), title, status, pageable);
+    }
+
+
+    @Test
+    @DisplayName("getBookedList_title_성공")
+    void getBookedList_title_success() {
+        // given
+        String title = "라따뚜이";
+
+        Page<Book> bookPage = new PageImpl<>(List.of(mockBook));
+        given(bookRepository.findAllByUserIdAndTitle(mockUser.getId(), title, pageable))
+            .willReturn(bookPage);
+
+        // when & then
+        Page<BookedView> result = bookService.getBookedList(mockUser.getId(), title, null, pageable);
+
+        assertEquals(1, result.getContent().size());
+        verify(bookRepository).findAllByUserIdAndTitle(mockUser.getId(), title, pageable);
+    }
+
+    @Test
+    @DisplayName("getBookedList_status_성공")
+    void getBookedList_status_success() {
+        // given
+        BookStatus status = BookStatus.PAYED;
+
+        Page<Book> bookPage = new PageImpl<>(List.of(mockBook));
+        given(bookRepository.findAllByUserIdAndBookStatus(mockUser.getId(), status, pageable))
+            .willReturn(bookPage);
+
+        // when & then
+        Page<BookedView> result = bookService.getBookedList(mockUser.getId(), null, status, pageable);
+
+        assertEquals(1, result.getContent().size());
+        verify(bookRepository).findAllByUserIdAndBookStatus(mockUser.getId(), status, pageable);
+    }
+
+    @Test
+    @DisplayName("getBookedList_null_성공")
+    void getBookedList_null_success() {
+        // given
+        Page<Book> bookPage = new PageImpl<>(List.of(mockBook));
+        given(bookRepository.findAllByUserId(mockUser.getId(), pageable))
+            .willReturn(bookPage);
+
+        // when & then
+        Page<BookedView> result = bookService.getBookedList(mockUser.getId(), null, null, pageable);
+
+        assertEquals(1, result.getContent().size());
+        verify(bookRepository).findAllByUserId(mockUser.getId(), pageable);
+    }
+
+
 
     @Test
     @DisplayName("cancelAllBook_성공")
