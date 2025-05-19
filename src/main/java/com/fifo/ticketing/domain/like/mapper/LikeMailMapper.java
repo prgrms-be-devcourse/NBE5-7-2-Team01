@@ -3,9 +3,12 @@ package com.fifo.ticketing.domain.like.mapper;
 import com.fifo.ticketing.domain.like.dto.NoPayedMailDto;
 import com.fifo.ticketing.domain.like.dto.ReservationStartMailDto;
 import com.fifo.ticketing.domain.performance.entity.Performance;
+import com.fifo.ticketing.domain.seat.repository.SeatRepository;
 import com.fifo.ticketing.domain.user.entity.User;
 
 public class LikeMailMapper {
+
+
     public static ReservationStartMailDto toReservationStartMailDto(User user, Performance performance) {
         return ReservationStartMailDto.builder()
             .email(user.getEmail())
