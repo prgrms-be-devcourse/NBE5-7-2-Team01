@@ -3,48 +3,6 @@
 <head th:replace="~{fragments/common_headers :: commonHeader}">
   <meta charset="UTF-8">
   <title th:text="${performanceDetail.title}">공연 상세</title>
-  <style>
-    .seat {
-      width: 40px;
-      height: 40px;
-      margin: 5px;
-      border: 1px solid #999;
-      display: inline-flex; /* flex로 중앙 정렬 쉽게 */
-      align-items: center;
-      justify-content: center;
-      font-size: 14px; /* 글자 크기 고정 */
-      text-align: center;
-      cursor: pointer;
-      box-sizing: border-box; /* border 포함한 크기 계산 */
-      overflow: hidden; /* 넘치는 글자 숨기기 */
-      white-space: nowrap; /* 줄바꿈 방지 */
-    }
-
-    .seat.available {
-      background-color: #b19cd9;
-    }
-
-    .seat.selected {
-      background-color: #4CAF50;
-      color: white;
-    }
-
-    .seat.unavailable {
-      background-color: darkgray;
-      cursor: not-allowed;
-    }
-
-    .seat-container {
-      display: flex;
-      flex-direction: column;
-      max-width: 440px;
-    }
-
-    .row {
-      display: flex;
-      justify-content: flex-start;
-    }
-  </style>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -63,6 +21,48 @@
 </head>
 <body class="bg-gray-100 py-10 px-4">
 <div th:replace="~{fragments/top_bar :: top_bar}"></div>
+<style>
+  .seat {
+    width: 40px;
+    height: 40px;
+    margin: 5px;
+    border: 1px solid #999;
+    display: inline-flex; /* flex로 중앙 정렬 쉽게 */
+    align-items: center;
+    justify-content: center;
+    font-size: 14px; /* 글자 크기 고정 */
+    text-align: center;
+    cursor: pointer;
+    box-sizing: border-box; /* border 포함한 크기 계산 */
+    overflow: hidden; /* 넘치는 글자 숨기기 */
+    white-space: nowrap; /* 줄바꿈 방지 */
+  }
+
+  .seat.available {
+    background-color: #b19cd9;
+  }
+
+  .seat.selected {
+    background-color: #4CAF50;
+    color: white;
+  }
+
+  .seat.unavailable {
+    background-color: darkgray;
+    cursor: not-allowed;
+  }
+
+  .seat-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 440px;
+  }
+
+  .row {
+    display: flex;
+    justify-content: flex-start;
+  }
+</style>
 <div
     class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 bg-white rounded-lg shadow p-6">
   <!-- 왼쪽: 포스터 -->
@@ -120,7 +120,9 @@
 <!-- 좌석 선택 모달 -->
 <div class="fixed inset-0 bg-black bg-opacity-50 hidden" id="overlay"></div>
 <div
-    class="fixed top-10 left-1/2 transform -translate-x-1/2 bg-white w-11/12 md:w-3/4 rounded-lg shadow-lg p-6 z-50 hidden"
+    class="hidden"
+    style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; z-index: 9999; width: 80%; padding: 2rem;"
     id="seatModal">
   <div class="grid md:grid-cols-2 gap-8">
     <div>
