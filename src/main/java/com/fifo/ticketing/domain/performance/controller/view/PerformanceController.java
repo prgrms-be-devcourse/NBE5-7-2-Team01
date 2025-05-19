@@ -144,7 +144,7 @@ public class PerformanceController {
 
     @GetMapping("/{performanceId}")
     public String getPerformanceDetail(
-        @PathVariable Long performanceId,
+        @PathVariable(value = "performanceId") Long performanceId,
         HttpSession session,
         Model model
     ) {

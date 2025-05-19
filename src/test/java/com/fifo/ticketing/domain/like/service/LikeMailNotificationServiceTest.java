@@ -5,14 +5,14 @@ import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
+import com.fifo.ticketing.domain.like.dto.ReservationStartMailDto;
 import com.fifo.ticketing.domain.like.repository.LikeRepository;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.user.entity.User;
-import com.fifo.ticketing.global.event.LikeMailEvent;
 import com.fifo.ticketing.global.event.LikeMailEventListener;
 import com.fifo.ticketing.global.event.MailType;
+import com.fifo.ticketing.global.event.ReservationEvent;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -68,27 +68,25 @@ class LikeMailNotificationServiceTest {
         boolean result = likeMailNotificationService.sendLikeNotification(performanceId);
 
         assertThat(result).isTrue();
-        verify(likeMailService).performanceStart(user, performance);
+        verify(likeMailService).reservationStart(any(ReservationStartMailDto.class));
     }
 
     @Test
-    void 이벤트_리스너테스트() {
+    void 이벤트_리스너_ReservationEvent_테스트() {
         // given
-        User user = User.builder()
+        ReservationStartMailDto dto = ReservationStartMailDto.builder()
             .email("test@email.com")
             .username("테스트")
+            .performanceTitle("테스트 공연")
+            .reservationStartTime(java.time.LocalDateTime.now())
             .build();
 
-        Performance performance = Performance.builder()
-            .title("테스트 공연")
-            .build();
+        ReservationEvent event = new ReservationEvent(dto);
 
-        LikeMailEvent event = new LikeMailEvent(user, performance, MailType.RESERVATION_NOTICE);
-
-        // when: 이벤트 리스너 직접 호출
+        // when
         new LikeMailEventListener(likeMailService).handleLikeMailEvent(event);
 
         // then
-        verify(likeMailService).performanceStart(user, performance);
+        verify(likeMailService).reservationStart(any(ReservationStartMailDto.class));
     }
 }
