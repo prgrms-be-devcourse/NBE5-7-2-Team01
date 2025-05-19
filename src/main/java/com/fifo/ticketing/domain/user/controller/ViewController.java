@@ -1,7 +1,9 @@
 package com.fifo.ticketing.domain.user.controller;
 
+import com.fifo.ticketing.domain.book.dto.BookMailSendDto;
 import com.fifo.ticketing.domain.book.dto.BookedView;
 import com.fifo.ticketing.domain.book.entity.BookStatus;
+import com.fifo.ticketing.domain.book.service.BookMailService;
 import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.user.dto.SessionUser;
 import com.fifo.ticketing.domain.user.dto.form.SignUpForm;
@@ -29,6 +31,7 @@ public class ViewController {
 
     private final UserFormService userFormService;
     private final BookService bookService;
+    private final BookMailService bookMailService;
 
     @GetMapping("/")
     public String homePage(HttpSession session, Model model) {
@@ -118,6 +121,10 @@ public class ViewController {
         SessionUser loginUser = UserValidator.validateSessionUser(session);
 
         bookService.cancelBook(bookId, loginUser.id());
+
+        BookMailSendDto bookMailInfo = bookService.getBookMailInfo(bookId);
+        bookMailService.sendBookCompleteMail(bookMailInfo);
+
         redirectAttributes.addFlashAttribute("alertMessage", "예매가 성공적으로 취소되었습니다.");
         return "redirect:/users/books";
     }

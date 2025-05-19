@@ -1,0 +1,43 @@
+﻿
+<!-- ✅ CSS/JS 공통 헤더 -->
+<th:block th:fragment="commonHeader">
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</th:block>
+
+<!-- 상단바 -->
+<th:block th:fragment="top_bar">
+  <div class="navbar bg-base-100 shadow-sm fixed top-0 left-0 right-0 z-50">
+    <div class="flex-1">
+      <!-- Tickethub 로고 이미지 -->
+
+      <a class="btn btn-ghost" href="/">
+        <img src="/images/tickethub_logo.JPG" alt="Tickethub" class="h-10 w-auto max-w-[160px] object-contain" />
+      </a>
+
+
+    </div>
+
+    <div class="flex-none">
+      <ul class="menu menu-horizontal px-1">
+
+        <!-- 로그인 안 된 상태: 로그인/회원가입 -->
+        <li th:if="${username == null}">
+          <a class="btn btn-primary btn-sm mx-1" href="/users/signin">로그인/회원가입</a>
+        </li>
+
+        <!-- ✅ 로그인 된 상태: 마이페이지, 로그아웃 -->
+        <li th:if="${username}">
+          <a class="btn btn-ghost btn-sm mx-1" href="/users">마이페이지</a>
+        </li>
+        <li th:if="${username}">
+          <a class="btn btn-error btn-sm mx-1" href="/signout">로그아웃</a>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+
+  <!--  상단바가 fixed이므로 본문 밀어주기 -->
+  <div class="pt-20"></div>
+</th:block>

@@ -1,75 +1,61 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>마이페이지</title>
   <meta charset="UTF-8">
+  <title>마이페이지</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            tickethub: {
+              DEFAULT: '#FF6F3C',
+              dark: '#e65b25'
+            }
+          }
+        }
+      }
+    }
+  </script>
 </head>
-<style>
-  #liked-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    padding: 0;
-    list-style: none;
-  }
+<body class="bg-gray-100 min-h-screen py-10">
 
-  #liked-list li {
-    width: 220px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    padding: 10px;
-    text-align: center;
-    cursor: pointer;
-    background-color: #fff;
-    transition: transform 0.2s ease-in-out;
-  }
+<div class="max-w-5xl mx-auto px-4">
+  <h1 class="text-3xl font-bold text-center mb-10 text-tickethub">🎟️ TICKETHUB 마이페이지</h1>
 
-  #liked-list li:hover {
-    transform: translateY(-4px);
-  }
+  <!-- 로그인된 사용자 화면 -->
+  <div th:if="${username != null}" class="space-y-10">
 
-  #liked-list img {
-    width: 100%;
-    height: 140px;
-    object-fit: cover;
-    border-radius: 4px;
-  }
+    <div class="bg-white shadow-md rounded-lg p-6">
+      <p class="text-lg font-medium mb-2"><strong>로그인 사용자:</strong> <span th:text="${username}">사용자 이름</span></p>
+      <a href="/signout" class="text-sm text-red-500 hover:underline">로그아웃</a>
+    </div>
 
-  #liked-list h4 {
-    margin: 10px 0 5px;
-    font-size: 1.1em;
-  }
+    <div class="bg-white shadow-md rounded-lg p-6">
+      <h2 class="text-xl font-semibold mb-4">예매 내역 확인</h2>
+      <a href="/users/books" class="inline-block px-5 py-2 bg-tickethub text-white rounded hover:bg-tickethub-dark">예매 내역 보기</a>
+    </div>
 
-  #liked-list p {
-    margin: 4px 0;
-    font-size: 0.9em;
-    color: #333;
-  }
-</style>
-<body>
-<h1>마이페이지</h1>
+    <div class="bg-white shadow-md rounded-lg p-6">
+      <h2 class="text-xl font-semibold mb-4">좋아요한 공연 목록</h2>
+      <ul id="liked-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></ul>
 
-<div th:if="${username != null}">
-  <p><strong>로그인 사용자:</strong> <span th:text="${username}">사용자 이름</span></p>
-  <a href="/signout">로그아웃</a>
+      <div class="flex justify-center items-center mt-6 gap-4">
+        <button id="prev-btn" class="px-4 py-2 bg-tickethub text-white text-sm rounded hover:bg-tickethub-dark disabled:opacity-50">이전</button>
+        <span id="page-info" class="text-sm text-gray-700"></span>
+        <button id="next-btn" class="px-4 py-2 bg-tickethub text-white text-sm rounded hover:bg-tickethub-dark disabled:opacity-50">다음</button>
+      </div>
+    </div>
+  </div>
 
-  <h2>예매 내역 확인</h2>
-  <button type="button"><a href="/users/books">예매 내역</a></button>
-
-  <h2>좋아요한 공연 목록</h2>
-  <ul id="liked-list"></ul>
-
-  <div>
-    <button id="prev-btn">이전</button>
-    <span id="page-info"></span>
-    <button id="next-btn">다음</button>
+  <!-- 로그인 안 된 사용자 -->
+  <div th:if="${username == null}" class="text-center bg-white shadow-md rounded-lg p-6">
+    <p class="text-lg mb-4">로그인하지 않았습니다.</p>
+    <a href="/users/signin" class="text-tickethub hover:underline">로그인</a> 후 이용해주세요.
   </div>
 </div>
 
-<div th:if="${username == null}">
-  <p>로그인하지 않았습니다. <a href="/users/signin">로그인</a> 후 이용해주세요.</p>
-</div>
 <script>
   let currentPage = 0;
   const size = 5;
@@ -83,39 +69,25 @@
 
       data.content.forEach(perf => {
         const li = document.createElement("li");
-        li.style.cursor = "pointer";
-
+        li.className = "border rounded-lg shadow hover:shadow-md bg-white overflow-hidden cursor-pointer transition hover:scale-[1.02]";
         li.addEventListener("click", () => {
           window.location.href = `/performances/${perf.id}`;
         });
 
-        const title = document.createElement("h4");
-        title.innerText = perf.title;
-
-        const image = document.createElement("img");
-        image.src = perf.urlPrefix + perf.encodedFileName;
-        image.alt = perf.title;
-        image.width = 120;
-
-        const time = document.createElement("p");
-        time.innerText = `기간: ${perf.startTime} ~ ${perf.endTime}`;
-
-        const place = document.createElement("p");
-        place.innerText = `장소: ${perf.placeName}`;
-
-        li.appendChild(title);
-        li.appendChild(image);
-        li.appendChild(time);
-        li.appendChild(place);
+        li.innerHTML = `
+            <img src="${perf.urlPrefix + perf.encodedFileName}" alt="${perf.title}" class="w-full h-40 object-cover">
+            <div class="p-4">
+              <h4 class="font-semibold text-lg">${perf.title}</h4>
+              <p class="text-sm text-gray-600 mt-2">기간: ${perf.startTime} ~ ${perf.endTime}</p>
+              <p class="text-sm text-gray-600">장소: ${perf.placeName}</p>
+            </div>
+          `;
         list.appendChild(li);
       });
 
-      document.getElementById("page-info").innerText = `페이지 ${data.number
-      + 1} / ${data.totalPages}`;
-
+      document.getElementById("page-info").innerText = `페이지 ${data.number + 1} / ${data.totalPages}`;
       document.getElementById("prev-btn").disabled = data.first;
       document.getElementById("next-btn").disabled = data.last;
-
       currentPage = data.number;
     });
   }
@@ -132,5 +104,6 @@
 
   loadLikes(currentPage);
 </script>
+
 </body>
 </html>
