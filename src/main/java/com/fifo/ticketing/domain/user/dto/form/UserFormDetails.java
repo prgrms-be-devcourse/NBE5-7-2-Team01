@@ -14,6 +14,8 @@ public class UserFormDetails implements UserDetails {
     //이메일과 비밀번호를 통해 인증을 진행중으로 username에는 email 값 할당
     private final String username;
     private final String password;
+
+    @Getter
     private final Role role;
 
     @Getter
