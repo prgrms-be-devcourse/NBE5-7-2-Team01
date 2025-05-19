@@ -1,5 +1,6 @@
 package com.fifo.ticketing.domain.performance.repository;
 
+import com.fifo.ticketing.domain.performance.dto.AdminPerformanceBookDetailDto;
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceStaticsDto;
 import com.fifo.ticketing.domain.performance.entity.Category;
 import com.fifo.ticketing.domain.performance.entity.Performance;
@@ -121,4 +122,15 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
         + "WHERE p.performanceStatus = true "
         + "GROUP BY p.id, p.title, pl.totalSeats")
     Page<AdminPerformanceStaticsDto> findPerformanceStatics(Pageable pageable);
+
+    @Query("SELECT new com.fifo.ticketing.domain.performance.dto.AdminPerformanceBookDetailDto("
+        + "p.id, p.title, f.encodedFileName, COALESCE(SUM(b.totalPrice), 0), COALESCE(SUM(b.quantity), 0)) "
+        + "FROM Performance p "
+        + "LEFT JOIN Book b ON b.performance.id = p.id "
+        + "LEFT JOIN File f ON p.file.id = f.id "
+        + "WHERE p.deletedFlag = false AND p.id = :performanceId "
+        + "GROUP BY p.id, p.title, f.encodedFileName")
+    AdminPerformanceBookDetailDto findPerformanceBookDetails(
+        @Param("performanceId") Long performanceId);
+
 }

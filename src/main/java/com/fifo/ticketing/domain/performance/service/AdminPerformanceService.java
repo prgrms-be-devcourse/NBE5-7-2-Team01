@@ -8,9 +8,11 @@ import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PLACES;
 import static com.fifo.ticketing.global.exception.ErrorCode.SEAT_CREATE_FAILED;
 
 import com.fifo.ticketing.domain.book.entity.Book;
+import com.fifo.ticketing.domain.book.repository.BookRepository;
 import com.fifo.ticketing.domain.book.service.BookService;
 import com.fifo.ticketing.domain.like.entity.LikeCount;
 import com.fifo.ticketing.domain.like.repository.LikeCountRepository;
+import com.fifo.ticketing.domain.performance.dto.AdminPerformanceBookDetailDto;
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceDetailResponse;
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceResponseDto;
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceStaticsDto;
@@ -49,9 +51,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class AdminPerformanceService {
 
-    @Value("${file.url-prefix}")
-    private String urlPrefix;
-
+    private final BookRepository bookRepository;
     private final PlaceRepository placeRepository;
     private final PerformanceRepository performanceRepository;
     private final GradeRepository gradeRepository;
@@ -60,6 +60,8 @@ public class AdminPerformanceService {
     private final LikeCountRepository likeCountRepository;
     private final BookService bookService;
     private final ApplicationEventPublisher eventPublisher;
+    @Value("${file.url-prefix}")
+    private String urlPrefix;
 
     @Transactional(readOnly = true)
     public AdminPerformanceDetailResponse getPerformanceDetailForAdmin(Long performanceId) {
@@ -251,7 +253,6 @@ public class AdminPerformanceService {
             .toList();
     }
 
-
     @Transactional(readOnly = true)
     public Page<AdminPerformanceResponseDto> getPerformancesSortedByLikesForAdmin(
         Pageable pageable) {
@@ -294,4 +295,17 @@ public class AdminPerformanceService {
             return performanceStatics;
         }
     }
+
+    @Transactional(readOnly = true)
+    public AdminPerformanceBookDetailDto getPerformanceBookDetail(Long performanceId) {
+        AdminPerformanceBookDetailDto performanceBookDetailDtoById = performanceRepository.findPerformanceBookDetails(
+            performanceId);
+        if (performanceBookDetailDtoById == null) {
+            throw new ErrorException(NOT_FOUND_PERFORMANCE);
+        } else {
+            performanceBookDetailDtoById.setUrlPrefix(urlPrefix);
+            return performanceBookDetailDtoById;
+        }
+    }
+
 }

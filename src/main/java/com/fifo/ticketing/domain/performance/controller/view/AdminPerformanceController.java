@@ -1,7 +1,10 @@
 package com.fifo.ticketing.domain.performance.controller.view;
 
-
+import com.fifo.ticketing.domain.book.dto.BookAdminDetailDto;
 import com.fifo.ticketing.domain.book.dto.BookSeatViewDto;
+import com.fifo.ticketing.domain.book.dto.BookUserDetailDto;
+import com.fifo.ticketing.domain.book.service.BookService;
+import com.fifo.ticketing.domain.performance.dto.AdminPerformanceBookDetailDto;
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceDetailResponse;
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceResponseDto;
 import com.fifo.ticketing.domain.performance.dto.AdminPerformanceStaticsDto;
@@ -19,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,6 +38,7 @@ public class AdminPerformanceController {
 
     private final AdminPerformanceService adminPerformanceService;
     private final SeatService seatService;
+    private final BookService bookService;
 
     @GetMapping
     public String viewPerformancesForAdmin(
@@ -172,6 +177,26 @@ public class AdminPerformanceController {
         model.addAttribute("currentPage", statics.getNumber());
         model.addAttribute("totalPages", statics.getTotalPages());
         return "admin/chart_admin";
+    }
+
+    @GetMapping("/book/{performanceId}")
+    public String viewAdminPerformanceBookDetail(@PathVariable("performanceId") Long id,
+        @PageableDefault(size = 5) Pageable pageable, Model model) {
+        AdminPerformanceBookDetailDto performanceBookDetail = adminPerformanceService.getPerformanceBookDetail(
+            id);
+        Page<BookAdminDetailDto> bookAdminList = bookService.getBookAdminList(id, pageable);
+        model.addAttribute("performanceBookDetail", performanceBookDetail);
+        model.addAttribute("bookAdminListPage", bookAdminList);
+        return "admin/performance_book_detail_admin";
+    }
+
+    @GetMapping("/book/{performanceId}/{bookId}")
+    public String viewAdminPerformanceBookUserDetail(
+        @PathVariable("performanceId") Long performanceId, @PathVariable("bookId") Long bookId,
+        Model model) {
+        BookUserDetailDto bookUserDetail = bookService.getBookUserDetail(bookId, performanceId);
+        model.addAttribute("bookUserDetail", bookUserDetail);
+        return "admin/performance_book_user_detail_admin";
     }
 
 }

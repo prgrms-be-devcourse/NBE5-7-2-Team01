@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>예매 상세 정보</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+</head>
+<body>
+<div class="container my-5">
+  <h2 class="text-center mb-4">예매 상세 정보</h2>
+
+  <div class="row mb-4">
+    <div class="col-md-4 text-center">
+      <img th:src="@{${bookUserDetail.url}}" alt="공연 이미지" class="img-fluid rounded"
+           style="max-width: 300px;">
+    </div>
+    <div class="col-md-8">
+      <table class="table table-bordered">
+        <tbody>
+        <tr>
+          <th scope="row">예매 ID</th>
+          <td th:text="${bookUserDetail.bookId}">1</td>
+        </tr>
+        <tr>
+          <th scope="row">공연 제목</th>
+          <td th:text="${bookUserDetail.title}">공연 제목</td>
+        </tr>
+        <tr>
+          <th scope="row">예매자</th>
+          <td th:text="${bookUserDetail.username}">사용자 이름</td>
+        </tr>
+        <tr>
+          <th scope="row">총 금액</th>
+          <td><span th:text="${bookUserDetail.totalPrice}"></span>원</td>
+        </tr>
+        <tr>
+          <th scope="row">수량</th>
+          <td><span th:text="${bookUserDetail.quantity}"></span>매</td>
+        </tr>
+        <tr>
+          <th scope="row">예매 상태</th>
+          <td th:text="${bookUserDetail.bookStatus}">CONFIRMED</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="text-center">
+    <a href="javascript:history.back()" class="btn btn-secondary">뒤로가기</a>
+    <button class="btn btn-danger"
+            onclick="cancelBooking()"
+            th:if="${bookUserDetail.bookStatus.name() == 'CONFIRMED' or bookUserDetail.bookStatus.name() == 'PAYED'}">
+      예매 취소
+    </button>
+    <button class="btn btn-secondary" disabled
+            th:if="${bookUserDetail.bookStatus.name() != 'CONFIRMED' and bookUserDetail.bookStatus.name() != 'PAYED'}">
+      취소 불가
+    </button>
+  </div>
+</div>
+
+<script th:inline="javascript">
+  function cancelBooking() {
+    const bookId = /*[[${bookUserDetail.bookId}]]*/ 0;
+    const performanceId = /*[[${bookUserDetail.performanceId}]]*/ 0;
+
+    fetch(`/admin/performances/book/cancel/${bookId}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'}
+    }).then(response => {
+      if (response.ok) {
+        alert('예약이 취소되었습니다.');
+        window.location.href = `/admin/performances/book/${performanceId}`;
+      } else {
+        alert('예약 취소에 실패했습니다.');
+      }
+    });
+  }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
