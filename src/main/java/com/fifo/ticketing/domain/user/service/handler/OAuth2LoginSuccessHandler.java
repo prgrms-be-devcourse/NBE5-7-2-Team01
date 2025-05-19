@@ -2,6 +2,7 @@ package com.fifo.ticketing.domain.user.service.handler;
 
 import com.fifo.ticketing.domain.user.dto.SessionUser;
 import com.fifo.ticketing.domain.user.dto.oauth.UserOAuthDetails;
+import com.fifo.ticketing.domain.user.entity.Role;
 import com.fifo.ticketing.domain.user.entity.User;
 import com.fifo.ticketing.domain.user.repository.UserRepository;
 import jakarta.servlet.ServletException;
@@ -36,6 +37,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         if (savedRequest != null) {
             String targetUrl = savedRequest.getRedirectUrl();
             response.sendRedirect(targetUrl);
+        } else if (user.getRole().equals(Role.ADMIN)) {
+            response.sendRedirect("/admin/menu");
         } else {
             response.sendRedirect("/");
         }

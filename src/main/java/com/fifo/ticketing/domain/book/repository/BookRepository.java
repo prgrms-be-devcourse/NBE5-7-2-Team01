@@ -17,7 +17,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface BookRepository extends JpaRepository<Book, Long> {
 
-    Page<Book> findAllByUserId(Long userId, Pageable pageable);
+
+    Page<Book> findAllByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 
     Optional<Book> findByUserIdAndId(Long userId, Long bookId);
 

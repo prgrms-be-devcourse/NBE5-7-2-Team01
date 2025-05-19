@@ -28,6 +28,7 @@ public enum ErrorCode {
     SEAT_CREATE_FAILED("SEAT-002", "좌석 등록에 실패하였습니다.", INTERNAL_SERVER_ERROR),
     NOT_FOUND_SEAT_STATUS("SEAT-003", "존재하지 않는 좌석 상태입니다.", NOT_FOUND),
     EMAIL_ALREADY_EXISTS("EMAIL-001", "이미 사용하는 이메일입니다.", ALREADY_EXISTS),
+    FAIL_EMAIL_SEND("EMAIL-002", "메일 전송에 실패하였습니다.", BAD_REQUEST),
     NOT_FOUND_AUTH("AUTH-002", "잘못된 인증번호 입니다.", NOT_FOUND),
     NOT_FOUND_PROVIDER("PROVIDER-001", "지원하지 않는 플랫폼 서비스입니다.", NOT_FOUND),
     NOT_FOUND_BOOK("BOOK-001", "예약 정보가 존재하지 않습니다.", NOT_FOUND),

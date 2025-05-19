@@ -138,9 +138,15 @@ public class ViewController {
     }
 
     @GetMapping("/admin/users")
-    public String adminPage(HttpSession session, Model model) {
+    public String adminUsersPage(HttpSession session, Model model) {
         UserValidator.validateSessionUser(session);
         return "admin/manage_admin";
+    }
+
+    @GetMapping("/admin/menu")
+    public String adminMenuPage(HttpSession session) {
+        UserValidator.validateSessionUser(session);
+        return "admin/menu_admin";
     }
 
 }

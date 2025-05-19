@@ -53,8 +53,13 @@ public class UserController {
     }
 
     @PutMapping("/users/status/{userId}")
-    public void updateUserStatus(@PathVariable("userId") Long userId) {
+    public ResponseEntity<?> updateUserStatus(@PathVariable("userId") Long userId) {
         adminService.updateUserStatus(userId);
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "userId", userId,
+                "message", "유저 정보가 수정되었습니다!"
+        ));
     }
 
     private Page<UserDto> getUserData(String name, Role role, Pageable pageable) {

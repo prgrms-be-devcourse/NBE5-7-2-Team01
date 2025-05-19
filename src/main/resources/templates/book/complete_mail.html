@@ -9,6 +9,7 @@
 <h2 th:switch="${mailDto.bookStatus.name()}" style="text-align: center; color: #222;">
   <span th:case="'CANCELED'">🎟️ 예매가 <span style="color: red;">취소</span>되었습니다</span>
   <span th:case="'PAYED'">🎉 예매가 <span style="color: green;">확정</span>되었습니다</span>
+  <span th:case="'ADMIN_REFUNDED'">🎉 예매가 <span style="color: orange;">관리자에 의해 취소</span>되었습니다</span>
 </h2>
 
 <hr style="margin: 20px 0;">

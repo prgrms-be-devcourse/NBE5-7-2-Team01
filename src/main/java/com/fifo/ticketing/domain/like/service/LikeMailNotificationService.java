@@ -4,13 +4,17 @@ import static com.fifo.ticketing.global.exception.ErrorCode.NOT_FOUND_PERFORMANC
 
 import com.fifo.ticketing.domain.book.entity.BookStatus;
 import com.fifo.ticketing.domain.book.repository.BookRepository;
+import com.fifo.ticketing.domain.like.dto.NoPayedMailDto;
+import com.fifo.ticketing.domain.like.dto.ReservationStartMailDto;
 import com.fifo.ticketing.domain.like.entity.Like;
+import com.fifo.ticketing.domain.like.mapper.LikeMailMapper;
 import com.fifo.ticketing.domain.like.repository.LikeRepository;
 import com.fifo.ticketing.domain.performance.entity.Performance;
 import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
+import com.fifo.ticketing.domain.seat.repository.SeatRepository;
 import com.fifo.ticketing.domain.user.entity.User;
-import com.fifo.ticketing.global.event.LikeMailEvent;
-import com.fifo.ticketing.global.event.MailType;
+import com.fifo.ticketing.global.event.NoPayMailEvent;
+import com.fifo.ticketing.global.event.ReservationEvent;
 import com.fifo.ticketing.global.exception.ErrorException;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -30,6 +34,7 @@ public class LikeMailNotificationService {
     private final PerformanceRepository performanceRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final BookRepository bookRepository;
+    private final SeatRepository seatRepository;
 
 
     @Transactional
@@ -50,11 +55,11 @@ public class LikeMailNotificationService {
                 email != null) {
 
                 try {
-                    likeMailService.performanceStart(user, performance);
+                    ReservationStartMailDto dto = LikeMailMapper.toReservationStartMailDto(user, performance);
+                    likeMailService.reservationStart(dto);
                     sendCnt++;
                 } catch (Exception e) {
 
-                    //근데 메일 없는 거는 어떻하지?
                     log.info("메일 전송 실패: {}", email, e);
                 }
                 emailCnt++;
@@ -81,8 +86,10 @@ public class LikeMailNotificationService {
             if (like.isLiked()){
                 User user = like.getUser();
                 Performance performance = like.getPerformance();
+                ReservationStartMailDto dto = LikeMailMapper.toReservationStartMailDto(user, performance);
 
-                eventPublisher.publishEvent(new LikeMailEvent(user, performance, MailType.RESERVATION_NOTICE));
+                eventPublisher.publishEvent(new ReservationEvent(dto));
+//                eventPublisher.publishEvent(new LikeMailEvent(user, performance, MailType.RESERVATION_NOTICE));
             }
 
             //likeMailService.performanceStart(user, performance);
@@ -96,27 +103,27 @@ public class LikeMailNotificationService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime reservationTime = now.minusMinutes(60);
 
-        // 정각으로 하면 안보내는 문제가 있어 +- 1분의 시간을 주었습니다.
         LocalDateTime start = reservationTime.minusMinutes(1);
         LocalDateTime end = reservationTime.plusMinutes(1);
 
         List<Like> likes = likeRepository.findLikesByTargetTime(start, end);
 
         for (Like like : likes) {
-
             if (like.isLiked()) {
                 User user = like.getUser();
                 Performance performance = like.getPerformance();
 
                 boolean payed = bookRepository.existsByUserAndPerformanceAndBookStatus(user, performance, BookStatus.PAYED);
-                log.info("{}", payed);
+                int availableSeats = seatRepository.countAvailableSeatsByPerformanceId(performance.getId());
+
+                NoPayedMailDto dto = LikeMailMapper.toNoPayedMailDto(user, performance, availableSeats);
+
+                log.info("예약 여부: {}, 잔여좌석: {}", payed, availableSeats);
+
                 if (!payed) {
-                    eventPublisher.publishEvent(
-                        new LikeMailEvent(user, performance, MailType.NO_PAYED));
+                    eventPublisher.publishEvent(new NoPayMailEvent(dto));
                 }
-
             }
-
         }
     }
 
