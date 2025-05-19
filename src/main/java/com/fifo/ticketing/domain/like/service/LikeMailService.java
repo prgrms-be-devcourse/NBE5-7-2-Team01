@@ -29,8 +29,7 @@ public class LikeMailService {
     private String fromAddress;
 
     @Async("mailExecutor")
-    public void reservationStart(User user, Performance performance) {
-        ReservationStartMailDto dto = LikeMailMapper.toReservationStartMailDto(user, performance);
+    public void reservationStart( ReservationStartMailDto dto ) {
 
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
@@ -54,10 +53,7 @@ public class LikeMailService {
     }
 
     @Async("mailExecutor")
-    public void NoPayedPerformance(User user, Performance performance) {
-        int availableSeats = seatRepository.countAvailableSeatsByPerformanceId(performance.getId());
-
-        NoPayedMailDto dto = LikeMailMapper.toNoPayedMailDto(user, performance, availableSeats);
+    public void NoPayedPerformance(NoPayedMailDto dto) {
 
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
