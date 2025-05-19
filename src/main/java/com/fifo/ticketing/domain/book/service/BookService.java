@@ -159,7 +159,7 @@ public class BookService {
             bookPage = bookRepository.findAllByUserIdAndBookStatus(userId, status,
                 pageable);
         } else {
-            bookPage = bookRepository.findAllByUserIdOOrderByCreatedAtDesc(userId, pageable);
+            bookPage = bookRepository.findAllByUserIdOrderByCreatedAtDesc(userId, pageable);
         }
 
         return BookMapper.toBookedViewDtoList(bookPage, urlPrefix);
