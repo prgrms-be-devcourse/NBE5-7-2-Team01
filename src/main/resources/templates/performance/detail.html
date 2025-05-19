@@ -1,6 +1,6 @@
 ﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head>
+<head th:replace="~{fragments/common_headers :: commonHeader}">
   <meta charset="UTF-8">
   <title th:text="${performanceDetail.title}">공연 상세</title>
   <style>
@@ -62,7 +62,7 @@
   </script>
 </head>
 <body class="bg-gray-100 py-10 px-4">
-
+<div th:replace="~{fragments/top_bar :: top_bar}"></div>
 <div
     class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 bg-white rounded-lg shadow p-6">
   <!-- 왼쪽: 포스터 -->

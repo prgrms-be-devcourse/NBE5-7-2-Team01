@@ -1,6 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
+<head th:replace="~{fragments/common_headers :: commonHeader}">
   <meta charset="UTF-8">
   <title th:if="${!book.paymentCompleted}">예매가 완료되었습니다</title>
   <title th:if="${book.paymentCompleted}">결제가 완료되었습니다</title>
@@ -21,6 +21,7 @@
   </script>
 </head>
 <body class="bg-gray-100 min-h-screen py-10 px-4">
+<div th:replace="~{fragments/top_bar :: top_bar}"></div>
 <div class="max-w-5xl mx-auto bg-white shadow-md rounded-xl p-10">
   <h2 class="text-3xl font-bold text-center text-tickethub mb-6" th:if="${!book.paymentCompleted}">예매가 완료되었습니다</h2>
   <h2 class="text-3xl font-bold text-center text-tickethub mb-6" th:if="${book.paymentCompleted}">결제가 완료되었습니다</h2>

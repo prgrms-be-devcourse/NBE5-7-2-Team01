@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
+<head th:replace="~{fragments/common_headers :: commonHeader}">
   <meta charset="UTF-8">
   <title th:text="${bookDetail.performanceTitle}">예매 상세</title>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -20,6 +20,7 @@
   </script>
 </head>
 <body class="bg-gray-100 py-12 px-4 min-h-screen">
+<div th:replace="~{fragments/top_bar :: top_bar}"></div>
 <div class="max-w-5xl mx-auto bg-white rounded-xl shadow-lg p-10">
   <h2 class="text-3xl font-bold text-tickethub text-center mb-8">예매 상세 정보</h2>
 

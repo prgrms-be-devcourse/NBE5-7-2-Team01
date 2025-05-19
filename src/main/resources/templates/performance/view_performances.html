@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
+<head th:replace="~{fragments/common_headers :: commonHeader}">
   <meta charset="UTF-8">
   <title>공연 목록 조회</title>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -50,6 +50,7 @@
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen py-10 px-4">
+<div th:replace="~{fragments/top_bar :: top_bar}"></div>
 <div class="max-w-6xl mx-auto">
   <h1 class="text-3xl font-bold text-center text-orange-500 mb-8">공연 목록 조회</h1>
 
