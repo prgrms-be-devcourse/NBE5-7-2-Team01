@@ -76,7 +76,8 @@ public class BookService {
         bookScheduleManager.scheduleCancelTask(bookId, runTime);
     }
 
-    private Book saveBookAndBookSeats(User user, Performance performance, int totalPrice, int quantity,
+    private Book saveBookAndBookSeats(User user, Performance performance, int totalPrice,
+        int quantity,
         List<Seat> selectedSeats) {
         Book book = BookMapper.toBookEntity(user, performance, totalPrice, quantity);
         bookRepository.save(book);

@@ -62,7 +62,7 @@ public class SeatService {
             .map(SeatMapper::toBookSeatViewDto)
             .collect(Collectors.toList());
     }
-    
+
 
     @Transactional
     public void createSeats(List<Seat> seatList) {
