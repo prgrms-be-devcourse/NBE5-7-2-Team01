@@ -11,7 +11,7 @@ public class LikeMailMapper {
             .email(user.getEmail())
             .username(user.getUsername())
             .performanceTitle(performance.getTitle())
-            .reservationStartTime(performance.getReservationStartTime()) // 필드명에 맞게 조정
+            .reservationStartTime(performance.getReservationStartTime())
             .build();
     }
 
