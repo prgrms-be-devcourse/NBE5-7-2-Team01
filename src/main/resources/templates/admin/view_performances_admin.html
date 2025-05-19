@@ -74,7 +74,8 @@
         <th class="px-3 py-2 border">End Time</th>
         <th class="px-3 py-2 border">Reservation Time</th>
         <th class="px-3 py-2 border">Reservation Status</th>
-        <th class="px-3 py-2 border"></th>
+        <th class="px-3 py-2 border">수정</th>
+        <th class="px-3 py-2 border">예매 내역</th>
       </tr>
       </thead>
       <tbody>
@@ -102,9 +103,9 @@
              class="bg-tickethub px-2 py-1 rounded text-sm text-white hover:bg-tickethub-dark"
              th:if="${!(param.sort != null and param.sort[0] == 'deleted')}">수정</a>
         </td>
-        <td>
+        <td class="px-2 py-2 border">
           <a th:href="@{/admin/performances/book/{performanceId}(performanceId=${performance.id})}"
-             class="btn btn-warning"
+             class="bg-tickethub px-2 py-1 rounded text-sm text-white hover:bg-tickethub-dark"
              th:if="${!(param.sort != null and param.sort[0] == 'deleted')}">예매 내역 조회</a>
         </td>
       </tr>
