@@ -195,10 +195,7 @@ public class BookService {
 
         List<BookSeat> bookSeats = bookSeatRepository.findAllByBookId(bookId);
 
-        for (BookSeat bookSeat : bookSeats) {
-            Seat seat = bookSeat.getSeat();
-            seat.available();
-        }
+        SeatService.changeSeatStatus(bookSeats, SeatStatus.AVAILABLE);
     }
 
 }
