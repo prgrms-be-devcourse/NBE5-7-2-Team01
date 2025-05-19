@@ -19,6 +19,7 @@ import com.fifo.ticketing.domain.performance.repository.PerformanceRepository;
 import com.fifo.ticketing.domain.seat.entity.Seat;
 import com.fifo.ticketing.domain.seat.entity.SeatStatus;
 import com.fifo.ticketing.domain.seat.repository.SeatRepository;
+import com.fifo.ticketing.domain.seat.service.SeatService;
 import com.fifo.ticketing.domain.user.entity.User;
 import com.fifo.ticketing.domain.user.repository.UserRepository;
 import com.fifo.ticketing.global.exception.AlertDetailException;
@@ -46,7 +47,7 @@ public class BookService {
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
     private final PerformanceRepository performanceRepository;
-    private final SeatRepository seatRepository;
+    private final SeatService seatService;
     private final BookSeatRepository bookSeatRepository;
     private final BookScheduleManager bookScheduleManager;
 
@@ -58,19 +59,19 @@ public class BookService {
         Performance performance = performanceRepository.findById(performanceId)
             .orElseThrow(() -> new ErrorException(NOT_FOUND_PERFORMANCE));
 
-        List<Seat> selectedSeats = validateBookSeats(request.getSeatIds());
+        List<Seat> selectedSeats = seatService.validateBookSeats(request.getSeatIds());
 
         int totalPrice = selectedSeats.stream().mapToInt(Seat::getPrice).sum();
         int quantity = selectedSeats.size();
 
         Book book = saveBookAndBookSeats(user, performance, totalPrice, quantity, selectedSeats);
 
-        scheduleCancel(book.getId());
+        scheduleBookCancel(book.getId());
 
         return book.getId();
     }
 
-    private void scheduleCancel(Long bookId) {
+    private void scheduleBookCancel(Long bookId) {
         LocalDateTime runTime = LocalDateTime.now().plusMinutes(10);
         bookScheduleManager.scheduleCancelTask(bookId, runTime);
     }
@@ -86,24 +87,6 @@ public class BookService {
         bookSeatRepository.saveAll(bookSeatList);
         return book;
     }
-
-    private List<Seat> validateBookSeats(List<Long> seatIds) {
-        List<Seat> selectedSeats = seatRepository.findAllByIdInWithOptimisticLock(seatIds);
-
-        for (Seat seat : selectedSeats) {
-            seat.validateAvailable();
-            seat.book();
-        }
-
-        try {
-            seatRepository.flush();
-        } catch (ObjectOptimisticLockingFailureException e) {
-            throw new ErrorException(SEAT_ALREADY_BOOKED);
-        }
-        return selectedSeats;
-    }
-
-
 
     @Transactional
     public BookCompleteDto getBookCompleteInfo(Long bookId) {
@@ -122,7 +105,7 @@ public class BookService {
 
         book.payed();
 
-        changeSeatStatus(bookSeats, SeatStatus.OCCUPIED);
+        SeatService.changeSeatStatus(bookSeats, SeatStatus.OCCUPIED);
 
     }
 
@@ -135,21 +118,9 @@ public class BookService {
 
         book.canceled();
 
-        changeSeatStatus(bookSeats, SeatStatus.AVAILABLE);
+        SeatService.changeSeatStatus(bookSeats, SeatStatus.AVAILABLE);
 
         return bookId;
-    }
-
-    private static void changeSeatStatus(List<BookSeat> bookSeats, SeatStatus newStatus) {
-        for (BookSeat bookSeat : bookSeats) {
-            Seat seat = bookSeat.getSeat();
-            switch (newStatus) {
-                case OCCUPIED -> seat.occupy();
-                case AVAILABLE -> seat.available();
-                default -> throw new ErrorException(ErrorCode.NOT_FOUND_SEAT_STATUS);
-            }
-            seat.available();
-        }
     }
 
 
