@@ -1,10 +1,4 @@
 ﻿
-<!--&lt;!&ndash; ✅ CSS/JS 공통 헤더 &ndash;&gt;-->
-<!--<th:block th:fragment="commonHeader">-->
-<!--  <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />-->
-<!--  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>-->
-<!--</th:block>-->
-
 <!-- 상단바 -->
 <th:block th:fragment="top_bar">
   <div class="navbar bg-base-100 shadow-sm fixed top-0 left-0 right-0 z-50">
@@ -23,7 +17,7 @@
 
         <!-- 로그인 안 된 상태: 로그인/회원가입 -->
         <li th:if="${userId == null}">
-          <a class="btn btn-primary btn-sm mx-1" href="/users/signin">로그인/회원가입</a>
+          <a class="btn btn-primary btn-sm mx-1 text-white"  href="/users/signin">로그인/회원가입</a>
         </li>
 
         <!-- ✅ 로그인 된 상태: 마이페이지, 로그아웃 -->

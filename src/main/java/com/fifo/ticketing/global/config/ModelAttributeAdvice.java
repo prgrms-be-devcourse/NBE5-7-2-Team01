@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 
 @ControllerAdvice
 public class ModelAttributeAdvice {
-
     @ModelAttribute
     public void addUserIdToModel(HttpSession session, Model model) {
         SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
