@@ -15,7 +15,6 @@ public class UserValidator {
         if (user == null) {
             throw new ErrorException("user/sign_in", ErrorCode.UNAUTHORIZED_REQUEST);
         }
-
         return user;
     }
 }
