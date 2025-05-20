@@ -178,7 +178,7 @@
       <a th:href="@{/performances?{query}(query=${baseQuery}, page=0)}"
          th:classappend="${currentPage > 0} ? '' : 'invisible'"
          class="px-3 py-1 border rounded">&laquo;</a>
-      <a th:href="@{/performancs?{query}(query=${baseQuery}, page=${currentPage - 1})}"
+      <a th:href="@{/performances?{query}(query=${baseQuery}, page=${currentPage - 1})}"
          th:classappend="${currentPage > 0} ? '' : 'invisible'"
          class="px-3 py-1 border rounded">&lt;</a>
       <a th:each="i : ${#numbers.sequence(
