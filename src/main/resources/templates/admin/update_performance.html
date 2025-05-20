@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
+<head th:replace="~{fragments/common_headers :: commonHeader}">
   <meta charset="UTF-8">
   <title>공연 수정</title>
-  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen py-10 px-6">
-<a href="/admin/performances" class="text-sm text-gray-700 hover:underline flex items-center mb-6">&larr; 공연 목록으로</a>
+<div th:replace="~{fragments/top_bar :: top_bar}"></div>
 <div class="max-w-3xl mx-auto bg-white shadow-md rounded-xl p-10">
   <h1 class="text-3xl font-bold text-center text-orange-500 mb-8">공연 수정</h1>
   <form id="performance-form" enctype="multipart/form-data" class="space-y-5">
@@ -17,28 +16,36 @@
 
     <div>
       <label for="title" class="block font-semibold mb-1">제목</label>
-      <input type="text" id="title" name="title" th:value="${performance.title}" required class="w-full px-4 py-2 border rounded"/>
+      <input type="text" id="title" name="title" th:value="${performance.title}" required
+             class="w-full px-4 py-2 border rounded"/>
     </div>
 
     <div>
       <label for="description" class="block font-semibold mb-1">설명</label>
-      <textarea id="description" name="description" required class="w-full px-4 py-2 border rounded" th:text="${performance.description}"></textarea>
+      <textarea id="description" name="description" required class="w-full px-4 py-2 border rounded"
+                th:text="${performance.description}"></textarea>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <label for="startTime" class="block font-semibold mb-1">시작 시간</label>
-        <input type="datetime-local" id="startTime" name="startTime" th:value="${#temporals.format(performance.startTime, 'yyyy-MM-dd''T''HH:mm')}" required class="w-full px-4 py-2 border rounded"/>
+        <input type="datetime-local" id="startTime" name="startTime"
+               th:value="${#temporals.format(performance.startTime, 'yyyy-MM-dd''T''HH:mm')}"
+               required class="w-full px-4 py-2 border rounded"/>
       </div>
       <div>
         <label for="endTime" class="block font-semibold mb-1">종료 시간</label>
-        <input type="datetime-local" id="endTime" name="endTime" th:value="${#temporals.format(performance.endTime, 'yyyy-MM-dd''T''HH:mm')}" required class="w-full px-4 py-2 border rounded"/>
+        <input type="datetime-local" id="endTime" name="endTime"
+               th:value="${#temporals.format(performance.endTime, 'yyyy-MM-dd''T''HH:mm')}" required
+               class="w-full px-4 py-2 border rounded"/>
       </div>
     </div>
 
     <div>
       <label for="reservationStartTime" class="block font-semibold mb-1">예매 시작 시간</label>
-      <input type="datetime-local" id="reservationStartTime" name="reservationStartTime" th:value="${#temporals.format(performance.reservationStartTime, 'yyyy-MM-dd''T''HH:mm')}" required class="w-full px-4 py-2 border rounded"/>
+      <input type="datetime-local" id="reservationStartTime" name="reservationStartTime"
+             th:value="${#temporals.format(performance.reservationStartTime, 'yyyy-MM-dd''T''HH:mm')}"
+             required class="w-full px-4 py-2 border rounded"/>
     </div>
 
     <div>
@@ -52,7 +59,8 @@
 
     <div>
       <label for="performanceStatus" class="block font-semibold mb-1">예매 가능 여부</label>
-      <select id="performanceStatus" name="performanceStatus" class="w-full px-4 py-2 border rounded">
+      <select id="performanceStatus" name="performanceStatus"
+              class="w-full px-4 py-2 border rounded">
         <option value="true" th:selected="${performance.performanceStatus}">예매 가능</option>
         <option value="false" th:selected="${!performance.performanceStatus}">예매 불가</option>
       </select>
@@ -63,7 +71,8 @@
       <select id="placeId" name="placeId" required class="w-full px-4 py-2 border rounded">
         <option value="" disabled selected>장소를 선택해주세요.</option>
         <th:block th:each="place : ${places}">
-          <option th:value="${place.id}" th:text="${place.name}" th:selected="${performance.place == place.name}"></option>
+          <option th:value="${place.id}" th:text="${place.name}"
+                  th:selected="${performance.place == place.name}"></option>
         </th:block>
       </select>
     </div>
@@ -73,7 +82,10 @@
       <input type="file" id="file" name="file" accept="image/*" class="w-full"/>
     </div>
 
-    <button type="submit" class="w-full bg-orange-500 text-white font-bold py-2 rounded hover:bg-orange-600 transition">수정</button>
+    <button type="submit"
+            class="w-full bg-orange-500 text-white font-bold py-2 rounded hover:bg-orange-600 transition">
+      수정
+    </button>
   </form>
 </div>
 
@@ -98,7 +110,7 @@
     const file = form.file.files[0];
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("request", new Blob([JSON.stringify(dto)], { type: "application/json" }));
+    formData.append("request", new Blob([JSON.stringify(dto)], {type: "application/json"}));
 
     try {
       const res = await fetch(`/api/performances/${perfId}`, {

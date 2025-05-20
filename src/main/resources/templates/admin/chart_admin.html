@@ -1,17 +1,18 @@
 ﻿<!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
+<head th:replace="~{fragments/common_headers :: commonHeader}">
   <meta charset="UTF-8">
   <title>공연별 예매 통계</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen py-10 px-4">
+<div th:replace="~{fragments/top_bar :: top_bar}"></div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class="max-w-7xl mx-auto">
   <h2 class="text-3xl font-bold text-center text-orange-500 mb-10">공연별 예매 통계</h2>
 
   <div id="chartsContainer" class="flex flex-wrap justify-center gap-8">
-    <div th:each="stat, iterStat : ${stats}" class="w-72 bg-white p-4 rounded-xl shadow hover:shadow-md transition">
+    <div th:each="stat, iterStat : ${stats}"
+         class="w-72 bg-white p-4 rounded-xl shadow hover:shadow-md transition">
       <h4 class="text-lg font-semibold text-center mb-4" th:text="${stat.title}"></h4>
       <canvas class="mx-auto" th:attr="id='chart-' + ${iterStat.index}"></canvas>
       <p class="text-center mt-4 text-sm text-gray-600">
@@ -63,7 +64,7 @@
         options: {
           responsive: true,
           plugins: {
-            legend: { position: 'bottom' },
+            legend: {position: 'bottom'},
             tooltip: {
               callbacks: {
                 label: function (tooltipItem) {

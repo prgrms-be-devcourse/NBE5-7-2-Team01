@@ -37,6 +37,7 @@ public class ViewController {
     public String homePage(HttpSession session, Model model) {
         SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
         if (loginUser != null) {
+            model.addAttribute("userRole", loginUser.role());
             model.addAttribute("username", loginUser.username());
         }
         return "index";

@@ -1,53 +1,43 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head>
+<head th:replace="~{fragments/common_headers :: commonHeader}">
   <meta charset="UTF-8">
   <title>공연 등록</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            tickethub: {
-              DEFAULT: '#FF6F3C',
-              dark: '#e65b25'
-            }
-          }
-        }
-      }
-    }
-  </script>
 </head>
 <body class="bg-gray-100 min-h-screen py-10 px-4">
 <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-10">
+  <div th:replace="~{fragments/top_bar :: top_bar}"></div>
   <h1 class="text-5xl font-bold mb-10 text-center text-tickethub">공연 등록</h1>
   <form id="performance-form" class="space-y-6">
     <div>
       <label for="title" class="block font-semibold mb-1">제목</label>
-      <input type="text" id="title" name="title" required class="w-full border rounded px-3 py-2" />
+      <input type="text" id="title" name="title" required class="w-full border rounded px-3 py-2"/>
     </div>
 
     <div>
       <label for="description" class="block font-semibold mb-1">설명</label>
-      <textarea id="description" name="description" required class="w-full border rounded px-3 py-2"></textarea>
+      <textarea id="description" name="description" required
+                class="w-full border rounded px-3 py-2"></textarea>
     </div>
 
     <div class="grid md:grid-cols-2 gap-4">
       <div>
         <label for="startTime" class="block font-semibold mb-1">시작 시간</label>
-        <input type="datetime-local" id="startTime" name="startTime" required class="w-full border rounded px-3 py-2" />
+        <input type="datetime-local" id="startTime" name="startTime" required
+               class="w-full border rounded px-3 py-2"/>
       </div>
       <div>
         <label for="endTime" class="block font-semibold mb-1">종료 시간</label>
-        <input type="datetime-local" id="endTime" name="endTime" required class="w-full border rounded px-3 py-2" />
+        <input type="datetime-local" id="endTime" name="endTime" required
+               class="w-full border rounded px-3 py-2"/>
       </div>
     </div>
 
     <div>
       <label for="reservationDate" class="block font-semibold mb-1">예매 시작 시간</label>
-      <input type="date" id="reservationDate" name="reservationDate" required class="w-full border rounded px-3 py-2" />
-      <input type="hidden" name="reservationStartTime" id="reservationStartTime" />
+      <input type="date" id="reservationDate" name="reservationDate" required
+             class="w-full border rounded px-3 py-2"/>
+      <input type="hidden" name="reservationStartTime" id="reservationStartTime"/>
     </div>
 
     <div>
@@ -61,7 +51,8 @@
 
     <div>
       <label for="performanceStatus" class="block font-semibold mb-1">예매 가능 여부</label>
-      <select id="performanceStatus" name="performanceStatus" class="w-full border rounded px-3 py-2">
+      <select id="performanceStatus" name="performanceStatus"
+              class="w-full border rounded px-3 py-2">
         <option value="true">예매 가능</option>
         <option value="false">예매 불가</option>
       </select>
@@ -81,10 +72,12 @@
 
     <div>
       <label for="file" class="block font-semibold mb-1">포스터 이미지</label>
-      <input type="file" id="file" name="file" accept="image/*" required class="w-full" />
+      <input type="file" id="file" name="file" accept="image/*" required class="w-full"/>
     </div>
 
-    <button type="submit" class="w-full bg-tickethub text-white py-3 text-lg rounded hover:bg-tickethub-dark">등록</button>
+    <button type="submit"
+            class="w-full bg-tickethub text-white py-3 text-lg rounded hover:bg-tickethub-dark">등록
+    </button>
   </form>
 </div>
 
@@ -131,7 +124,9 @@
     gradeContainer.innerHTML = "";
     try {
       const response = await fetch(`/api/grades/places/${placeId}`);
-      if (!response.ok) throw new Error("Grade 정보의 로드가 실패했습니다.");
+      if (!response.ok) {
+        throw new Error("Grade 정보의 로드가 실패했습니다.");
+      }
       const grades = await response.json();
       if (grades.length === 0) {
         gradeContainer.innerHTML = "<p>해당 장소에 등록된 좌석 등급이 없습니다.</p>";

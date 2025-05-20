@@ -29,7 +29,7 @@ public class FormLoginSuccessHandler implements AuthenticationSuccessHandler {
 
         HttpSession session = request.getSession();
         session.setAttribute("loginUser",
-            new SessionUser(userDetails.getId(), userDetails.getName()));
+            new SessionUser(userDetails.getId(), userDetails.getName(), userDetails.getRole()));
 
         SavedRequest savedRequest = requestCache.getRequest(request, response);
         if (savedRequest != null) {

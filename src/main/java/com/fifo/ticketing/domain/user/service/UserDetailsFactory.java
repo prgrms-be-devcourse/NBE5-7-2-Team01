@@ -1,6 +1,7 @@
 package com.fifo.ticketing.domain.user.service;
 
 import com.fifo.ticketing.domain.user.dto.oauth.UserOAuthDetails;
+import com.fifo.ticketing.domain.user.entity.Role;
 import com.fifo.ticketing.global.exception.ErrorCode;
 import com.fifo.ticketing.global.exception.ErrorException;
 import java.util.Map;
@@ -17,6 +18,7 @@ public class UserDetailsFactory {
                 return UserOAuthDetails.builder()
                     .name(attributes.get("name").toString())
                     .email(attributes.get("email").toString())
+                    .role(Role.USER)
                     .attributes(attributes)
                     .build();
             }
@@ -26,6 +28,7 @@ public class UserDetailsFactory {
                 return UserOAuthDetails.builder()
                     .name(properties.get("name").toString())
                     .email(properties.get("id") + "@naver.com")
+                    .role(Role.USER)
                     .attributes(properties)
                     .build();
             }
@@ -34,6 +37,7 @@ public class UserDetailsFactory {
                 return UserOAuthDetails.builder()
                     .name(properties.get("nickname").toString())
                     .email(attributes.get("id") + "@kakao.com")
+                    .role(Role.USER)
                     .attributes(properties)
                     .build();
             }

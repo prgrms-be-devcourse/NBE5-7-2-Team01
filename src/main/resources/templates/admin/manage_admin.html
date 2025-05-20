@@ -1,36 +1,27 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
+<head th:replace="~{fragments/common_headers :: commonHeader}">
   <meta charset="UTF-8">
   <title>관리자 - 유저 관리</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            tickethub: {
-              DEFAULT: '#FF6F3C',
-              dark: '#e65b25'
-            }
-          }
-        }
-      }
-    }
-  </script>
 </head>
 <body class="bg-gray-100 min-h-screen py-10 px-4">
+<div th:replace="~{fragments/top_bar :: top_bar}"></div>
 <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-lg p-8">
   <h2 class="text-3xl font-bold text-center mb-8 text-tickethub">유저 관리</h2>
 
-  <form id="searchForm" class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-    <input type="text" name="name" class="border rounded px-4 py-2 w-full md:w-1/3" placeholder="유저명 검색">
+  <form id="searchForm"
+        class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <input type="text" name="name" class="border rounded px-4 py-2 w-full md:w-1/3"
+           placeholder="유저명 검색">
     <select name="role" class="border rounded px-4 py-2 w-full md:w-1/4">
       <option value="">전체</option>
       <option value="USER">USER</option>
       <option value="ADMIN">ADMIN</option>
     </select>
-    <button type="submit" class="bg-tickethub text-white px-6 py-2 rounded hover:bg-tickethub-dark w-full md:w-auto">검색</button>
+    <button type="submit"
+            class="bg-tickethub text-white px-6 py-2 rounded hover:bg-tickethub-dark w-full md:w-auto">
+      검색
+    </button>
   </form>
 
   <div class="overflow-x-auto">
@@ -74,7 +65,9 @@
               <td class="border px-4 py-2">${user.username}</td>
               <td class="border px-4 py-2">${user.email}</td>
               <td class="border px-4 py-2">
-                <span class="font-semibold cursor-pointer ${user.isBlocked ? 'text-red-500' : 'text-green-600'} ${user.role === 'ADMIN' ? 'opacity-50 pointer-events-none' : ''} status-toggle" data-id="${user.id}" data-role="${user.role}">
+                <span class="font-semibold cursor-pointer ${user.isBlocked ? 'text-red-500'
+            : 'text-green-600'} ${user.role === 'ADMIN' ? 'opacity-50 pointer-events-none'
+            : ''} status-toggle" data-id="${user.id}" data-role="${user.role}">
                   ${user.isBlocked ? '정지' : '활성'}
                 </span>
               </td>
@@ -97,7 +90,8 @@
         li.className = `page-item ${data.number === i ? 'font-bold text-tickethub' : ''}`;
 
         const a = document.createElement("a");
-        a.className = `px-4 py-2 border border-gray-300 hover:bg-gray-200 ${data.number === i ? 'bg-tickethub text-white' : 'bg-white text-gray-700'}`;
+        a.className = `px-4 py-2 border border-gray-300 hover:bg-gray-200 ${data.number === i
+            ? 'bg-tickethub text-white' : 'bg-white text-gray-700'}`;
         a.href = "#";
         a.textContent = i + 1;
 
@@ -121,7 +115,9 @@
 
     document.addEventListener("click", (e) => {
       if (e.target.classList.contains("status-toggle")) {
-        if (e.target.dataset.role === "ADMIN") return;
+        if (e.target.dataset.role === "ADMIN") {
+          return;
+        }
         const userId = e.target.dataset.id;
         fetch(`/users/status/${userId}`, {method: "PUT"})
         .then(() => loadUsers(currentPage));

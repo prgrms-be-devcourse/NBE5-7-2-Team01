@@ -1,14 +1,26 @@
-﻿
-<!-- 상단바 -->
+﻿<!-- 상단바 -->
 <th:block th:fragment="top_bar">
   <div class="navbar bg-base-100 shadow-sm fixed top-0 left-0 right-0 z-50">
-    <div class="flex-1">
+    <div class="flex-1 flex items-center">
       <!-- Tickethub 로고 이미지 -->
 
-      <a class="btn btn-ghost" href="/performances">
+      <!-- 관리자용 링크 -->
+      <a class="btn btn-ghost" th:if="${userRole.name() == 'ADMIN'}" th:href="@{/admin/menu}">
         <img src="/images/tickethub_logo.JPG" alt="Tickethub" class="h-10 w-auto max-w-[160px] object-contain" />
       </a>
 
+      <!-- 일반 사용자용 링크 -->
+      <a class="btn btn-ghost" th:if="${userRole.name() != 'ADMIN'}" th:href="@{/performances}">
+        <img src="/images/tickethub_logo.JPG" alt="Tickethub" class="h-10 w-auto max-w-[160px] object-contain" />
+      </a>
+
+      <a th:if="${showBackButton}" href="javascript:history.back()"
+         class="ml-2 text-tickethub hover:underline text-sm flex items-center space-x-0.5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span>뒤로</span>
+      </a>
 
     </div>
 
@@ -17,12 +29,13 @@
 
         <!-- 로그인 안 된 상태: 로그인/회원가입 -->
         <li th:if="${userId == null}">
-          <a class="btn btn-primary btn-sm mx-1 text-white"  href="/users/signin">로그인/회원가입</a>
+          <a class="btn btn-primary btn-sm mx-1 text-white" href="/users/signin">로그인/회원가입</a>
         </li>
 
         <!-- ✅ 로그인 된 상태: 마이페이지, 로그아웃 -->
+
         <li th:if="${userId}">
-          <a class="btn btn-ghost btn-sm mx-1" href="/users">마이페이지</a>
+          <a class="btn btn-ghost btn-sm mx-1" th:if="${userRole.name() != 'ADMIN'}" href="/users">마이페이지</a>
         </li>
         <li th:if="${userId}">
           <a class="btn btn-error btn-sm mx-1" href="/signout">로그아웃</a>

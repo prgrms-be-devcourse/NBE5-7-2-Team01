@@ -13,6 +13,7 @@ public class ModelAttributeAdvice {
         SessionUser loginUser = (SessionUser) session.getAttribute("loginUser");
         if (loginUser != null) {
             model.addAttribute("userId", loginUser.id());
+            model.addAttribute("userRole", loginUser.role());
         }
     }
 }
