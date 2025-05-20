@@ -35,7 +35,9 @@ public enum ErrorCode {
     NOT_FOUND_SCHEDULE("SCHEDULE-001", "존재하지 않는 스케줄 업무입니다.", NOT_FOUND),
     UNAUTHORIZED_REQUEST("AUTH-003", "올바른 요청이 아닙니다. 로그인을 해주세요.", UNAUTHORIZED),
     INVALID_DATETIME_PERIOD("DATETIME-001", "공연 종료 시간은 공연 시작 시간 이후여야 합니다.", BAD_REQUEST),
-    INVALID_DATETIME_TYPE("DATETIME-002", "날짜 형식이 올바르지 않습니다.", BAD_REQUEST);
+    INVALID_DATETIME_TYPE("DATETIME-002", "날짜 형식이 올바르지 않습니다.", BAD_REQUEST),
+    EMAIL_ALREADY_REGISTERED_WITH_DIFFERENT_PROVIDER("AUTH-004",
+        "이미 가입된 이메일입니다. 일반 로그인 방식으로 로그인 해주세요.", CONFLICT);
 
     private final String code;
     private final String message;
