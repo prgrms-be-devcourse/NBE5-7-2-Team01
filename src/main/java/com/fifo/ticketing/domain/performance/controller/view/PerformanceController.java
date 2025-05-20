@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -63,8 +64,8 @@ public class PerformanceController {
     ) {
         Pageable pageable = PageRequest.of(page, size);
 
-        if (keyword == null || keyword.isEmpty()) {
-            viewPerformances(session, page, size, model);
+        if (StringUtils.isBlank(keyword)) {
+            return viewPerformances(session, page, size, model);
         }
 
         return renderPerformanceList(
