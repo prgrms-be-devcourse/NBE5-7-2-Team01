@@ -20,6 +20,7 @@ public class PerformanceDetailResponse {
     private String category;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    private LocalDateTime reservationStartTime;
     private boolean performanceStatus;
     private int totalSeats;
     private List<PerformanceSeatGradeDto> seatGrades;

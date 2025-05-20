@@ -94,9 +94,15 @@
 
   <!-- 오른쪽: 예매 정보 -->
   <div>
-    <button type="button" id="openModalBtn"
+    <button th:if="${performanceDetail.performanceStatus}" type="button" id="openModalBtn"
             class="w-full bg-tickethub text-white py-2 rounded hover:bg-tickethub-dark">좌석 선택
     </button>
+
+    <div th:unless="${performanceDetail.performanceStatus}" class="w-full bg-gray-200 text-gray-700 py-2 px-4 rounded text-center">
+      예매는<br />
+      <span th:text="${#temporals.format(performanceDetail.reservationStartTime, 'yyyy년 MM월 dd일 HH시')}"></span><br />
+      부터 가능합니다.
+    </div>
 
     <div class="mt-6">
       <h3 class="font-semibold mb-2">선택한 좌석</h3>

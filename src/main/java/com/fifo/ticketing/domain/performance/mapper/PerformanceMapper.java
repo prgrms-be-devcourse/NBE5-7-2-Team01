@@ -22,12 +22,18 @@ public class PerformanceMapper {
 
     public static PerformanceDetailResponse toDetailResponseDto(Performance performance,
         List<PerformanceSeatGradeDto> seatGrades, String urlPrefix) {
-        return PerformanceDetailResponse.builder().performanceId(performance.getId())
-            .title(performance.getTitle()).description(performance.getDescription())
-            .category(performance.getCategory().name()).startTime(performance.getStartTime())
+        return PerformanceDetailResponse.builder()
+            .performanceId(performance.getId())
+            .title(performance.getTitle())
+            .description(performance.getDescription())
+            .category(performance.getCategory().name())
+            .startTime(performance.getStartTime())
             .encodedFileName(performance.getFile().getEncodedFileName())
-            .endTime(performance.getEndTime()).placeName(performance.getPlace().getName())
+            .endTime(performance.getEndTime())
+            .reservationStartTime(performance.getReservationStartTime())
+            .placeName(performance.getPlace().getName())
             .address(performance.getPlace().getAddress())
+            .performanceStatus(performance.isPerformanceStatus())
             .totalSeats(performance.getPlace().getTotalSeats())
             .seatGrades(seatGrades)
             .urlPrefix(urlPrefix)
