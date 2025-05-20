@@ -49,7 +49,7 @@ public class PerformanceController {
             model,
             performanceService.getPerformancesSortedByLatest(pageable),
             page,
-            "?size=" + size
+            "size=" + size
         );
     }
 
@@ -72,7 +72,7 @@ public class PerformanceController {
             model,
             performanceService.searchPerformancesByKeyword(keyword, pageable),
             page,
-            "?search=" + keyword + "&size=" + size
+            "search=" + keyword + "&size=" + size
         );
     }
 
@@ -91,7 +91,7 @@ public class PerformanceController {
             model,
             getPerformancesBySort(sort, pageable),
             page,
-            "?sort=" + sort + "&size=" + size
+            "sort=" + sort + "&size=" + size
         );
     }
 
@@ -119,7 +119,7 @@ public class PerformanceController {
             model,
             performanceService.getPerformancesByReservationPeriod(startDate, endDate, pageable),
             page,
-            "?startDate=" + startDate + "&endDate=" + endDate + "&size=" + size
+            "startDate=" + startDate + "&endDate=" + endDate + "&size=" + size
         );
     }
 
@@ -138,7 +138,7 @@ public class PerformanceController {
             model,
             performanceService.getPerformancesByCategory(category, pageable),
             page,
-            "?category=" + category + "&size=" + size
+            "category=" + category + "&size=" + size
         );
     }
 
