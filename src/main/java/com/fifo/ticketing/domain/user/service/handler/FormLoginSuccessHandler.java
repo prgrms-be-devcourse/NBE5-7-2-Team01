@@ -38,7 +38,7 @@ public class FormLoginSuccessHandler implements AuthenticationSuccessHandler {
         } else if (userDetails.getRole().equals(Role.ADMIN)) {
             response.sendRedirect("/admin/menu");
         } else {
-            response.sendRedirect("/");
+            response.sendRedirect("/performances");
         }
     }
 }
