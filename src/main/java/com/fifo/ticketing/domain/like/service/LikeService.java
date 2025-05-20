@@ -60,14 +60,12 @@ public class LikeService {
             updateLike(performance, -1);
             // likeCOunt 추가
             return false;
-        }else{
-            existingLike.setLiked(true);
-            likeRepository.save(existingLike);
-            updateLike(performance,1);
-            return true;
-
         }
 
+        existingLike.setLiked(true);
+        likeRepository.save(existingLike);
+        updateLike(performance,1);
+        return true;
     }
 
     private void updateLike(Performance performance, int cnt) {
