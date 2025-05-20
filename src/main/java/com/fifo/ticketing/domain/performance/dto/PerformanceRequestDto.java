@@ -1,7 +1,7 @@
 package com.fifo.ticketing.domain.performance.dto;
 
 import com.fifo.ticketing.domain.performance.entity.Category;
-import com.fifo.ticketing.domain.performance.entity.Place;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Schema(description = "공연 요청 DTO")
 @Getter
 @Builder
 @NoArgsConstructor

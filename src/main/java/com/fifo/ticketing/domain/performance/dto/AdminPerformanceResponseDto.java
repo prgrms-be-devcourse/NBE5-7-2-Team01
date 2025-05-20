@@ -1,5 +1,6 @@
 package com.fifo.ticketing.domain.performance.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -7,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Schema(description = "공연 응답 DTO (관리자)")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AdminPerformanceResponseDto {

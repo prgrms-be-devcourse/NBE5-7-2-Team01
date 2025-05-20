@@ -1,12 +1,13 @@
 package com.fifo.ticketing.domain.performance.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 
+@Schema(description = "공연 응답 DTO")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PerformanceResponseDto {
