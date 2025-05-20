@@ -23,7 +23,6 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
     @Query("SELECT l FROM Like l WHERE l.isLiked =true AND l.performance.reservationStartTime BETWEEN :start AND :end")
     List<Like> findLikesByTargetTime(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
-    // 해당 Method가 사용되지 않는 것 같은데, 제거 해도 괜찮을까요?
     @Query("SELECT l.performance.id FROM Like l WHERE l.user.id = :userId AND l.isLiked = true")
     List<Long> findLikedPerformanceIdsByUserId(@Param("userId") Long userId);
 
