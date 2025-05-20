@@ -20,8 +20,21 @@
   </script>
 </head>
 <body class="bg-gray-100 py-10 px-4">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <div th:replace="~{fragments/top_bar :: top_bar}"></div>
 <style>
+  .like-button {
+    font-size: 30px;
+    padding: 4px 8px;
+    border-radius: 50%;
+    line-height: 1;
+    transition: background-color 0.2s ease;
+  }
+
+  .like-button:hover {
+    background-color: #c82333;
+  }
+
   .seat {
     width: 40px;
     height: 40px;
@@ -66,7 +79,11 @@
 <div
     class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 bg-white rounded-lg shadow p-6">
   <!-- 왼쪽: 포스터 -->
-  <div class="text-center">
+  <div class="text-center relative">
+    <button class="like-button absolute bottom-1 right-1 text-red-500 text-xl"
+            th:data-id="${performanceId}">
+      <span th:text="${likedPerformanceIds.contains(performanceId)} ? '♥' : '♡'"></span>
+    </button>
     <img th:src="@{{url}(url=${performanceDetail.getUrl()})}" alt="공연 포스터"
          class="mx-auto rounded-md shadow-md max-w-xs"/>
   </div>
@@ -169,6 +186,32 @@
     // 예매 버튼 활성화 처리
     const bookBtn = document.getElementById("bookBtn");
     bookBtn.disabled = selectedSeatIds.size === 0;
+  });
+
+  // 좋아요 버튼 클릭 이벤트
+  $(document).on("click", ".like-button", function (event) {
+    event.preventDefault();           // 기본 동작 방지
+    event.stopImmediatePropagation();
+
+    const $btn = $(this);
+    const performanceId = $btn.data("id");
+
+    $.ajax({
+      type: "POST",
+      url: "/user/like",
+      contentType: "application/json",
+      data: JSON.stringify({
+        performanceId: performanceId
+      }),
+      success: function (response) {
+        const $span = $btn.find("span");
+        const current = $span.text().trim();
+        $span.text(current === "♡" ? "♥" : "♡");
+      },
+      error: function () {
+        alert("좋아요 처리 중 오류가 발생했습니다.");
+      }
+    });
   });
 
   // 좌석 렌더링

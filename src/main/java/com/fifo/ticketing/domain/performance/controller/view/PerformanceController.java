@@ -149,15 +149,19 @@ public class PerformanceController {
         Model model
     ) {
         SessionUser loginUser = UserValidator.validateSessionUser(session);
+        Long userId = loginUser.id();
 
         PerformanceDetailResponse performanceDetail = performanceService.getPerformanceDetail(
             performanceId);
 
         List<BookSeatViewDto> seatViewDtos = seatService.getSeatsForPerformance(performanceId);
 
+        List<Long> likedPerformanceIds = likeService.getLikedPerformancesIds(userId);
+
+        model.addAttribute("userId", userId);
+        model.addAttribute("likedPerformanceIds", likedPerformanceIds);
         model.addAttribute("performanceDetail", performanceDetail);
         model.addAttribute("performanceId", performanceId);
-        model.addAttribute("userId", loginUser.id());
         model.addAttribute("seats", seatViewDtos);
 
         return "performance/detail";
