@@ -250,12 +250,5 @@ public class AdminPerformanceController {
 
         return "/admin/view_performances_admin";
     }
-
-    private String encode(String value) {
-        try {
-            return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException e) {
-            return value; // 인코딩 실패 시 원본 값 반환
-        }
-    }
+    
 }
