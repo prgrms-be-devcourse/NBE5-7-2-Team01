@@ -9,5 +9,4 @@ public class DateTimeUtil {
     public static Date toDate(LocalDateTime localDateTime) {
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
-
 }

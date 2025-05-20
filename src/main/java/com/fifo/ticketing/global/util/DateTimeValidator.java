@@ -14,7 +14,7 @@ public class DateTimeValidator {
         if (startDate == null || endDate == null) {
             throw new ErrorException(ErrorCode.INVALID_DATETIME_TYPE);
         }
-        if (!startDate.isBefore(endDate)) {
+        if (startDate.isAfter(endDate)) {
             throw new ErrorException(ErrorCode.INVALID_DATETIME_PERIOD);
         }
     }

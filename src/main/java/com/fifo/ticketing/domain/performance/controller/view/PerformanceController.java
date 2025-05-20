@@ -44,14 +44,11 @@ public class PerformanceController {
         Model model
     ) {
         Pageable pageable = PageRequest.of(page, size);
+        Page<PerformanceResponseDto> performances = performanceService.getPerformancesSortedByLatest(
+            pageable);
+        String queryParams = "size=" + size;
 
-        return renderPerformanceList(
-            session,
-            model,
-            performanceService.getPerformancesSortedByLatest(pageable),
-            page,
-            "size=" + size
-        );
+        return renderPerformanceList(session, model, performances, page, queryParams);
     }
 
     @GetMapping(params = {"search"})
@@ -62,19 +59,15 @@ public class PerformanceController {
         @RequestParam(value = "size", defaultValue = "5", required = false) int size,
         Model model
     ) {
-        Pageable pageable = PageRequest.of(page, size);
-
         if (StringUtils.isBlank(keyword)) {
             return viewPerformances(session, page, size, model);
         }
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PerformanceResponseDto> performances = performanceService.searchPerformancesByKeyword(
+            keyword, pageable);
+        String queryParams = "search=" + keyword + "&size=" + size;
 
-        return renderPerformanceList(
-            session,
-            model,
-            performanceService.searchPerformancesByKeyword(keyword, pageable),
-            page,
-            "search=" + keyword + "&size=" + size
-        );
+        return renderPerformanceList(session, model, performances, page, queryParams);
     }
 
     @GetMapping(params = {"sort"})
@@ -86,14 +79,10 @@ public class PerformanceController {
         Model model
     ) {
         Pageable pageable = PageRequest.of(page, size);
+        Page<PerformanceResponseDto> performances = getPerformancesBySort(sort, pageable);
+        String queryParams = "sort=" + sort + "&size=" + size;
 
-        return renderPerformanceList(
-            session,
-            model,
-            getPerformancesBySort(sort, pageable),
-            page,
-            "sort=" + sort + "&size=" + size
-        );
+        return renderPerformanceList(session, model, performances, page, queryParams);
     }
 
     private Page<PerformanceResponseDto> getPerformancesBySort(String sort, Pageable pageable) {
@@ -114,14 +103,11 @@ public class PerformanceController {
     ) {
         DateTimeValidator.periodValidator(startDate, endDate);
         Pageable pageable = PageRequest.of(page, size);
+        Page<PerformanceResponseDto> performances = performanceService.getPerformancesByReservationPeriod(
+            startDate, endDate, pageable);
+        String queryParams = "startDate=" + startDate + "&endDate=" + endDate + "&size=" + size;
 
-        return renderPerformanceList(
-            session,
-            model,
-            performanceService.getPerformancesByReservationPeriod(startDate, endDate, pageable),
-            page,
-            "startDate=" + startDate + "&endDate=" + endDate + "&size=" + size
-        );
+        return renderPerformanceList(session, model, performances, page, queryParams);
     }
 
     @GetMapping(params = "category")
@@ -133,14 +119,11 @@ public class PerformanceController {
         Model model
     ) {
         Pageable pageable = PageRequest.of(page, size);
+        Page<PerformanceResponseDto> performances = performanceService.getPerformancesByCategory(
+            category, pageable);
+        String queryParams = "category=" + category + "&size=" + size;
 
-        return renderPerformanceList(
-            session,
-            model,
-            performanceService.getPerformancesByCategory(category, pageable),
-            page,
-            "category=" + category + "&size=" + size
-        );
+        return renderPerformanceList(session, model, performances, page, queryParams);
     }
 
     @GetMapping("/{performanceId}")
@@ -168,13 +151,8 @@ public class PerformanceController {
         return "performance/detail";
     }
 
-    private String renderPerformanceList(
-        HttpSession session,
-        Model model,
-        Page<PerformanceResponseDto> performances,
-        int page,
-        String queryParams
-    ) {
+    private String renderPerformanceList(HttpSession session, Model model,
+        Page<PerformanceResponseDto> performances, int page, String queryParams) {
         SessionUser loginUser = UserValidator.validateSessionUser(session);
         Long userId = loginUser.id();
         List<Long> likedPerformanceIds = likeService.getLikedPerformancesIds(userId);

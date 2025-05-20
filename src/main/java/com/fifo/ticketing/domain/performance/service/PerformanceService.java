@@ -31,7 +31,6 @@ public class PerformanceService {
     private final PerformanceRepository performanceRepository;
     private final GradeRepository gradeRepository;
 
-
     @Transactional(readOnly = true)
     public PerformanceDetailResponse getPerformanceDetail(Long performanceId) {
         Performance performance = performanceRepository.findById(performanceId)
@@ -55,9 +54,6 @@ public class PerformanceService {
     @Transactional(readOnly = true)
     public Page<PerformanceResponseDto> searchPerformancesByKeyword(String keyword,
         Pageable pageable) {
-        if (keyword == null || keyword.isEmpty()) {
-            getPerformancesSortedByLatest(pageable);
-        }
         Page<Performance> performances = performanceRepository.findUpcomingPerformancesByKeywordContaining(
             LocalDateTime.now(), keyword, pageable);
         return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
@@ -85,5 +81,4 @@ public class PerformanceService {
             LocalDateTime.now(), category, pageable);
         return PerformanceMapper.toPagePerformanceResponseDto(performances, urlPrefix);
     }
-
 }
