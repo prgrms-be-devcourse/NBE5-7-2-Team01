@@ -108,14 +108,17 @@ public class LikeMailNotificationService {
         Performance performance = like.getPerformance();
 
         boolean payed = bookRepository.existsByUserAndPerformanceAndBookStatus(user, performance, BookStatus.PAYED);
+        if(payed){
+            return;
+        }
         int availableSeats = seatRepository.countAvailableSeatsByPerformanceId(performance.getId());
 
         log.info("예약 여부: {}, 잔여좌석: {}", payed, availableSeats);
 
-        if (!payed) {
-            NoPayedMailDto dto = LikeMailMapper.toNoPayedMailDto(user, performance, availableSeats);
-            eventPublisher.publishEvent(new NoPayMailEvent(dto));
-        }
+
+        NoPayedMailDto dto = LikeMailMapper.toNoPayedMailDto(user, performance, availableSeats);
+        eventPublisher.publishEvent(new NoPayMailEvent(dto));
+
     }
 
 }
