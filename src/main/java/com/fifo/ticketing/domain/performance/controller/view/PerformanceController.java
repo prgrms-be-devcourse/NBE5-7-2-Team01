@@ -97,10 +97,10 @@ public class PerformanceController {
     }
 
     private Page<PerformanceResponseDto> getPerformancesBySort(String sort, Pageable pageable) {
-        return switch (sort) {
-            case "likes" -> performanceService.getPerformancesSortedByLikes(pageable);
-            default -> performanceService.getPerformancesSortedByLatest(pageable);
-        };
+        if (StringUtils.equals(sort, "likes")) {
+            return performanceService.getPerformancesSortedByLikes(pageable);
+        }
+        return performanceService.getPerformancesSortedByLatest(pageable);
     }
 
     @GetMapping(params = {"startDate", "endDate"})
