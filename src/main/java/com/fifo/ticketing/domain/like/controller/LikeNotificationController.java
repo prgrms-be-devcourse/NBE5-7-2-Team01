@@ -19,14 +19,12 @@ public class LikeNotificationController {
     private final LikeMailNotificationService likeMailNotificationService;
 
     @PostMapping("/performance/{performanceId}/likes")
-    public ResponseEntity<String> performanceLike(@ PathVariable("performanceId") Long performanceId) {
+    public ResponseEntity<String> performanceLike(@PathVariable("performanceId") Long performanceId) {
 
         boolean result = likeMailNotificationService.sendLikeNotification(performanceId);
 
-        return result
-            ? ResponseEntity.ok("모든 이메일 전송 완료 ")
-            : ResponseEntity.status(207).body("일부 이메일 전송 실패 ");
-
+        String message = result ? "모든 이메일 전송 완료" : "일부 이메일 전송 실패";
+        return ResponseEntity.ok(message);
     }
 
 
