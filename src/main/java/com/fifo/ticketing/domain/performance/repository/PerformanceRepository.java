@@ -85,9 +85,14 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
     Page<Performance> findUpcomingPerformancesOrderByReservationStartTimeForAdmin(
         Pageable pageable);
 
-    @Query("SELECT p FROM Performance p " +
-        "WHERE p.reservationStartTime BETWEEN :startDate AND :endDate " +
-        "ORDER BY p.reservationStartTime ASC, p.startTime ASC")
+    @EntityGraph(attributePaths = {"file"})
+    @Query(
+            value = "SELECT p FROM Performance p " +
+                    "WHERE p.startTime BETWEEN :startDate AND :endDate " +
+                    "ORDER BY p.reservationStartTime ASC, p.startTime ASC",
+            countQuery = "SELECT COUNT(p) FROM Performance p " +
+                    "WHERE p.startTime BETWEEN :startDate AND :endDate"
+    )
     Page<Performance> findUpcomingPerformancesByReservationPeriodForAdmin(
         @Param("startDate") LocalDateTime startDate,
         @Param("endDate") LocalDateTime endDate,

@@ -5,6 +5,51 @@
   <title>공연 목록 조회 (관리자)</title>
 </head>
 <body class="bg-gray-100 min-h-screen py-10 px-4">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/ko.min.js"></script>
+<style>
+  .like-button {
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 50%;
+    line-height: 1;
+    transition: background-color 0.2s ease;
+  }
+
+  .like-button:hover {
+    background-color: #c82333;
+  }
+
+  .custom-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050 !important;
+  }
+
+  .custom-modal {
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    z-index: 1060;
+  }
+
+  .hidden {
+    display: none;
+  }
+</style>
 <div th:replace="~{fragments/top_bar :: top_bar}"></div>
 <div class="max-w-6xl mx-auto">
   <h1 class="text-3xl font-bold text-center text-tickethub mb-8">공연 목록 조회 (관리자)</h1>
@@ -163,8 +208,8 @@
   </div>
 </div>
 <!-- 날짜 범위 선택 모달 -->
-<div id="dateRangeModal" class="modal-backdrop hidden">
-  <div class="modal">
+<div id="dateRangeModal" class="custom-modal-backdrop hidden">
+  <div class="custom-modal">
     <div class="flex justify-between items-center mb-4">
       <h3 class="text-lg font-medium text-gray-900">날짜 선택</h3>
       <button id="closeModal" class="text-gray-400 hover:text-gray-500">
