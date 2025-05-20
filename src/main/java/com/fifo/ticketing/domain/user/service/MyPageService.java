@@ -17,10 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MyPageService {
 
+    private final LikeRepository likeRepository;
     @Value("${file.url-prefix}")
     private String urlPrefix;
-
-    private final LikeRepository likeRepository;
 
     @Transactional(readOnly = true)
     public Page<LikedPerformanceDto> getUserLikedPerformance(Long userId,
@@ -33,9 +32,8 @@ public class MyPageService {
             }
             return PerformanceMapper.toPageLikedPerformanceDto(likedPerformancesByUserId,
                 urlPrefix);
-        } else {
-            throw new ErrorException(ErrorCode.NOT_FOUND_MEMBER);
         }
+        throw new ErrorException(ErrorCode.NOT_FOUND_MEMBER);
     }
 
 }

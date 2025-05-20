@@ -71,9 +71,8 @@ public class EmailAuthService {
             redisService.deleteValues(key);
             session.setAttribute("emailVerified", toEmail);
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
 }
