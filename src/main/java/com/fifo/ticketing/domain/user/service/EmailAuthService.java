@@ -4,7 +4,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMessage.RecipientType;
 import jakarta.servlet.http.HttpSession;
-import java.util.Random;
+import java.security.SecureRandom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -32,8 +32,7 @@ public class EmailAuthService {
     }
 
     public String createCode() {
-
-        Random random = new Random();
+        SecureRandom random = new SecureRandom();
         StringBuilder authCode = new StringBuilder();
 
         for (int i = 0; i < 6; i++) {
