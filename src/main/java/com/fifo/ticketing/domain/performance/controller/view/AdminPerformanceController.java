@@ -217,6 +217,7 @@ public class AdminPerformanceController {
         AdminPerformanceBookDetailDto performanceBookDetail = adminPerformanceService.getPerformanceBookDetail(
                 id);
         Page<BookAdminDetailDto> bookAdminList = bookService.getBookAdminList(id, pageable);
+        model.addAttribute("showBackButton", true);
         model.addAttribute("performanceBookDetail", performanceBookDetail);
         model.addAttribute("bookAdminListPage", bookAdminList);
         return "admin/performance_book_detail_admin";
@@ -227,6 +228,7 @@ public class AdminPerformanceController {
             @PathVariable("performanceId") Long performanceId, @PathVariable("bookId") Long bookId,
             Model model) {
         BookUserDetailDto bookUserDetail = bookService.getBookUserDetail(bookId, performanceId);
+        model.addAttribute("showBackButton", true);
         model.addAttribute("bookUserDetail", bookUserDetail);
         return "admin/performance_book_user_detail_admin";
     }
@@ -250,5 +252,5 @@ public class AdminPerformanceController {
 
         return "/admin/view_performances_admin";
     }
-    
+
 }
