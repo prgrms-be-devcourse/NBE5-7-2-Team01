@@ -60,7 +60,7 @@ public class LikeMailNotificationService {
                     sendCnt++;
                 } catch (Exception e) {
 
-                    log.info("메일 전송 실패: {}", email, e);
+                    log.error("메일 전송 실패: {}", email, e);
                 }
                 emailCnt++;
             }
@@ -76,54 +76,45 @@ public class LikeMailNotificationService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime targetTime = now.plusMinutes(30);
 
-        // 정각으로 하면 안보내는 문제가 있어 +- 1분의 시간을 주었습니다.
-        LocalDateTime start = targetTime.minusMinutes(1);
-        LocalDateTime end = targetTime.plusMinutes(1);
+        LocalDateTime start = targetTime.minusMinutes(30);
+        LocalDateTime end = targetTime.plusMinutes(30);
 
-        List<Like> likes = likeRepository.findLikesByTargetTime(start , end);
-
-        for (Like like : likes) {
-            if (like.isLiked()){
+        likeRepository.findLikesByTargetTime(start, end).stream()
+            .map(like -> {
                 User user = like.getUser();
                 Performance performance = like.getPerformance();
-                ReservationStartMailDto dto = LikeMailMapper.toReservationStartMailDto(user, performance);
-
-                eventPublisher.publishEvent(new ReservationEvent(dto));
-//                eventPublisher.publishEvent(new LikeMailEvent(user, performance, MailType.RESERVATION_NOTICE));
-            }
-
-            //likeMailService.performanceStart(user, performance);
-
-        }
+                return LikeMailMapper.toReservationStartMailDto(user, performance);
+            })
+            .forEach(dto -> eventPublisher.publishEvent(new ReservationEvent(dto)));
 
     }
+
+
 
     @Transactional
     public void sendNoPayedNotification() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime reservationTime = now.minusMinutes(60);
 
-        LocalDateTime start = reservationTime.minusMinutes(1);
-        LocalDateTime end = reservationTime.plusMinutes(1);
+        LocalDateTime start = reservationTime.minusMinutes(30);
+        LocalDateTime end = reservationTime.plusMinutes(30);
 
-        List<Like> likes = likeRepository.findLikesByTargetTime(start, end);
+        likeRepository.findLikesByTargetTime(start, end)
+            .forEach(this::notifyNoPay);
+    }
 
-        for (Like like : likes) {
-            if (like.isLiked()) {
-                User user = like.getUser();
-                Performance performance = like.getPerformance();
+    private void notifyNoPay(Like like) {
+        User user = like.getUser();
+        Performance performance = like.getPerformance();
 
-                boolean payed = bookRepository.existsByUserAndPerformanceAndBookStatus(user, performance, BookStatus.PAYED);
-                int availableSeats = seatRepository.countAvailableSeatsByPerformanceId(performance.getId());
+        boolean payed = bookRepository.existsByUserAndPerformanceAndBookStatus(user, performance, BookStatus.PAYED);
+        int availableSeats = seatRepository.countAvailableSeatsByPerformanceId(performance.getId());
 
-                NoPayedMailDto dto = LikeMailMapper.toNoPayedMailDto(user, performance, availableSeats);
+        log.info("예약 여부: {}, 잔여좌석: {}", payed, availableSeats);
 
-                log.info("예약 여부: {}, 잔여좌석: {}", payed, availableSeats);
-
-                if (!payed) {
-                    eventPublisher.publishEvent(new NoPayMailEvent(dto));
-                }
-            }
+        if (!payed) {
+            NoPayedMailDto dto = LikeMailMapper.toNoPayedMailDto(user, performance, availableSeats);
+            eventPublisher.publishEvent(new NoPayMailEvent(dto));
         }
     }
 
