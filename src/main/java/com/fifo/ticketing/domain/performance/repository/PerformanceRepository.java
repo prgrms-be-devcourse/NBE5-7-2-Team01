@@ -88,11 +88,11 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
 
     @EntityGraph(attributePaths = {"file"})
     @Query(
-            value = "SELECT p FROM Performance p " +
-                    "WHERE p.startTime BETWEEN :startDate AND :endDate " +
-                    "ORDER BY p.reservationStartTime ASC, p.startTime ASC",
-            countQuery = "SELECT COUNT(p) FROM Performance p " +
-                    "WHERE p.startTime BETWEEN :startDate AND :endDate"
+        value = "SELECT p FROM Performance p " +
+            "WHERE p.startTime BETWEEN :startDate AND :endDate " +
+            "ORDER BY p.reservationStartTime ASC, p.startTime ASC",
+        countQuery = "SELECT COUNT(p) FROM Performance p " +
+            "WHERE p.startTime BETWEEN :startDate AND :endDate"
     )
     Page<Performance> findUpcomingPerformancesByReservationPeriodForAdmin(
         @Param("startDate") LocalDateTime startDate,
@@ -141,20 +141,21 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
 
     @EntityGraph(attributePaths = {"file"})
     @Query(
-            value = "SELECT p FROM Performance p " +
-                    "WHERE p.startTime > :now "
-                    + "AND p.title LIKE CONCAT('%', :keyword, '%') " +
-                    "ORDER BY p.reservationStartTime ASC, p.startTime ASC",
-            countQuery = "SELECT COUNT(p) FROM Performance p " +
-                    "WHERE p.startTime > :now " +
-                    "AND p.title LIKE CONCAT('%', :keyword, '%') "
+        value = "SELECT p FROM Performance p " +
+            "WHERE p.startTime > :now "
+            + "AND p.title LIKE CONCAT('%', :keyword, '%') " +
+            "ORDER BY p.reservationStartTime ASC, p.startTime ASC",
+        countQuery = "SELECT COUNT(p) FROM Performance p " +
+            "WHERE p.startTime > :now " +
+            "AND p.title LIKE CONCAT('%', :keyword, '%') "
     )
-    Page<Performance> findUpcomingPerformancesByKeywordContainingForAdmin(@Param("now") LocalDateTime now,
-            @Param("keyword") String keyword, Pageable pageable);
+    Page<Performance> findUpcomingPerformancesByKeywordContainingForAdmin(
+        @Param("now") LocalDateTime now,
+        @Param("keyword") String keyword, Pageable pageable);
 
     @Modifying
     @Query("UPDATE Performance p " +
-    "SET p.performanceStatus = true " +
-    "WHERE p.reservationStartTime <= :now AND p.performanceStatus = false ")
+        "SET p.performanceStatus = true " +
+        "WHERE p.reservationStartTime <= :now AND p.performanceStatus = false ")
     void updatePerformanceStatusToReservationStart(@Param("now") LocalDateTime now);
 }

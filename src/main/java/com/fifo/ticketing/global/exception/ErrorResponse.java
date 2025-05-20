@@ -8,6 +8,7 @@ import lombok.Getter;
 @Getter
 @JsonPropertyOrder({"code", "message", "errors"})
 public class ErrorResponse<T> {
+
     private final String code;
     private final String message;
 
