@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>TicketHub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            tickethub: {
+              DEFAULT: '#FF6F3C',
+              dark: '#e65b25'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="flex items-center justify-center h-screen bg-gray-100">
+<div class="text-center">
+  <img src="/images/tickethub_logo.JPG" alt="TicketHub 로고" class="mx-auto mb-8 w-72 md:w-96">
+  <a href="/users/signin"
+     class="inline-block bg-tickethub text-white text-lg font-semibold py-3 px-8 rounded-lg shadow hover:bg-tickethub-dark transition">
+    시작하기
+  </a>
+</div>
+</body>
+</html>

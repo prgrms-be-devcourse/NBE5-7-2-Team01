@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common_headers :: commonHeader}">
+  <meta charset="UTF-8">
+  <title>예매 목록</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen py-10 px-4">
+<div th:replace="~{fragments/top_bar :: top_bar}"></div>
+<div class="max-w-6xl mx-auto">
+  <h1 class="text-3xl font-bold text-center text-orange-500 mb-8">예매 목록</h1>
+
+  <div class="bg-white shadow-md rounded-xl p-6">
+    <form method="get" action="/users/books" class="flex flex-wrap gap-4 mb-6">
+      <input type="text" name="performanceTitle" placeholder="공연 제목"
+             class="flex-grow border rounded px-4 py-2"
+             th:value="${param.performanceTitle}"/>
+      <select name="bookStatus" class="border rounded px-4 py-2">
+        <option value="" th:selected="${param.bookStatus == null or param.bookStatus == ''}">전체 상태</option>
+        <option value="PAYED" th:selected="${param.bookStatus == 'PAYED'}">결제 완료</option>
+        <option value="CONFIRMED" th:selected="${param.bookStatus == 'CONFIRMED'}">예매 완료</option>
+        <option value="CANCELED" th:selected="${param.bookStatus == 'CANCELED'}">취소 완료</option>
+      </select>
+      <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">
+        검색
+      </button>
+    </form>
+  </div>
+
+  <div th:each="book : ${bookedList.content}"
+       class="flex bg-white shadow-md rounded-xl mb-6 overflow-hidden cursor-pointer hover:bg-orange-50"
+       th:onclick="|window.location.href='/users/books/${book.bookId}'|">
+    <img th:src="@{{url}(url=${book.getUrl()})}" alt="공연 포스터" class="w-48 h-auto object-cover">
+    <div class="flex-1 p-4">
+      <table class="table-auto w-full border-collapse">
+        <thead>
+        <tr class="bg-gray-200 text-center">
+          <th class="p-2">공연 제목</th>
+          <th class="p-2">장소</th>
+          <th class="p-2">좌석</th>
+          <th class="p-2">수량</th>
+          <th class="p-2">총 가격</th>
+          <th class="p-2">예매 상태</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="text-center">
+          <td class="p-2" th:text="${book.performanceTitle}"></td>
+          <td class="p-2" th:text="${book.placeName}"></td>
+          <td class="p-2">
+            <ul class="list-none p-0">
+              <li th:each="seat : ${book.seats}"
+                  th:text="${seat.seatNumber} + ' (' + ${seat.grade} + ')'">
+              </li>
+            </ul>
+          </td>
+          <td class="p-2" th:text="${book.quantity}"></td>
+          <td class="p-2" th:text="${#numbers.formatInteger(book.totalPrice, 3, 'COMMA')} + '원'"></td>
+          <td class="p-2">
+            <span th:switch="${book.bookStatus.name()}">
+              <span th:case="'CANCELED'" class="text-red-500 font-semibold">취소 완료</span>
+              <span th:case="'CONFIRMED'" class="text-green-500 font-semibold">예매 완료</span>
+              <span th:case="'PAYED'" class="text-blue-500 font-semibold">결제 완료</span>
+              <span th:case="'ADMIN_REFUNDED'" class="text-blue-500 font-semibold">관리자 취소 완료</span>
+              <span th:case="*">-</span>
+            </span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="mt-10 flex justify-center space-x-2" th:if="${bookedList.totalPages > 1}">
+    <a th:href="@{/users/books(page=${bookedList.number - 1}, size=${bookedList.size}, performanceTitle=${param.performanceTitle}, bookStatus=${param.bookStatus})}"
+       th:if="${bookedList.number > 0}"
+       class="px-3 py-1 border rounded">&laquo;</a>
+
+    <a th:each="i : ${#numbers.sequence(0, bookedList.totalPages - 1)}"
+       th:href="@{/users/books(page=${i}, size=${bookedList.size}, performanceTitle=${param.performanceTitle}, bookStatus=${param.bookStatus})}"
+       th:text="${i + 1}"
+       th:classappend="${i == bookedList.number} ? 'bg-orange-500 text-white' : 'hover:bg-gray-100'"
+       class="px-3 py-1 border rounded"></a>
+
+    <a th:href="@{/users/books(page=${bookedList.number + 1}, size=${bookedList.size}, performanceTitle=${param.performanceTitle}, bookStatus=${param.bookStatus})}"
+       th:if="${bookedList.number < bookedList.totalPages - 1}"
+       class="px-3 py-1 border rounded">&raquo;</a>
+  </div>
+</div>
+
+<script th:inline="javascript" th:if="${alertMessage != null}">
+  alert([[${alertMessage}]]);
+</script>
+</body>
+</html>

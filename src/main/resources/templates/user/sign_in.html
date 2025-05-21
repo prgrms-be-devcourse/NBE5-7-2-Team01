@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>로그인</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            tickethub: {
+              DEFAULT: '#FF6F3C',
+              dark: '#e65b25'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+
+<!-- 로그인 박스 -->
+<div class="w-full max-w-lg bg-white p-10 rounded-lg shadow-md mx-4 my-6">
+  <h1 class="text-3xl font-bold mb-6 text-center text-orange-500">🎟️ TICKETHUB 로그인</h1>
+
+  <!-- 회원가입 성공 메시지 -->
+  <div th:if="${param.signupSuccess}" class="mb-4 text-green-600 text-center">
+    회원가입이 완료되었습니다. 로그인 해주세요!
+  </div>
+
+  <!-- 로그인 실패 에러 메시지 -->
+  <div th:if="${errorMessage}" class="mb-4 text-red-500 text-center" th:text="${errorMessage}"></div>
+
+  <!-- 로그인 폼 -->
+  <form action="/users/signin" method="post" class="space-y-4">
+    <input type="email" name="email" placeholder="이메일" required
+           class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-tickethub"/>
+
+    <input type="password" name="loginPwd" placeholder="비밀번호" required
+           class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-tickethub"/>
+
+    <button type="submit"
+            class="w-full bg-tickethub text-white py-2 rounded-md hover:bg-tickethub-dark transition">
+      로그인
+    </button>
+  </form>
+
+  <!-- 회원가입 링크 -->
+  <div class="mt-4 text-center">
+    <a href="/users/signup" class="text-sm text-gray-600 hover:text-tickethub">회원가입</a>
+  </div>
+
+  <!-- 소셜 로그인 -->
+  <div class="mt-6">
+    <div class="flex justify-center gap-4">
+      <!-- Google -->
+      <a href="/oauth2/authorization/google" class="w-12 h-12 flex items-center justify-center bg-white border rounded-full hover:bg-gray-100">
+        <img src="/images/google_logo.JPG" alt="Google" class="w-6 h-6">
+      </a>
+      <!-- Kakao -->
+      <a href="/oauth2/authorization/kakao" class="w-12 h-12 flex items-center justify-center bg-yellow-300 border rounded-full hover:brightness-95">
+        <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="Kakao" class="w-6 h-6">
+      </a>
+      <!-- Naver -->
+      <a href="/oauth2/authorization/naver" class="w-12 h-12 flex items-center justify-center bg-green-500 border rounded-full hover:brightness-95">
+        <img src="/images/naver_logo.JPG" alt="Naver" class="w-6 h-6">
+      </a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

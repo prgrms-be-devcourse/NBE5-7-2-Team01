@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>예매 시작 알림</title>
+</head>
+<body style="font-family: '맑은 고딕', sans-serif; padding: 30px; background-color: #f9f9f9;">
+<h2 style="color: #FF6F3C; text-align: center;">
+  🎟️ 예매 시작 30분 전 알림
+</h2>
+
+<hr style="margin: 20px 0;">
+
+<p><strong th:text="${mailDto.username} + '님,'"></strong></p>
+<p>
+  좋아요를 눌러주신 <strong th:text="${mailDto.performanceTitle}"></strong> 공연의<br>
+  예매 시작 시간이 <strong th:text="${#temporals.format(mailDto.reservationStartTime, 'yyyy-MM-dd HH:mm')}"></strong>입니다.<br>
+  현재 약 30분 전입니다.
+</p>
+
+<p style="margin-top: 20px;">
+  ⏰ 예매 오픈 시간에 맞춰 좌석을 빠르게 확보해보세요!
+</p>
+
+<hr style="margin: 30px 0;">
+<p style="font-size: 14px; color: #666;">
+  ※ 본 메일은 자동 발송된 알림입니다.
+</p>
+</body>
+</html>

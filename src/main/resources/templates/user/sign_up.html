@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>회원 가입 페이지</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            tickethub: {
+              DEFAULT: '#FF6F3C',
+              dark: '#e65b25',
+              light: '#ff8759'
+            }
+          }
+        }
+      }
+    }
+
+    let emailVerified = false;
+
+    function isValidEmail(email) {
+      const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return regex.test(email);
+    }
+
+    function sendEmail() {
+      const email = document.getElementById("email").value;
+
+      if (!isValidEmail(email)) {
+        document.getElementById("email-status").innerText = "❌ 유효한 이메일 주소를 입력하세요.";
+        return;
+      }
+
+      fetch("/api/users/email/send", {
+        method: "POST",
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email: email})
+      })
+      .then(res => res.ok ? "인증 메일 전송 완료" : "전송 실패")
+      .then(msg => document.getElementById("email-status").innerText = msg)
+      .catch(() => document.getElementById("email-status").innerText = "오류 발생");
+    }
+
+    function verifyCode() {
+      const email = document.getElementById("email").value;
+      const code = document.getElementById("code").value;
+
+      if (code === "") {
+        document.getElementById("email-status").innerText = "❌ 인증 코드를 입력하세요.";
+        return;
+      }
+
+      fetch("/api/users/email/auth", {
+        method: "POST",
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email: email, authCode: code})
+      })
+      .then(res => {
+        if (res.ok) {
+          emailVerified = true;
+          document.getElementById("email-status").innerText = "✅ 인증 성공!";
+          document.getElementById("submit-btn").disabled = false;
+        } else {
+          document.getElementById("email-status").innerText = "❌ 인증 실패";
+        }
+      })
+      .catch(() => document.getElementById("email-status").innerText = "오류 발생");
+    }
+  </script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center py-10">
+<div class="w-full max-w-2xl bg-white shadow-md rounded-lg p-10">
+  <h1 class="text-3xl font-bold text-center text-tickethub mb-8">회원 가입</h1>
+
+  <form method="post" th:action="@{/users/signup}" class="space-y-6">
+    <div class="flex gap-4">
+      <input type="email" id="email" name="email" placeholder="이메일 입력란" required class="flex-1 px-4 py-2 border rounded" />
+      <button type="button" onclick="sendEmail()" class="px-4 py-2 bg-tickethub text-white rounded hover:bg-tickethub-dark">
+        인증번호 전송
+      </button>
+    </div>
+
+    <div class="flex gap-4">
+      <input type="text" id="code" name="code" placeholder="인증 코드 입력란" class="flex-1 px-4 py-2 border rounded" />
+      <button type="button" onclick="verifyCode()" class="px-4 py-2 bg-tickethub text-white rounded hover:bg-tickethub-dark">
+        인증확인
+      </button>
+    </div>
+
+    <p id="email-status" class="text-center text-sm text-green-600 -mt-2 -mb-2"></p>
+
+    <div>
+      <input type="password" id="password" name="password" placeholder="비밀번호 입력란" required class="w-full px-4 py-2 border rounded" />
+    </div>
+
+    <div class="flex gap-4 items-center">
+      <input type="text" id="username" name="username" placeholder="유저 명" required class="flex-1 px-4 py-2 border rounded" />
+      <button id="submit-btn" type="submit" disabled
+              class="px-6 py-2 bg-tickethub text-white rounded-full font-semibold hover:bg-tickethub-dark disabled:opacity-50">
+        회원가입
+      </button>
+    </div>
+  </form>
+</div>
+</body>
+</html>

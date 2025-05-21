@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>예매 확정서</title>
+</head>
+<body style="font-family: '맑은 고딕', sans-serif; padding: 30px; background-color: #f9f9f9;">
+
+<h2 th:switch="${mailDto.bookStatus.name()}" style="text-align: center; color: #222;">
+  <span th:case="'CANCELED'">🎟️ 예매가 <span style="color: red;">취소</span>되었습니다</span>
+  <span th:case="'PAYED'">🎉 예매가 <span style="color: green;">확정</span>되었습니다</span>
+  <span th:case="'ADMIN_REFUNDED'">🎉 예매가 <span style="color: orange;">관리자에 의해 취소</span>되었습니다</span>
+</h2>
+
+<hr style="margin: 20px 0;">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
+  <tr>
+    <!-- 공연 정보 -->
+    <td width="67%" style="padding: 10px; vertical-align: top;">
+      <p><strong>🎭 공연명:</strong> <span th:text="${mailDto.performanceTitle}"></span></p>
+      <p>
+        <strong>🕒 공연일시:</strong><br>
+        <span th:text="${#temporals.format(mailDto.performanceStartTime, 'yyyy-MM-dd HH:mm')}"></span>
+        ~
+        <span th:text="${#temporals.format(mailDto.performanceEndTime, 'yyyy-MM-dd HH:mm')}"></span>
+      </p>
+      <p><strong>📍 장소:</strong> <span th:text="${mailDto.placeName}"></span></p>
+    </td>
+  </tr>
+</table>
+
+<hr style="margin: 30px 0;">
+
+<!-- 좌석 정보 -->
+<div>
+  <h3 style="margin-bottom: 10px;">🎫 예매 좌석</h3>
+  <table width="100%" cellpadding="8" cellspacing="0" border="1" style="border-collapse: collapse; border-color: #ccc;">
+    <thead style="background-color: #f0f0f0;">
+    <tr>
+      <th align="center">좌석 번호</th>
+      <th align="center">등급</th>
+      <th align="center">가격</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="seat : ${mailDto.seats}">
+      <td align="center" th:text="${seat.seatNumber}"></td>
+      <td align="center" th:text="${seat.grade}"></td>
+      <td align="center" th:text="${#numbers.formatInteger(seat.price, 0, 'COMMA')} + '원'"></td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div th:switch="${mailDto.bookStatus.name()}" style="text-align: center; color: #222;">
+    <div th:case="'PAYED'" style="margin-top: 15px; font-size: 16px; font-weight: bold;">
+      💰 총 결제 금액:
+      <span th:text="${#numbers.formatInteger(mailDto.totalPrice, 0, 'COMMA')} + '원'"></span>
+    </div>
+    <div th:case="'CANCELED'" style="margin-top: 15px; font-size: 16px; font-weight: bold;">
+      💰 총 환불 금액:
+      <span th:text="${#numbers.formatInteger(mailDto.totalPrice, 0, 'COMMA')} + '원'"></span>
+    </div>
+  </div>
+
+
+  <p style="font-size: 14px; color: #666;">
+    ※ 본 메일은 예매 내역 확인용으로 발송되었으며, 실제 티켓은 마이페이지에서 확인 가능합니다.
+  </p>
+</div>
+
+</body>
+</html>

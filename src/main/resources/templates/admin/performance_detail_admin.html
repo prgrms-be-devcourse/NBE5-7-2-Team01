@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common_headers :: commonHeader}">
+  <meta charset="UTF-8">
+  <title th:text="${performanceDetail.title}">공연 상세</title>
+
+</head>
+<body class="bg-gray-100 min-h-screen py-10 px-6">
+<div th:replace="~{fragments/top_bar :: top_bar}"></div>
+<div class="max-w-6xl mx-auto">
+  <div class="bg-white rounded-2xl shadow-xl p-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
+    <!-- 공연 포스터 -->
+    <div class="col-span-1 text-center">
+      <img th:src="@{{url}(url=${performanceDetail.getUrl()})}" alt="공연 포스터" class="mx-auto max-h-96 rounded-md shadow-md" />
+    </div>
+
+    <!-- 공연 정보 -->
+    <div class="col-span-1 lg:col-span-1">
+      <h2 class="text-4xl font-bold text-tickethub mb-4" th:text="${performanceDetail.title}">공연 제목</h2>
+      <p class="mb-2 text-gray-700" th:text="${performanceDetail.description}">공연 설명</p>
+      <p class="mb-1"> 장소: <span class="font-semibold" th:text="${performanceDetail.placeName}"></span></p>
+      <p class="mb-1"> 예매 상태: <span class="font-semibold" th:text="${performanceDetail.performanceStatus} ? '예매 가능' : '예매 불가'"></span></p>
+      <p class="mb-1"> 시작: <span class="text-sm" th:text="${#temporals.format(performanceDetail.startTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+      <p class="mb-4"> 종료: <span class="text-sm" th:text="${#temporals.format(performanceDetail.endTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+
+      <div class="mb-4">
+        <h4 class="font-bold mb-2">좌석 등급 및 가격</h4>
+        <ul class="list-disc pl-5 text-sm text-gray-800">
+          <li th:each="grade : ${performanceDetail.seatGrades}">
+            <span th:text="${grade.grade}"></span>석 -
+            <span th:text="${#numbers.formatInteger(grade.defaultPrice, 3, 'COMMA')}"></span>원
+            (<span th:text="${grade.seatCount}"></span>석)
+          </li>
+        </ul>
+      </div>
+
+      <div class="flex gap-4">
+        <a th:href="@{/admin/performances/update/{performanceId}(performanceId=${performanceId})}"
+           th:if="${!(performanceDetail.deletedFlag)}"
+           class="bg-tickethub hover:bg-tickethub-dark text-white px-4 py-2 rounded">수정</a>
+
+        <button id="deleteBtn"
+                th:if="${!(performanceDetail.deletedFlag)}"
+                th:attr="data-id=${performanceId}"
+                class="bg-tickethub hover:bg-tickethub-dark text-white px-4 py-2 rounded">삭제</button>
+      </div>
+    </div>
+
+    <!-- 좌석 상태 -->
+    <div class="col-span-1">
+      <h3 class="text-xl font-semibold mb-4">🎟️ 좌석 상태</h3>
+      <div class="flex flex-col gap-1" id="seat-container"></div>
+    </div>
+  </div>
+</div>
+
+<script th:inline="javascript">
+  const seats = [[${seats}]];
+  const seatContainer = document.getElementById("seat-container");
+  const seatsPerRow = 10;
+
+  function renderSeats() {
+    seatContainer.innerHTML = '';
+    for (let i = 0; i < seats.length; i += seatsPerRow) {
+      const rowDiv = document.createElement("div");
+      rowDiv.className = "flex gap-1 mb-1";
+
+      for (let j = 0; j < seatsPerRow && i + j < seats.length; j++) {
+        const seat = seats[i + j];
+        const seatBtn = document.createElement("button");
+        seatBtn.className = `w-10 h-10 text-sm border rounded ${seat.seatStatus === 'AVAILABLE' ? 'bg-purple-300' : 'bg-gray-400'} text-white`;
+        seatBtn.innerText = seat.seatNumber;
+        seatBtn.disabled = true;
+        rowDiv.appendChild(seatBtn);
+      }
+      seatContainer.appendChild(rowDiv);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    renderSeats();
+
+    const deleteBtn = document.getElementById("deleteBtn");
+    if (deleteBtn) {
+      deleteBtn.addEventListener("click", () => {
+        const performanceId = deleteBtn.dataset.id;
+        if (!confirm("정말 이 공연을 삭제하시겠습니까?")) return;
+
+        fetch(`/api/performances/${performanceId}`, { method: 'DELETE' })
+        .then(response => {
+          if (!response.ok) return response.text().then(text => { throw new Error(text); });
+          alert("공연이 삭제되었습니다.");
+          window.location.href = "/admin/performances";
+        })
+        .catch(error => alert("삭제 중 오류가 발생했습니다: " + error.message));
+      });
+    }
+  });
+</script>
+</body>
+</html>

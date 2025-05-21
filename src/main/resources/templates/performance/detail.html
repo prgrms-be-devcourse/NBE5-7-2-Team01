@@ -1,0 +1,305 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/common_headers :: commonHeader}">
+  <meta charset="UTF-8">
+  <title th:text="${performanceDetail.title}">공연 상세</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            tickethub: {
+              DEFAULT: '#FF6F3C',
+              dark: '#e65b25'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-100 py-10 px-4">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<div th:replace="~{fragments/top_bar :: top_bar}"></div>
+<style>
+  .like-button {
+    font-size: 30px;
+    padding: 4px 8px;
+    border-radius: 50%;
+    line-height: 1;
+    transition: background-color 0.2s ease;
+  }
+
+  .like-button:hover {
+    background-color: #c82333;
+  }
+
+  .seat {
+    width: 40px;
+    height: 40px;
+    margin: 5px;
+    border: 1px solid #999;
+    display: inline-flex; /* flex로 중앙 정렬 쉽게 */
+    align-items: center;
+    justify-content: center;
+    font-size: 14px; /* 글자 크기 고정 */
+    text-align: center;
+    cursor: pointer;
+    box-sizing: border-box; /* border 포함한 크기 계산 */
+    overflow: hidden; /* 넘치는 글자 숨기기 */
+    white-space: nowrap; /* 줄바꿈 방지 */
+  }
+
+  .seat.available {
+    background-color: #b19cd9;
+  }
+
+  .seat.selected {
+    background-color: #4CAF50;
+    color: white;
+  }
+
+  .seat.unavailable {
+    background-color: darkgray;
+    cursor: not-allowed;
+  }
+
+  .seat-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 440px;
+  }
+
+  .row {
+    display: flex;
+    justify-content: flex-start;
+  }
+</style>
+<div
+    class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 bg-white rounded-lg shadow p-6">
+  <!-- 왼쪽: 포스터 -->
+  <div class="text-center relative">
+    <button class="like-button absolute bottom-1 right-1 text-red-500 text-xl"
+            th:data-id="${performanceId}">
+      <span th:text="${likedPerformanceIds.contains(performanceId)} ? '♥' : '♡'"></span>
+    </button>
+    <img th:src="@{{url}(url=${performanceDetail.getUrl()})}" alt="공연 포스터"
+         class="mx-auto rounded-md shadow-md max-w-xs"/>
+  </div>
+
+  <!-- 가운데: 공연 정보 -->
+  <div>
+    <h2 class="text-2xl font-bold mb-4" th:text="${performanceDetail.title}">공연 제목</h2>
+    <p class="mb-2" th:text="${performanceDetail.description}">공연 설명</p>
+    <p class="mb-1">장소: <span th:text="${performanceDetail.placeName}" class="font-semibold"></span>
+    </p>
+    <p class="mb-1">시작: <span
+        th:text="${#temporals.format(performanceDetail.startTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+    <p class="mb-4">종료: <span
+        th:text="${#temporals.format(performanceDetail.endTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+
+    <h4 class="font-semibold mb-2">좌석 등급 및 가격</h4>
+    <ul class="space-y-1 text-sm">
+      <li th:each="grade : ${performanceDetail.seatGrades}">
+        <span th:text="${grade.grade}"></span>석 -
+        <span th:text="${#numbers.formatInteger(grade.defaultPrice, 3, 'COMMA')}"></span>원
+        (<span th:text="${grade.seatCount}"></span>석)
+      </li>
+    </ul>
+  </div>
+
+  <!-- 오른쪽: 예매 정보 -->
+  <div>
+    <button th:if="${performanceDetail.performanceStatus}" type="button" id="openModalBtn"
+            class="w-full bg-tickethub text-white py-2 rounded hover:bg-tickethub-dark">좌석 선택
+    </button>
+
+    <div th:unless="${performanceDetail.performanceStatus}" class="w-full bg-gray-200 text-gray-700 py-2 px-4 rounded text-center">
+      예매는<br />
+      <span th:text="${#temporals.format(performanceDetail.reservationStartTime, 'yyyy년 MM월 dd일 HH시')}"></span><br />
+      부터 가능합니다.
+    </div>
+
+    <div class="mt-6">
+      <h3 class="font-semibold mb-2">선택한 좌석</h3>
+      <ul id="selected-seat-list-main" class="text-sm list-disc list-inside"></ul>
+      <h4 class="mt-2 font-semibold">총 합계: <span id="total-price-main">0</span>원</h4>
+    </div>
+
+    <form id="bookForm" th:action="@{'/performances/' + ${performanceId} + '/book'}" method="post"
+          class="mt-4 space-y-2">
+      <input type="hidden" name="userId" th:value="${userId}"/>
+      <input type="hidden" name="seatIds" id="seatIdsInput"/>
+      <p class="text-xs text-gray-600">10분 내 결제가 완료되지 않을 시 예매가 취소됩니다.</p>
+      <button type="submit" id="bookBtn" disabled
+              class="w-full bg-tickethub text-white py-2 rounded hover:bg-tickethub-dark disabled:opacity-50">
+        예매하기
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- 좌석 선택 모달 -->
+<div class="fixed inset-0 bg-black bg-opacity-50 hidden" id="overlay"></div>
+<div
+    class="hidden"
+    style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; z-index: 9999; width: 80%; padding: 2rem;"
+    id="seatModal">
+  <div class="grid md:grid-cols-2 gap-8">
+    <div>
+      <h3 class="text-lg font-bold mb-4">좌석 선택</h3>
+      <div class="seat-container" id="seat-container"></div>
+    </div>
+    <div>
+      <h3 class="text-lg font-bold mb-4">선택한 좌석</h3>
+      <ul id="selected-seat-list-modal" class="text-sm list-disc list-inside"></ul>
+      <h4 class="mt-2 font-semibold">총 합계: <span id="total-price-modal">0</span>원</h4>
+      <button type="button" id="closeModalBtn"
+              class="mt-6 w-full bg-tickethub text-white py-2 rounded hover:bg-tickethub-dark">선택 완료
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 좌석 관련 스크립트는 그대로 유지 -->
+<script th:inline="javascript">
+  const seats = [[${seats}]];
+  const selectedSeatIds = new Set();
+  const seatIdsInput = document.getElementById("seatIdsInput");
+  const modal = document.getElementById("seatModal");
+  const overlay = document.getElementById("overlay");
+  const openModalBtn = document.getElementById("openModalBtn");
+  const closeModalBtn = document.getElementById("closeModalBtn");
+  const seatContainer = document.getElementById("seat-container");
+  const mainList = document.getElementById("selected-seat-list-main");
+  const modalList = document.getElementById("selected-seat-list-modal");
+  const seatsPerRow = 10;
+
+  // 모달 열기
+  openModalBtn.addEventListener("click", () => {
+    modal.classList.remove("hidden");
+    overlay.classList.remove("hidden");
+    renderSeats();
+  });
+
+  // 모달 닫기
+  closeModalBtn.addEventListener("click", () => {
+    modal.classList.add("hidden");
+    overlay.classList.add("hidden");
+
+    // 예매 버튼 활성화 처리
+    const bookBtn = document.getElementById("bookBtn");
+    bookBtn.disabled = selectedSeatIds.size === 0;
+  });
+
+  // 좋아요 버튼 클릭 이벤트
+  $(document).on("click", ".like-button", function (event) {
+    event.preventDefault();           // 기본 동작 방지
+    event.stopImmediatePropagation();
+
+    const $btn = $(this);
+    const performanceId = $btn.data("id");
+
+    $.ajax({
+      type: "POST",
+      url: "/user/like",
+      contentType: "application/json",
+      data: JSON.stringify({
+        performanceId: performanceId
+      }),
+      success: function (response) {
+        const $span = $btn.find("span");
+        const current = $span.text().trim();
+        $span.text(current === "♡" ? "♥" : "♡");
+      },
+      error: function () {
+        alert("좋아요 처리 중 오류가 발생했습니다.");
+      }
+    });
+  });
+
+  // 좌석 렌더링
+  function renderSeats() {
+    seatContainer.innerHTML = '';
+    for (let i = 0; i < seats.length; i += seatsPerRow) {
+      const rowDiv = document.createElement("div");
+      rowDiv.classList.add("row");
+
+      for (let j = 0; j < seatsPerRow && i + j < seats.length; j++) {
+        const seat = seats[i + j];
+
+        const seatBtn = document.createElement("button");
+        seatBtn.classList.add("seat");
+        seatBtn.dataset.id = seat.seatId;
+        seatBtn.dataset.grade = seat.grade;
+        seatBtn.dataset.price = seat.price;
+        seatBtn.innerText = seat.seatNumber;
+
+        if (seat.seatStatus === 'AVAILABLE') {
+          seatBtn.classList.add("available");
+
+          if (selectedSeatIds.has(seat.seatId)) {
+            seatBtn.classList.add("selected");
+          }
+
+          seatBtn.addEventListener("click", function (event) {
+            event.preventDefault();
+            toggleSeat(seatBtn, seat);
+          });
+        } else {
+          seatBtn.classList.add("unavailable");
+          seatBtn.setAttribute("disabled", "true");
+        }
+
+        rowDiv.appendChild(seatBtn);
+      }
+
+      seatContainer.appendChild(rowDiv);
+    }
+  }
+
+  function toggleSeat(seatBtn, seat) {
+    const seatId = seat.seatId;
+
+    if (selectedSeatIds.has(seatId)) {
+      selectedSeatIds.delete(seatId);
+      seatBtn.classList.remove("selected");
+      document.getElementById("seat-item-main-" + seatId)?.remove();
+      document.getElementById("seat-item-modal-" + seatId)?.remove();
+    } else {
+      selectedSeatIds.add(seatId);
+      seatBtn.classList.add("selected");
+
+      const liMain = document.createElement("li");
+      liMain.id = "seat-item-main-" + seatId;
+      liMain.innerText = `${seat.seatNumber} - ${seat.grade}석 - ${seat.price.toLocaleString()}원`;
+      mainList.appendChild(liMain);
+
+      const liModal = document.createElement("li");
+      liModal.id = "seat-item-modal-" + seatId;
+      liModal.innerText = `${seat.seatNumber} - ${seat.grade}석 - ${seat.price.toLocaleString()}원`;
+      modalList.appendChild(liModal);
+    }
+
+    seatIdsInput.value = Array.from(selectedSeatIds).join(',');
+
+    updateTotalPrice();
+  }
+
+  function updateTotalPrice() {
+    let total = 0;
+    selectedSeatIds.forEach(id => {
+      const seat = seats.find(s => s.seatId === id);
+      if (seat) {
+        total += seat.price;
+      }
+    });
+
+    document.getElementById("total-price-main").innerText = total.toLocaleString();
+    document.getElementById("total-price-modal").innerText = total.toLocaleString();
+  }
+</script>
+</body>
+</html>

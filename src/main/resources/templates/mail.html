@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>홈페이지</title>
+</head>
+<body>
+<div style="margin:100px; color: black">
+  <h1 style="color: black"> 안녕하세요.</h1>
+  <h1 style="color: black"> FIFO Ticketing 사이트 입니다.</h1>
+  <br>
+  <p style="color: black"> 아래 코드를 회원가입 창으로 돌아가 입력해주세요.</p>
+  <br>
+
+  <div style="border:1px solid black; padding:15px; font-family:verdana;">
+    <h3> 회원가입 인증 코드 </h3>
+    <div style="font-size:130%; color:darkred" th:text="${code}"></div>
+  </div>
+  <br/>
+</div>
+</body>
+</html>

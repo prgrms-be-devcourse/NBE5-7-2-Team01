@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head th:replace="~{fragments/common_headers :: commonHeader}">
+  <meta charset="UTF-8">
+  <title>관리자 - 유저 관리</title>
+</head>
+<body class="bg-gray-100 min-h-screen py-10 px-4">
+<div th:replace="~{fragments/top_bar :: top_bar}"></div>
+<div class="max-w-6xl mx-auto bg-white shadow-lg rounded-lg p-8">
+  <h2 class="text-3xl font-bold text-center mb-8 text-tickethub">유저 관리</h2>
+
+  <form id="searchForm"
+        class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <input type="text" name="name" class="border rounded px-4 py-2 w-full md:w-1/3"
+           placeholder="유저명 검색">
+    <select name="role" class="border rounded px-4 py-2 w-full md:w-1/4">
+      <option value="">전체</option>
+      <option value="USER">USER</option>
+      <option value="ADMIN">ADMIN</option>
+    </select>
+    <button type="submit"
+            class="bg-tickethub text-white px-6 py-2 rounded hover:bg-tickethub-dark w-full md:w-auto">
+      검색
+    </button>
+  </form>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-center border border-gray-200">
+      <thead class="bg-gray-100">
+      <tr>
+        <th class="border px-4 py-2">ID</th>
+        <th class="border px-4 py-2">유저명</th>
+        <th class="border px-4 py-2">이메일</th>
+        <th class="border px-4 py-2">상태</th>
+        <th class="border px-4 py-2">Role</th>
+      </tr>
+      </thead>
+      <tbody class="bg-white text-sm"></tbody>
+    </table>
+  </div>
+
+  <nav class="flex justify-center mt-6">
+    <ul class="inline-flex -space-x-px pagination"></ul>
+  </nav>
+</div>
+
+<script>
+  let currentPage = 0;
+
+  function loadUsers(page = 0) {
+    currentPage = page;
+    const name = document.querySelector("input[name='name']").value;
+    const role = document.querySelector("select[name='role']").value;
+
+    fetch(`/users/list?page=${page}&name=${name}&role=${role}`)
+    .then(res => res.json())
+    .then(data => {
+      const tbody = document.querySelector("tbody");
+      tbody.innerHTML = "";
+      data.content.forEach(user => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-gray-50";
+        tr.innerHTML = `
+              <td class="border px-4 py-2">${user.id}</td>
+              <td class="border px-4 py-2">${user.username}</td>
+              <td class="border px-4 py-2">${user.email}</td>
+              <td class="border px-4 py-2">
+                <span class="font-semibold cursor-pointer ${user.isBlocked ? 'text-red-500'
+            : 'text-green-600'} ${user.role === 'ADMIN' ? 'opacity-50 pointer-events-none'
+            : ''} status-toggle" data-id="${user.id}" data-role="${user.role}">
+                  ${user.isBlocked ? '정지' : '활성'}
+                </span>
+              </td>
+              <td class="border px-4 py-2">${user.role}</td>
+            `;
+        tbody.appendChild(tr);
+      });
+
+      renderPagination(data);
+    });
+  }
+
+  function renderPagination(data) {
+    const pagination = document.querySelector(".pagination");
+    pagination.innerHTML = "";
+
+    if (data.totalPages > 1) {
+      for (let i = 0; i < data.totalPages; i++) {
+        const li = document.createElement("li");
+        li.className = `page-item ${data.number === i ? 'font-bold text-tickethub' : ''}`;
+
+        const a = document.createElement("a");
+        a.className = `px-4 py-2 border border-gray-300 hover:bg-gray-200 ${data.number === i
+            ? 'bg-tickethub text-white' : 'bg-white text-gray-700'}`;
+        a.href = "#";
+        a.textContent = i + 1;
+
+        a.addEventListener("click", (e) => {
+          e.preventDefault();
+          loadUsers(i);
+        });
+        li.appendChild(a);
+        pagination.appendChild(li);
+      }
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    loadUsers();
+
+    document.getElementById("searchForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      loadUsers(0);
+    });
+
+    document.addEventListener("click", (e) => {
+      if (e.target.classList.contains("status-toggle")) {
+        if (e.target.dataset.role === "ADMIN") {
+          return;
+        }
+        const userId = e.target.dataset.id;
+        fetch(`/users/status/${userId}`, {method: "PUT"})
+        .then(() => loadUsers(currentPage));
+      }
+    });
+  });
+</script>
+</body>
+</html>

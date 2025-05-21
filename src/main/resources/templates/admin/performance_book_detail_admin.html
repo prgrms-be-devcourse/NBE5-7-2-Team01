@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common_headers :: commonHeader}">
+  <meta charset="UTF-8">
+  <title>공연 예매 상세</title>
+</head>
+<body class="bg-gray-100 min-h-screen py-10 px-4">
+<div th:replace="~{fragments/top_bar :: top_bar}"></div>
+<div class="max-w-5xl mx-auto bg-white shadow-lg rounded-xl p-8">
+  <h2 class="text-3xl font-bold text-center text-tickethub mb-8"
+      th:text="${performanceBookDetail.title}">
+    공연 제목
+  </h2>
+
+  <div class="flex flex-col items-center mb-8">
+    <img th:src="@{${performanceBookDetail.url}}" alt="공연 이미지"
+         class="rounded-lg shadow max-w-[300px] mb-4"/>
+    <p class="text-lg font-semibold">총 예매 금액: <span
+        th:text="${performanceBookDetail.totalPrice}">0</span> 원</p>
+    <p class="text-lg font-semibold">총 예매 수량: <span
+        th:text="${performanceBookDetail.totalQuantity}">0</span> 매</p>
+  </div>
+
+  <div class="overflow-x-auto">
+    <h4 class="text-xl font-bold mb-4 text-gray-700">예매 목록</h4>
+    <table class="w-full text-center border text-sm">
+      <thead class="bg-gray-100">
+      <tr>
+        <th class="border px-4 py-2">예매 ID</th>
+        <th class="border px-4 py-2">사용자</th>
+        <th class="border px-4 py-2">총 금액</th>
+        <th class="border px-4 py-2">총 예매 수량</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="book : ${bookAdminListPage.content}"
+          th:onclick="|window.location.href='/admin/performances/book/${performanceBookDetail.id}/${book.id}'|"
+          class="hover:bg-gray-100 cursor-pointer">
+        <td class="border px-4 py-2" th:text="${book.id}">1</td>
+        <td class="border px-4 py-2" th:text="${book.username}">사용자</td>
+        <td class="border px-4 py-2" th:text="${book.totalPrice}">0</td>
+        <td class="border px-4 py-2" th:text="${book.quantity}">0</td>
+      </tr>
+      <tr th:if="${#lists.isEmpty(bookAdminListPage.content)}">
+        <td colspan="4" class="text-center py-4 text-gray-500">예매 정보가 없습니다.</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div th:if="${bookAdminListPage.totalPages > 1}" class="flex justify-center gap-2 mt-10">
+    <a th:href="@{|/admin/performances/book/${performanceBookDetail.id}?page=${bookAdminListPage.number - 1}&size=5|}"
+       th:if="${bookAdminListPage.number > 0}"
+       class="px-3 py-1 border rounded hover:bg-gray-200">&laquo;</a>
+
+    <a th:each="i : ${#numbers.sequence(0, bookAdminListPage.totalPages - 1)}"
+       th:href="@{|/admin/performances/book/${performanceBookDetail.id}?page=${i}&size=5|}"
+       th:text="${i + 1}"
+       th:classappend="${i == bookAdminListPage.number} ? 'bg-tickethub text-white' : 'hover:bg-gray-100'"
+       class="px-3 py-1 border rounded"></a>
+
+    <a th:href="@{|/admin/performances/book/${performanceBookDetail.id}?page=${bookAdminListPage.number + 1}&size=5|}"
+       th:if="${bookAdminListPage.number < bookAdminListPage.totalPages - 1}"
+       class="px-3 py-1 border rounded hover:bg-gray-200">&raquo;</a>
+  </div>
+</div>
+</body>
+</html>
+
