@@ -279,11 +279,19 @@
 <details>
 <summary> 👉🏻 API 바로보기 </summary>
 <div markdown="1">
+  
+![image](https://github.com/user-attachments/assets/03e69da3-10ce-442c-b1ff-2ed8f50d4c2a)
+![image](https://github.com/user-attachments/assets/4dde9255-5dbb-4628-a3ab-4c114e78da68)
 
   
 </div>
 </details>
 
 ## 🤔 기술적 이슈와 해결 과정
-
+- 각 메서드의 파라미터에 대한 예외처리 과정을 개선하기 위해 Apache Commons의 util 메서드 활용
+- Random의 성능 이슈를 고려하여 SecureRandom으로 대체
+  - 회원가입 시, 이메일 인증을 위한 무작위 인증 코드 생성
+- TaskScheduler를 이용한 결제 미완료 예매 자동 취소 스케줄링
+  - TaskScheduler는 메모리 기반 으로 동작하여 서버 종료 시 스케줄 정보가 모두 사라짐
+  - 스케줄 정보를 DB에 저장하여, 서버 재시작 시에도 스케줄링 정보를 복원할 수 있도록 해결 
 <br />
