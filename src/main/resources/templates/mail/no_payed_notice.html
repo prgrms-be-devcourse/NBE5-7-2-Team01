@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>예매 미완료 알림</title>
+</head>
+<body style="font-family: '맑은 고딕', sans-serif; padding: 30px; background-color: #f9f9f9;">
+<h2 style="color: #FF6F3C; text-align: center;">
+  ⏳ 아직 예매하지 않으셨나요?
+</h2>
+
+<hr style="margin: 20px 0;">
+
+<p><strong th:text="${mailDto.username} + '님,'"></strong></p>
+<p>
+  좋아요를 눌러주신 공연 <strong th:text="${mailDto.performanceTitle}"></strong>의 예매가<br>
+  시작된 지 1시간이 지났습니다.
+</p>
+
+<p>
+  현재 남아 있는 좌석 수는 <strong th:text="${mailDto.availableSeats} + '석'"></strong>입니다.<br>
+  예매를 서두르세요!
+</p>
+
+<hr style="margin: 30px 0;">
+<p style="font-size: 14px; color: #666;">
+  ※ 본 메일은 자동 발송된 예매 알림입니다.
+</p>
+</body>
+</html>

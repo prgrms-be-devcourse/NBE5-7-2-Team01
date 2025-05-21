@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common_headers :: commonHeader}">
+  <meta charset="UTF-8">
+  <title>공연별 예매 통계</title>
+</head>
+<body class="bg-gray-100 min-h-screen py-10 px-4">
+<div th:replace="~{fragments/top_bar :: top_bar}"></div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div class="max-w-7xl mx-auto">
+  <h2 class="text-3xl font-bold text-center text-orange-500 mb-10">공연별 예매 통계</h2>
+
+  <div id="chartsContainer" class="flex flex-wrap justify-center gap-8">
+    <div th:each="stat, iterStat : ${stats}"
+         class="w-72 bg-white p-4 rounded-xl shadow hover:shadow-md transition">
+      <h4 class="text-lg font-semibold text-center mb-4" th:text="${stat.title}"></h4>
+      <canvas class="mx-auto" th:attr="id='chart-' + ${iterStat.index}"></canvas>
+      <p class="text-center mt-4 text-sm text-gray-600">
+        예매율:
+        <span class="font-medium text-blue-600"
+              th:text="${#numbers.formatDecimal((stat.reservationCount * 100.0) / stat.totalSeats, 1, 1)} + '%'">
+        </span>
+      </p>
+    </div>
+  </div>
+
+  <div th:if="${totalPages > 1}" class="text-center mt-12">
+    <a th:href="@{|/admin/performances/chart?page=${currentPage - 1}|}"
+       th:if="${currentPage > 0}"
+       class="inline-block px-4 py-2 border rounded hover:bg-gray-200">이전</a>
+
+    <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+      <a th:href="@{|/admin/performances/chart?page=${i}|}"
+         th:text="${i + 1}"
+         th:classappend="${i == currentPage} ? 'bg-orange-500 text-white' : 'hover:bg-gray-100'"
+         class="inline-block mx-1 px-4 py-2 border rounded"></a>
+    </span>
+
+    <a th:href="@{|/admin/performances/chart?page=${currentPage + 1}|}"
+       th:if="${currentPage < totalPages - 1}"
+       class="inline-block px-4 py-2 border rounded hover:bg-gray-200">다음</a>
+  </div>
+</div>
+
+<script th:inline="javascript">
+  const stats = /*[[${stats}]]*/ [];
+  window.onload = function () {
+    stats.forEach((stat, index) => {
+      const ctx = document.getElementById(`chart-${index}`).getContext('2d');
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['예매 수', '남은 좌석'],
+          datasets: [{
+            data: [stat.reservationCount, stat.totalSeats - stat.reservationCount],
+            backgroundColor: [
+              'rgba(54, 162, 235, 0.7)',
+              'rgba(200, 200, 200, 0.3)'
+            ],
+            borderColor: '#fff',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {position: 'bottom'},
+            tooltip: {
+              callbacks: {
+                label: function (tooltipItem) {
+                  const label = tooltipItem.label;
+                  const value = tooltipItem.raw;
+                  return `${label}: ${value}`;
+                }
+              }
+            }
+          }
+        }
+      });
+    });
+  };
+</script>
+</body>
+</html>

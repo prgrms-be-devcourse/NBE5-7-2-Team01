@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>관리자 메뉴</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            tickethub: {
+              DEFAULT: '#FF6F3C',
+              dark: '#e65b25'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center py-16 px-4">
+<div class="bg-white p-10 rounded-xl shadow-xl text-center max-w-md w-full">
+  <h1 class="text-3xl font-bold text-tickethub mb-8">관리자 메뉴</h1>
+
+  <div class="flex flex-col gap-4">
+    <a href="/admin/performances"
+       class="w-full py-3 rounded bg-tickethub text-white font-semibold text-lg hover:bg-tickethub-dark transition">
+      🎫 공연 목록 조회
+    </a>
+    <a href="/admin/performances/chart"
+       class="w-full py-3 rounded bg-tickethub text-white font-semibold text-lg hover:bg-tickethub-dark transition">
+      📊 공연별 예매 통계
+    </a>
+    <a href="/admin/users"
+       class="w-full py-3 rounded bg-tickethub text-white font-semibold text-lg hover:bg-tickethub-dark transition">
+      사용자 목록 조회
+    </a>
+  </div>
+</div>
+</body>
+</html>

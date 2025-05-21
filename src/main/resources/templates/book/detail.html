@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common_headers :: commonHeader}">
+  <meta charset="UTF-8">
+  <title th:text="${bookDetail.performanceTitle}">예매 상세</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            tickethub: {
+              DEFAULT: '#FF6F3C',
+              dark: '#e65b25'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-100 py-12 px-4 min-h-screen">
+<div th:replace="~{fragments/top_bar :: top_bar}"></div>
+<div class="max-w-5xl mx-auto bg-white rounded-xl shadow-lg p-10">
+  <h2 class="text-3xl font-bold text-tickethub text-center mb-8">예매 상세 정보</h2>
+
+  <div class="flex flex-col lg:flex-row gap-8">
+    <!-- 공연 이미지 -->
+    <div class="flex-shrink-0">
+      <img th:src="@{{url}(url=${bookDetail.getUrl()})}" alt="공연 포스터" class="rounded-lg shadow w-72 h-[400px] object-cover border border-gray-300">
+    </div>
+
+    <!-- 상세 테이블 -->
+    <div class="flex-1 space-y-6">
+      <div class="overflow-hidden rounded-lg border border-gray-200 shadow">
+        <table class="w-full text-sm text-center">
+          <thead class="bg-gray-100 text-gray-700">
+          <tr>
+            <th class="py-3 px-4">공연 제목</th>
+            <th class="py-3 px-4">장소</th>
+            <th class="py-3 px-4">좌석</th>
+            <th class="py-3 px-4">수량</th>
+            <th class="py-3 px-4">총 가격</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:onclick="|window.location.href='/performances/${bookDetail.performanceId}'|" class="cursor-pointer hover:bg-gray-50">
+            <td class="py-3 px-4" th:text="${bookDetail.performanceTitle}"></td>
+            <td class="py-3 px-4" th:text="${bookDetail.placeName}"></td>
+            <td class="py-3 px-4">
+              <ul>
+                <li th:each="seat : ${bookDetail.seats}" th:text="${seat.seatNumber} + ' (' + ${seat.grade} + ')'" class="text-sm"></li>
+              </ul>
+            </td>
+            <td class="py-3 px-4" th:text="${bookDetail.quantity}"></td>
+            <td class="py-3 px-4" th:text="${#numbers.formatInteger(bookDetail.totalPrice, 3, 'COMMA')} + '원'"></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="overflow-hidden rounded-lg border border-gray-200 shadow">
+        <table class="w-full text-sm text-center">
+          <tr>
+            <th class="bg-gray-100 py-3 px-4">예매자</th>
+            <td class="py-3 px-4" th:text="${userName}"></td>
+            <th class="bg-gray-100 py-3 px-4">주문 상태</th>
+            <td class="py-3 px-4" th:text="${bookDetail.bookStatus}"></td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- 버튼 영역 -->
+      <div class="flex flex-wrap justify-end gap-4 pt-4">
+        <button onclick="location.href='/users/books'" class="px-5 py-2 rounded bg-tickethub text-white hover:bg-tickethub-dark">목록으로</button>
+
+        <form th:if="${bookDetail.bookStatus.name() != 'CANCELED'}"
+              th:action="@{'/users/books/' + ${bookDetail.bookId}}" method="post"
+              onsubmit="return confirmCancel()">
+          <input type="hidden" name="_method" value="DELETE"/>
+          <input type="hidden" name="bookId" th:value="${bookDetail.bookId}"/>
+          <button type="submit" class="px-5 py-2 rounded bg-tickethub text-white hover:bg-tickethub-dark">예매 취소</button>
+        </form>
+
+        <button th:if="${bookDetail.bookStatus.name() == 'CONFIRMED'}"
+                th:onclick="|completePayment(${bookDetail.bookId})|"
+                class="px-5 py-2 rounded bg-tickethub text-white hover:bg-tickethub-dark">
+          결제하기
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function confirmCancel() {
+    return confirm("정말 예매를 취소하시겠습니까?");
+  }
+
+  function completePayment(bookId) {
+    fetch(`/users/books/${bookId}/paid`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(async (response) => {
+      const data = await response.json();
+
+      if (response.ok && data.status === 'success') {
+        alert(`결제가 완료되었습니다!`);
+        window.location.reload();
+      } else {
+        throw new Error(data.message || '결제 실패');
+      }
+    })
+    .catch(error => {
+      alert('결제 중 오류가 발생했습니다: ' + error.message);
+    });
+  }
+</script>
+</body>
+</html>

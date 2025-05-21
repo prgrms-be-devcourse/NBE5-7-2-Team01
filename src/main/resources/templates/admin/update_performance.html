@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common_headers :: commonHeader}">
+  <meta charset="UTF-8">
+  <title>공연 수정</title>
+</head>
+<body class="bg-gray-100 min-h-screen py-10 px-6">
+<div th:replace="~{fragments/top_bar :: top_bar}"></div>
+<div class="max-w-3xl mx-auto bg-white shadow-md rounded-xl p-10">
+  <h1 class="text-3xl font-bold text-center text-orange-500 mb-8">공연 수정</h1>
+  <form id="performance-form" enctype="multipart/form-data" class="space-y-5">
+    <div th:if="${performance.encodedFileName}">
+      <label class="font-semibold block mb-1">현재 포스터 이미지</label>
+      <img th:src="@{{url}(url=${performance.url})}" alt="현재 포스터" class="rounded shadow w-48 mb-4"/>
+    </div>
+
+    <div>
+      <label for="title" class="block font-semibold mb-1">제목</label>
+      <input type="text" id="title" name="title" th:value="${performance.title}" required
+             class="w-full px-4 py-2 border rounded"/>
+    </div>
+
+    <div>
+      <label for="description" class="block font-semibold mb-1">설명</label>
+      <textarea id="description" name="description" required class="w-full px-4 py-2 border rounded"
+                th:text="${performance.description}"></textarea>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label for="startTime" class="block font-semibold mb-1">시작 시간</label>
+        <input type="datetime-local" id="startTime" name="startTime"
+               th:value="${#temporals.format(performance.startTime, 'yyyy-MM-dd''T''HH:mm')}"
+               required class="w-full px-4 py-2 border rounded"/>
+      </div>
+      <div>
+        <label for="endTime" class="block font-semibold mb-1">종료 시간</label>
+        <input type="datetime-local" id="endTime" name="endTime"
+               th:value="${#temporals.format(performance.endTime, 'yyyy-MM-dd''T''HH:mm')}" required
+               class="w-full px-4 py-2 border rounded"/>
+      </div>
+    </div>
+
+    <div>
+      <label for="reservationStartTime" class="block font-semibold mb-1">예매 시작 시간</label>
+      <input type="datetime-local" id="reservationStartTime" name="reservationStartTime"
+             th:value="${#temporals.format(performance.reservationStartTime, 'yyyy-MM-dd''T''HH:mm')}"
+             required class="w-full px-4 py-2 border rounded"/>
+    </div>
+
+    <div>
+      <label for="category" class="block font-semibold mb-1">카테고리</label>
+      <select id="category" name="category" required class="w-full px-4 py-2 border rounded">
+        <option value="CONCERT" th:selected="${performance.category == 'CONCERT'}">콘서트</option>
+        <option value="MOVIE" th:selected="${performance.category == 'MOVIE'}">영화</option>
+        <option value="EXHIBIT" th:selected="${performance.category == 'EXHIBIT'}">전시회</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="performanceStatus" class="block font-semibold mb-1">예매 가능 여부</label>
+      <select id="performanceStatus" name="performanceStatus"
+              class="w-full px-4 py-2 border rounded">
+        <option value="true" th:selected="${performance.performanceStatus}">예매 가능</option>
+        <option value="false" th:selected="${!performance.performanceStatus}">예매 불가</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="placeId" class="block font-semibold mb-1">장소</label>
+      <select id="placeId" name="placeId" required class="w-full px-4 py-2 border rounded">
+        <option value="" disabled selected>장소를 선택해주세요.</option>
+        <th:block th:each="place : ${places}">
+          <option th:value="${place.id}" th:text="${place.name}"
+                  th:selected="${performance.place == place.name}"></option>
+        </th:block>
+      </select>
+    </div>
+
+    <div>
+      <label for="file" class="block font-semibold mb-1">포스터 이미지 변경</label>
+      <input type="file" id="file" name="file" accept="image/*" class="w-full"/>
+    </div>
+
+    <button type="submit"
+            class="w-full bg-orange-500 text-white font-bold py-2 rounded hover:bg-orange-600 transition">
+      수정
+    </button>
+  </form>
+</div>
+
+<script>
+  document.getElementById("performance-form").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const form = e.target;
+    const pathSegments = window.location.pathname.split('/');
+    const perfId = pathSegments[pathSegments.length - 1];
+
+    const dto = {
+      title: form.title.value,
+      description: form.description.value,
+      startTime: form.startTime.value,
+      endTime: form.endTime.value,
+      reservationStartTime: form.reservationStartTime.value,
+      category: form.category.value,
+      performanceStatus: form.performanceStatus.value === "true",
+      placeId: Number(form.placeId.value),
+    };
+
+    const file = form.file.files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("request", new Blob([JSON.stringify(dto)], {type: "application/json"}));
+
+    try {
+      const res = await fetch(`/api/performances/${perfId}`, {
+        method: "PUT",
+        body: formData
+      });
+      const text = await res.text();
+      if (res.ok) {
+        alert("공연 정보 수정 성공: " + text);
+        window.location.href = '/admin/performances';
+      } else {
+        alert("수정 실패: " + text);
+      }
+    } catch (err) {
+      console.error("에러:", err);
+      alert("서버와 통신 중 오류가 발생했습니다.");
+    }
+  });
+</script>
+</body>
+</html>

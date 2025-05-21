@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/common_headers :: commonHeader}">
+  <meta charset="UTF-8">
+  <title>공연 등록</title>
+</head>
+<body class="bg-gray-100 min-h-screen py-10 px-4">
+<div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-10">
+  <div th:replace="~{fragments/top_bar :: top_bar}"></div>
+  <h1 class="text-5xl font-bold mb-10 text-center text-tickethub">공연 등록</h1>
+  <form id="performance-form" class="space-y-6">
+    <div>
+      <label for="title" class="block font-semibold mb-1">제목</label>
+      <input type="text" id="title" name="title" required class="w-full border rounded px-3 py-2"/>
+    </div>
+
+    <div>
+      <label for="description" class="block font-semibold mb-1">설명</label>
+      <textarea id="description" name="description" required
+                class="w-full border rounded px-3 py-2"></textarea>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <div>
+        <label for="startTime" class="block font-semibold mb-1">시작 시간</label>
+        <input type="datetime-local" id="startTime" name="startTime" required
+               class="w-full border rounded px-3 py-2"/>
+      </div>
+      <div>
+        <label for="endTime" class="block font-semibold mb-1">종료 시간</label>
+        <input type="datetime-local" id="endTime" name="endTime" required
+               class="w-full border rounded px-3 py-2"/>
+      </div>
+    </div>
+
+    <div>
+      <label for="reservationDate" class="block font-semibold mb-1">예매 시작 시간</label>
+      <input type="date" id="reservationDate" name="reservationDate" required
+             class="w-full border rounded px-3 py-2"/>
+      <input type="hidden" name="reservationStartTime" id="reservationStartTime"/>
+    </div>
+
+    <div>
+      <label for="category" class="block font-semibold mb-1">카테고리</label>
+      <select id="category" name="category" required class="w-full border rounded px-3 py-2">
+        <option value="CONCERT">콘서트</option>
+        <option value="MOVIE">영화</option>
+        <option value="EXHIBIT">전시회</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="performanceStatus" class="block font-semibold mb-1">예매 가능 여부</label>
+      <select id="performanceStatus" name="performanceStatus"
+              class="w-full border rounded px-3 py-2">
+        <option value="true">예매 가능</option>
+        <option value="false">예매 불가</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="placeId" class="block font-semibold mb-1">장소 ID</label>
+      <select id="placeId" name="placeId" required class="w-full border rounded px-3 py-2">
+        <option value="" disabled selected>장소를 선택해주세요.</option>
+        <th:block th:each="place : ${places}">
+          <option th:value="${place.id}" th:text="${place.name}"></option>
+        </th:block>
+      </select>
+    </div>
+
+    <div id="grade-container" class="bg-gray-50 p-4 border rounded"></div>
+
+    <div>
+      <label for="file" class="block font-semibold mb-1">포스터 이미지</label>
+      <input type="file" id="file" name="file" accept="image/*" required class="w-full"/>
+    </div>
+
+    <button type="submit"
+            class="w-full bg-tickethub text-white py-3 text-lg rounded hover:bg-tickethub-dark">등록
+    </button>
+  </form>
+</div>
+
+<script>
+  document.getElementById("performance-form").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const form = e.target;
+    const dto = {
+      title: form.title.value,
+      description: form.description.value,
+      startTime: form.startTime.value,
+      endTime: form.endTime.value,
+      reservationStartTime: form.reservationStartTime.value,
+      category: form.category.value,
+      performanceStatus: form.performanceStatus.value,
+      placeId: Number(form.placeId.value),
+    };
+    const file = form.file.files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("request", new Blob([JSON.stringify(dto)], {type: "application/json"}));
+
+    try {
+      const res = await fetch("/api/performances", {
+        method: "POST",
+        body: formData
+      });
+      const text = await res.text();
+      if (res.ok) {
+        alert("공연 등록 성공: " + text);
+        window.location.href = "/admin/performances";
+      } else {
+        alert("등록 실패: " + text);
+      }
+    } catch (err) {
+      console.error("에러:", err);
+      alert("서버 오류가 발생했습니다.");
+    }
+  });
+
+  document.getElementById("placeId").addEventListener("change", async function () {
+    const placeId = this.value;
+    const gradeContainer = document.getElementById("grade-container");
+    gradeContainer.innerHTML = "";
+    try {
+      const response = await fetch(`/api/grades/places/${placeId}`);
+      if (!response.ok) {
+        throw new Error("Grade 정보의 로드가 실패했습니다.");
+      }
+      const grades = await response.json();
+      if (grades.length === 0) {
+        gradeContainer.innerHTML = "<p>해당 장소에 등록된 좌석 등급이 없습니다.</p>";
+        return;
+      }
+      const table = document.createElement("table");
+      table.className = "w-full border mt-2 text-sm";
+      table.innerHTML = `
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="border px-2 py-1">등급</th>
+            <th class="border px-2 py-1">좌석 수</th>
+            <th class="border px-2 py-1">기본 가격</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${grades.map(grade => `
+            <tr>
+              <td class="border px-2 py-1">${grade.grade}</td>
+              <td class="border px-2 py-1">${grade.seatCount}</td>
+              <td class="border px-2 py-1">${grade.defaultPrice.toLocaleString()}원</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      `;
+      gradeContainer.appendChild(table);
+    } catch (err) {
+      console.log(err);
+      gradeContainer.innerHTML = "<p class='text-red-500'>등급 정보를 불러오는 중 오류가 발생했습니다.</p>";
+    }
+  });
+
+  document.getElementById("reservationDate").addEventListener("change", (e) => {
+    const date = e.target.value;
+    const time = "13:00";
+    document.getElementById("reservationStartTime").value = `${date}T${time}`;
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<script>
+  var msg = '[[${message}]]';
+  var url = '[[${url}]]';
+  alert(msg);
+  if (url) {
+    // url이 존재하면 해당 페이지로 이동
+    window.location.href = url;
+  } else {
+    // url이 없으면 이전 페이지로 돌아가기
+    window.history.back();
+  }
+</script>

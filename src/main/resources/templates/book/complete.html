@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common_headers :: commonHeader}">
+  <meta charset="UTF-8">
+  <title th:if="${!book.paymentCompleted}">예매가 완료되었습니다</title>
+  <title th:if="${book.paymentCompleted}">결제가 완료되었습니다</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            tickethub: {
+              DEFAULT: '#FF6F3C',
+              dark: '#e65b25'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-100 min-h-screen py-10 px-4">
+<div th:replace="~{fragments/top_bar :: top_bar}"></div>
+<div class="max-w-5xl mx-auto bg-white shadow-md rounded-xl p-10">
+  <h2 class="text-3xl font-bold text-center text-tickethub mb-6" th:if="${!book.paymentCompleted}">예매가 완료되었습니다</h2>
+  <h2 class="text-3xl font-bold text-center text-tickethub mb-6" th:if="${book.paymentCompleted}">결제가 완료되었습니다</h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+    <!-- 왼쪽: 공연 이미지 -->
+    <div class="text-center">
+      <img th:src="@{{url}(url=${book.getUrl()})}" alt="공연 포스터" class="rounded-lg shadow w-full max-w-xs mx-auto" />
+    </div>
+
+    <!-- 가운데: 공연 정보 -->
+    <div class="space-y-4 pl-6">
+      <p class="text-gray-700"><strong>공연명:</strong> <span th:text="${book.performanceTitle}"></span></p>
+      <p class="text-gray-700">
+        <strong>공연일시:</strong>
+        <span th:text="${#temporals.format(book.performanceStartTime, 'yyyy-MM-dd HH:mm')}"></span> ~
+        <span th:text="${#temporals.format(book.performanceEndTime, 'yyyy-MM-dd HH:mm')}"></span>
+      </p>
+    </div>
+
+    <!-- 오른쪽: 좌석 정보 -->
+    <div>
+      <h3 class="text-lg font-semibold mb-3">선택한 좌석</h3>
+      <div class="overflow-hidden rounded-xl border border-gray-300 shadow-sm">
+        <table class="w-full text-sm text-center rounded-lg overflow-hidden">
+          <thead class="bg-gray-100 text-gray-700">
+          <tr>
+            <th class="px-4 py-2">좌석 번호</th>
+            <th class="px-4 py-2">등급</th>
+            <th class="px-4 py-2">가격</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="seat : ${book.seats}" class="hover:bg-gray-50">
+            <td class="px-4 py-2" th:text="${seat.seatNumber}"></td>
+            <td class="px-4 py-2" th:text="${seat.grade}"></td>
+            <td class="px-4 py-2" th:text="${#numbers.formatInteger(seat.price, 0, 'COMMA')} + '원'"></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="font-bold mt-4">총 결제 금액: <span th:text="${#numbers.formatInteger(book.totalPrice, 0, 'COMMA')} + '원'"></span></p>
+
+      <div class="mt-6">
+        <form th:if="${!book.paymentCompleted}"
+              th:action="@{'/performances/' + ${book.performanceId} + '/book/complete/' + ${bookId} + '/paid'}"
+              method="post">
+          <button type="submit" class="w-full py-2 bg-tickethub text-white rounded hover:bg-tickethub-dark">결제하기</button>
+        </form>
+
+        <button th:if="${book.paymentCompleted}"
+                onclick="location.href='/performances'"
+                class="w-full py-2 bg-tickethub text-white rounded hover:bg-tickethub-dark">
+          공연 목록으로 돌아가기
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
