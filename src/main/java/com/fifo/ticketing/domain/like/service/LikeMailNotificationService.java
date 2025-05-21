@@ -37,39 +37,6 @@ public class LikeMailNotificationService {
     private final SeatRepository seatRepository;
 
 
-    @Transactional
-    public boolean sendLikeNotification(Long performanceId) {
-        Performance performance = performanceRepository.findById(performanceId)
-            .orElseThrow( ()-> new ErrorException(NOT_FOUND_PERFORMANCES));
-
-        List<User> users = likeRepository.findUsersByPerformanceId(performanceId);
-        int emailCnt = 0;
-        int sendCnt =0;
-
-        for(User user : users) {
-            String provider = user.getProvider();
-            String email = user.getEmail();
-
-            // 조건: provider가 null이거나 google일 때만 메일 전송
-            if ((provider == null || provider.equalsIgnoreCase("google")) &&
-                email != null) {
-
-                try {
-                    ReservationStartMailDto dto = LikeMailMapper.toReservationStartMailDto(user, performance);
-                    likeMailService.reservationStart(dto);
-                    sendCnt++;
-                } catch (Exception e) {
-
-                    log.error("메일 전송 실패: {}", email, e);
-                }
-                emailCnt++;
-            }
-
-        }
-
-        return sendCnt == emailCnt;
-    }
-
 
     @Transactional
     public void sendTimeNotification() {
@@ -80,6 +47,7 @@ public class LikeMailNotificationService {
         LocalDateTime end = targetTime.plusMinutes(30);
 
         likeRepository.findLikesByTargetTime(start, end).stream()
+            .filter(like -> isEmailSendTarget(like.getUser()))
             .map(like -> {
                 User user = like.getUser();
                 Performance performance = like.getPerformance();
@@ -88,7 +56,6 @@ public class LikeMailNotificationService {
             .forEach(dto -> eventPublisher.publishEvent(new ReservationEvent(dto)));
 
     }
-
 
 
     @Transactional
@@ -106,19 +73,26 @@ public class LikeMailNotificationService {
     private void notifyNoPay(Like like) {
         User user = like.getUser();
         Performance performance = like.getPerformance();
-
         boolean payed = bookRepository.existsByUserAndPerformanceAndBookStatus(user, performance, BookStatus.PAYED);
-        if(payed){
-            return;
+
+        if (!isEmailSendTarget(user)) {
+            return; //  메일 전송 조건 안되면 skip
         }
+
+        if(payed){return;}
         int availableSeats = seatRepository.countAvailableSeatsByPerformanceId(performance.getId());
 
         log.info("예약 여부: {}, 잔여좌석: {}", payed, availableSeats);
 
-
         NoPayedMailDto dto = LikeMailMapper.toNoPayedMailDto(user, performance, availableSeats);
         eventPublisher.publishEvent(new NoPayMailEvent(dto));
+    }
 
+
+    private boolean isEmailSendTarget(User user) {
+        String provider = user.getProvider();
+        String email = user.getEmail();
+        return (provider == null || provider.equalsIgnoreCase("google")) && email != null;
     }
 
 }
