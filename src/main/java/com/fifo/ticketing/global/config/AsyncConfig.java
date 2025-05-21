@@ -31,9 +31,9 @@ public class AsyncConfig implements AsyncConfigurer {
     public Executor cancelMailExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
-        executor.setCorePoolSize(4);
-        executor.setMaxPoolSize(10);
-        executor.setQueueCapacity(50);
+        executor.setCorePoolSize(200);
+        executor.setMaxPoolSize(400);
+        executor.setQueueCapacity(100);
         executor.setKeepAliveSeconds(60);
         executor.setThreadNamePrefix("async-exec-mail-");
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
