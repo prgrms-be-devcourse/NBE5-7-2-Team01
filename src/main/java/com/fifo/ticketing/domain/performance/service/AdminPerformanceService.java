@@ -73,7 +73,7 @@ public class AdminPerformanceService {
             .map(PerformanceMapper::toSeatGradeDto)
             .toList();
 
-        return PerformanceMapper.toAdminDetailResponseDto(performance, seatGrades);
+        return PerformanceMapper.toAdminDetailResponseDto(performance, seatGrades, urlPrefix);
     }
 
     public AdminPerformanceResponseDto getPerformanceUpdateForAdmin(Long performanceId) {

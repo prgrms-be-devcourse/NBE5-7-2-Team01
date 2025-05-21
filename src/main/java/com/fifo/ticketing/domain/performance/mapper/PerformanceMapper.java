@@ -41,7 +41,7 @@ public class PerformanceMapper {
     }
 
     public static AdminPerformanceDetailResponse toAdminDetailResponseDto(Performance performance,
-        List<PerformanceSeatGradeDto> seatGrades) {
+        List<PerformanceSeatGradeDto> seatGrades, String urlPrefix) {
         return AdminPerformanceDetailResponse.builder().performanceId(performance.getId())
             .title(performance.getTitle())
             .description(performance.getDescription())
@@ -55,6 +55,7 @@ public class PerformanceMapper {
             .address(performance.getPlace().getAddress())
             .totalSeats(performance.getPlace().getTotalSeats())
             .seatGrades(seatGrades)
+            .urlPrefix(urlPrefix)
             .build();
     }
 

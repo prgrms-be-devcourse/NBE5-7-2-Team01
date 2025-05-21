@@ -11,7 +11,7 @@
   <div class="bg-white rounded-2xl shadow-xl p-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
     <!-- 공연 포스터 -->
     <div class="col-span-1 text-center">
-      <img th:src="@{'/uploads/' + ${performanceDetail.encodedFileName}}" alt="공연 포스터" class="mx-auto max-h-96 rounded-md shadow-md" />
+      <img th:src="@{{url}(url=${performanceDetail.getUrl()})}" alt="공연 포스터" class="mx-auto max-h-96 rounded-md shadow-md" />
     </div>
 
     <!-- 공연 정보 -->

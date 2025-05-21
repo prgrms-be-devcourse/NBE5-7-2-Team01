@@ -25,6 +25,11 @@ public class AdminPerformanceDetailResponse {
     private boolean performanceStatus;
     private int totalSeats;
     private List<PerformanceSeatGradeDto> seatGrades;
+    private String urlPrefix;
+
+    public String getUrl() {
+        return urlPrefix + encodedFileName;
+    }
 
 
 }
